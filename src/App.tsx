@@ -11,6 +11,7 @@ import GuardDashboard from "./pages/guard/GuardDashboard";
 import AddVisitorPage from "./pages/guard/AddVisitorPage";
 import VisitorStatusPage from "./pages/guard/VisitorStatusPage";
 import GuardAttendancePage from "./pages/guard/GuardAttendancePage";
+import GuardProfilePage from "./pages/guard/GuardProfilePage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminVisitorsPage from "./pages/admin/AdminVisitorsPage";
 import AdminAttendancePage from "./pages/admin/AdminAttendancePage";
