@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase, AppNotification } from '../integrations/supabase/client';
+import { supabase } from '../integrations/supabase/client';
+import type { AppNotification } from '../types/app';
 import { useAuth } from '../context/AuthContext';
 import { toast } from '../hooks/use-toast';
 

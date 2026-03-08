@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Users, Search, UserCheck, UserX, LayoutDashboard, BarChart3, CalendarCheck, FileText } from 'lucide-react';
-import { supabase, Attendance } from '../../integrations/supabase/client';
+import { supabase } from '../../integrations/supabase/client';
+import type { Attendance } from '../../types/app';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';
@@ -13,8 +14,14 @@ const NAV_ITEMS = [
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-5 w-5" /> },
 ];
 
-interface AttendanceWithEmployee extends Attendance {
+interface AttendanceWithEmployee {
+  id: string;
+  employee_id: string;
   employee_name?: string;
+  date: string;
+  check_in?: string;
+  check_out?: string;
+  status: 'present' | 'absent' | 'late';
 }
 
 const AdminAttendancePage: React.FC = () => {

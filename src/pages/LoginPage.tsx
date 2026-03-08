@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, User, Crown, Eye, EyeOff, Loader2 } from 'lucide-react';
 
@@ -120,7 +120,12 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-8">
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-primary font-semibold">Sign Up</Link>
+        </p>
+
+        <p className="text-center text-xs text-muted-foreground mt-4">
           GateFlow v1.0 · Secure Office Management
         </p>
       </div>
