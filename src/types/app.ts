@@ -1,6 +1,6 @@
 // Shared app types (separate from auto-generated Supabase types)
 
-export type AppRole = 'admin' | 'guard' | 'employee';
+export type AppRole = 'admin' | 'guard' | 'employee' | 'teacher';
 export type VisitorStatus = 'pending' | 'approved' | 'rejected';
 export type AttendanceStatus = 'present' | 'absent' | 'late';
 export type LeaveStatus = 'pending' | 'approved' | 'rejected';
@@ -13,6 +13,9 @@ export interface Profile {
   company_name?: string;
   avatar_url?: string;
   created_at?: string;
+  work_start_time?: string;
+  work_end_time?: string;
+  org_type?: string;
 }
 
 export interface Visitor {

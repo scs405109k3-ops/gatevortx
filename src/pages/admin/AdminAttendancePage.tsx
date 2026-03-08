@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Users, Search, UserCheck, UserX, LayoutDashboard, BarChart3, CalendarCheck, FileText, Shield } from 'lucide-react';
+import { Users, Search, UserCheck, UserX, LayoutDashboard, BarChart3, CalendarCheck, FileText, Shield, Clock } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
+import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';
@@ -27,10 +28,21 @@ interface AttendanceWithEmployee {
 }
 
 const AdminAttendancePage: React.FC = () => {
+  const { profile } = useAuth();
   const [records, setRecords] = useState<AttendanceWithEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [orgTimings, setOrgTimings] = useState<{ start: string; end: string } | null>(null);
+
+  // Fetch admin's org timings
+  useEffect(() => {
+    if (!profile) return;
+    setOrgTimings({
+      start: (profile as any)?.work_start_time?.slice(0, 5) || '09:00',
+      end: (profile as any)?.work_end_time?.slice(0, 5) || '17:00',
+    });
+  }, [profile]);
 
   const fetchAttendance = useCallback(async () => {
     const { data } = await supabase
@@ -171,6 +183,19 @@ const AdminAttendancePage: React.FC = () => {
                           </span>
                         </p>
                       )}
+                      {/* Overtime calculation */}
+                      {record.check_in && (record.check_out || record.checked_out_at) && orgTimings && (() => {
+                        const checkOut = new Date(record.check_out || record.checked_out_at!);
+                        const endRef = new Date(checkOut);
+                        const [eh, em] = orgTimings.end.split(':').map(Number);
+                        endRef.setHours(eh, em, 0, 0);
+                        const overtime = checkOut > endRef ? (checkOut.getTime() - endRef.getTime()) / 3600000 : 0;
+                        return overtime > 0 ? (
+                          <span className="text-xs font-semibold text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> +{overtime.toFixed(1)}h OT
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                     {/* Guard info */}
                     {record.guard_name && (

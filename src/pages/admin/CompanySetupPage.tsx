@@ -9,6 +9,8 @@ const CompanySetupPage: React.FC = () => {
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState('');
   const [industry, setIndustry] = useState('');
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('17:00');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,7 +22,11 @@ const CompanySetupPage: React.FC = () => {
 
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ company_name: companyName.trim() })
+      .update({
+        company_name: companyName.trim(),
+        work_start_time: startTime + ':00',
+        work_end_time: endTime + ':00',
+      } as any)
       .eq('id', user!.id);
 
     setLoading(false);
@@ -107,6 +113,34 @@ const CompanySetupPage: React.FC = () => {
               <option value="construction">Construction</option>
               <option value="other">Other</option>
             </select>
+          </div>
+
+          {/* Work Timings */}
+          <div>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">
+              Work Timings <span className="text-destructive">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Start Time</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">End Time</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={e => setEndTime(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5">Used to determine if employees are late or working overtime</p>
           </div>
 
           {error && (

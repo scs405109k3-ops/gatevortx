@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
-  const orgType = (user?.user_metadata?.org_type as 'office' | 'school' | 'college' | null) ?? null;
+  const orgType = (profile as any)?.org_type as 'office' | 'school' | 'college' | null ?? (user?.user_metadata?.org_type as 'office' | 'school' | 'college' | null) ?? null;
 
   const contextValue = {
     user,

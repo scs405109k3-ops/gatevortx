@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Home, CalendarCheck, FileText, User, Loader2, LogIn, LogOut, Mail } from 'lucide-react';
+import { Bell, Home, CalendarCheck, FileText, User, Loader2, LogIn, LogOut, Mail, Users, GraduationCap } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Attendance } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -10,17 +10,16 @@ import { useNotifications } from '../../hooks/useNotifications';
 import NotificationsDrawer from '../../components/NotificationsDrawer';
 
 const NAV_ITEMS = [
-  { label: 'Home', path: '/employee', icon: <Home className="h-5 w-5" /> },
-  { label: 'Attendance', path: '/employee/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
-  { label: 'Leave', path: '/employee/leave', icon: <FileText className="h-5 w-5" /> },
-  { label: 'Profile', path: '/employee/profile', icon: <User className="h-5 w-5" /> },
+  { label: 'Home', path: '/teacher', icon: <Home className="h-5 w-5" /> },
+  { label: 'Attendance', path: '/teacher/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
+  { label: 'Leave', path: '/teacher/leave', icon: <FileText className="h-5 w-5" /> },
+  { label: 'Profile', path: '/teacher/profile', icon: <User className="h-5 w-5" /> },
 ];
 
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
 
-const EmployeeDashboard: React.FC = () => {
-  const { profile, orgType } = useAuth();
-  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
+const TeacherDashboard: React.FC = () => {
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [todayRecord, setTodayRecord] = useState<Attendance | null>(null);
   const [weekRecords, setWeekRecords] = useState<Attendance[]>([]);
@@ -40,9 +39,8 @@ const EmployeeDashboard: React.FC = () => {
       .maybeSingle();
     setTodayRecord(todayData as Attendance | null);
 
-    // Get this week's records (Mon–Fri)
     const now = new Date();
-    const dayOfWeek = now.getDay(); // 0=Sun, 1=Mon...
+    const dayOfWeek = now.getDay();
     const monday = new Date(now);
     monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
 
@@ -57,7 +55,7 @@ const EmployeeDashboard: React.FC = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Fetch org timings from admin
+  // Fetch org timings from admin profile
   const [orgTimings, setOrgTimings] = useState<{ start: string; end: string } | null>(null);
   useEffect(() => {
     const fetchTimings = async () => {
@@ -117,11 +115,11 @@ const EmployeeDashboard: React.FC = () => {
   };
 
   const now = new Date();
-  const firstName = profile?.name?.split(' ')[0] || memberLabel;
+  const firstName = profile?.name?.split(' ')[0] || 'Teacher';
   const isCheckedIn = !!todayRecord?.check_in;
   const isCheckedOut = !!todayRecord?.check_out;
 
-  // Calculate hours this week
+  // Calculate hours & overtime
   const weekHours = weekRecords.reduce((acc, r) => {
     if (r.check_in && r.check_out) {
       const diff = (new Date(r.check_out).getTime() - new Date(r.check_in).getTime()) / 3600000;
@@ -130,8 +128,8 @@ const EmployeeDashboard: React.FC = () => {
     return acc;
   }, 0);
 
-  // Calculate today's overtime
-  const calcTodayOvertime = () => {
+  // Calculate overtime for today
+  const calcOvertime = () => {
     if (!todayRecord?.check_in || !orgTimings) return 0;
     const endTimeToday = new Date();
     const [eh, em] = orgTimings.end.split(':').map(Number);
@@ -142,13 +140,11 @@ const EmployeeDashboard: React.FC = () => {
     }
     return 0;
   };
-  const todayOvertime = calcTodayOvertime();
+  const todayOvertime = calcOvertime();
 
-  // Get today's day index (Mon=0)
   const todayDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
 
   const getDayStatus = (dayIdx: number) => {
-    const now = new Date();
     const dayOfWeek = now.getDay();
     const monday = new Date(now);
     monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
@@ -167,10 +163,7 @@ const EmployeeDashboard: React.FC = () => {
       {/* Header */}
       <header className="flex items-center bg-card px-4 py-3.5 border-b border-border">
         <div className="flex h-9 w-9 items-center justify-center bg-primary/10 rounded-lg mr-3">
-          <svg className="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
+          <GraduationCap className="h-5 w-5 text-primary" />
         </div>
         <h1 className="flex-1 text-lg font-bold text-foreground text-center">GateVortx</h1>
         <button className="flex h-9 w-9 items-center justify-center relative" onClick={() => setDrawerOpen(true)}>
@@ -188,22 +181,22 @@ const EmployeeDashboard: React.FC = () => {
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt={profile.name} className="h-full w-full object-cover" />
             ) : (
-              <span className="text-2xl font-bold text-muted-foreground">{profile?.name?.charAt(0) || 'E'}</span>
+              <span className="text-2xl font-bold text-muted-foreground">{profile?.name?.charAt(0) || 'T'}</span>
             )}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">{profile?.name || 'Employee'}</h2>
+            <h2 className="text-xl font-bold text-foreground">{profile?.name || 'Teacher'}</h2>
             <p className="text-sm text-muted-foreground">
-              {(profile as any)?.company_name ? `${(profile as any).company_name} • ` : ''}{memberLabel}
+              {(profile as any)?.company_name ? `${(profile as any).company_name} • ` : ''}Teacher
             </p>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-              {orgTimings ? `Shift: ${orgTimings.start} - ${orgTimings.end}` : (
-                now.getHours() < 12 ? 'Morning' : now.getHours() < 17 ? 'Afternoon' : 'Evening'
-              )}
-            </p>
+            {orgTimings && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Shift: {orgTimings.start} - {orgTimings.end}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -258,11 +251,11 @@ const EmployeeDashboard: React.FC = () => {
           {loading ? 'Processing...' : isCheckedIn && !isCheckedOut ? 'CHECK OUT' : 'CHECK IN'}
         </button>
 
-        {/* This Week */}
+        {/* Week stats */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold text-foreground">This Week</h2>
-            <span className="text-sm font-semibold text-primary">{Math.round(weekHours)}h / 40h</span>
+            <span className="text-sm font-semibold text-primary">{Math.round(weekHours)}h</span>
           </div>
           <div className="grid grid-cols-5 gap-2">
             {DAYS.map((day, idx) => {
@@ -271,9 +264,7 @@ const EmployeeDashboard: React.FC = () => {
                 <div
                   key={day}
                   className={`rounded-2xl p-3 flex flex-col items-center gap-2 border ${
-                    status === 'today'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border bg-card'
+                    status === 'today' ? 'border-primary bg-primary/5' : 'border-border bg-card'
                   }`}
                 >
                   <span className={`text-xs font-semibold ${status === 'today' ? 'text-primary' : 'text-muted-foreground'}`}>{day}</span>
@@ -285,11 +276,6 @@ const EmployeeDashboard: React.FC = () => {
                     {status === 'present' && (
                       <svg className="h-4 w-4 text-success" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
-                      </svg>
-                    )}
-                    {status === 'today' && (
-                      <svg className="h-4 w-4 text-muted-foreground" fill="currentColor" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="3"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
                       </svg>
                     )}
                     {status === 'absent' && (
@@ -309,7 +295,7 @@ const EmployeeDashboard: React.FC = () => {
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => navigate('/employee/leave')}
+              onClick={() => navigate('/teacher/leave')}
               className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -318,7 +304,7 @@ const EmployeeDashboard: React.FC = () => {
               <span className="text-sm font-semibold text-foreground">Request Leave</span>
             </button>
             <button
-              onClick={() => navigate('/employee/attendance')}
+              onClick={() => navigate('/teacher/attendance')}
               className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -335,7 +321,7 @@ const EmployeeDashboard: React.FC = () => {
               </div>
               <div className="text-left">
                 <p className="text-sm font-semibold text-foreground">MailVortx</p>
-                <p className="text-xs text-muted-foreground">Open your company inbox</p>
+                <p className="text-xs text-muted-foreground">Open your inbox</p>
               </div>
             </button>
           </div>
@@ -355,4 +341,4 @@ const EmployeeDashboard: React.FC = () => {
   );
 };
 
-export default EmployeeDashboard;
+export default TeacherDashboard;

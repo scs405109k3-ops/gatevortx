@@ -22,7 +22,7 @@ type TeamMember = {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'guard';
+  role: 'employee' | 'guard' | 'teacher';
   company_name: string | null;
   created_at: string;
   is_active: boolean;
@@ -30,7 +30,8 @@ type TeamMember = {
 
 const AdminUsersPage: React.FC = () => {
   const { session, profile, orgType } = useAuth();
-  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
+  const isAcademic = orgType === 'school' || orgType === 'college';
+  const memberLabel = isAcademic ? 'Student' : 'Employee';
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -43,7 +44,7 @@ const AdminUsersPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [emailManuallyEdited, setEmailManuallyEdited] = useState(false);
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'employee' | 'guard'>('employee');
+  const [role, setRole] = useState<'employee' | 'guard' | 'teacher'>('employee');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
@@ -70,7 +71,7 @@ const AdminUsersPage: React.FC = () => {
     const { data } = await supabase
       .from('profiles')
       .select('id, name, email, role, company_name, created_at, is_active')
-      .in('role', ['employee', 'guard'])
+      .in('role', ['employee', 'guard', 'teacher'])
       .eq('company_name', profile.company_name)
       .order('created_at', { ascending: false });
     setMembers((data as TeamMember[]) || []);
@@ -168,6 +169,7 @@ const AdminUsersPage: React.FC = () => {
 
   const employees = members.filter(m => m.role === 'employee');
   const guards = members.filter(m => m.role === 'guard');
+  const teachers = members.filter(m => m.role === 'teacher');
 
   return (
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
@@ -201,6 +203,15 @@ const AdminUsersPage: React.FC = () => {
             <p className="text-2xl font-bold text-foreground">{guards.length}</p>
             <p className="text-xs text-muted-foreground">Security Guards</p>
           </div>
+          {isAcademic && (
+            <div className="bg-card rounded-2xl p-4 border border-border shadow-sm col-span-2">
+              <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-2">
+                <Users className="h-5 w-5 text-purple-500" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{teachers.length}</p>
+              <p className="text-xs text-muted-foreground">Teachers</p>
+            </div>
+          )}
         </div>
 
         {/* Guards */}
@@ -230,6 +241,22 @@ const AdminUsersPage: React.FC = () => {
           onManage={setActionMember}
           memberLabel={memberLabel}
         />
+
+        {/* Teachers (academic only) */}
+        {isAcademic && (
+          <MemberSection
+            title="Teachers"
+            icon={<Users className="h-4 w-4 text-purple-500" />}
+            badgeClass="bg-purple-500/10 text-purple-600"
+            members={teachers}
+            loading={loading}
+            emptyIcon={<Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />}
+            emptyLabel="No teachers added yet"
+            onAdd={() => { setRole('teacher'); setShowForm(true); }}
+            onManage={setActionMember}
+            memberLabel={memberLabel}
+          />
+        )}
       </div>
 
       <BottomNav items={NAV_ITEMS} />
@@ -249,14 +276,14 @@ const AdminUsersPage: React.FC = () => {
             </div>
 
             <div className="flex gap-2 p-1 bg-muted rounded-xl">
-              {(['employee', 'guard'] as const).map(r => (
+              {(['employee', 'guard', ...(isAcademic ? ['teacher'] : [])] as const).map(r => (
                 <button
                   key={r}
-                  onClick={() => setRole(r)}
+                  onClick={() => setRole(r as any)}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${role === r ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
                 >
-                  {r === 'guard' ? <Shield className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
-                  {r === 'guard' ? 'Security Guard' : memberLabel}
+                  {r === 'guard' ? <Shield className="h-4 w-4" /> : r === 'teacher' ? <Users className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
+                  {r === 'guard' ? 'Guard' : r === 'teacher' ? 'Teacher' : memberLabel}
                 </button>
               ))}
             </div>

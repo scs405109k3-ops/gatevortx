@@ -51,8 +51,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (!['employee', 'guard'].includes(role)) {
-      return new Response(JSON.stringify({ error: 'Role must be employee or guard' }), {
+    if (!['employee', 'guard', 'teacher'].includes(role)) {
+      return new Response(JSON.stringify({ error: 'Role must be employee, guard, or teacher' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }

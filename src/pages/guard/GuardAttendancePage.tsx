@@ -47,9 +47,31 @@ const GuardAttendancePage: React.FC = () => {
   const [verifyingFor, setVerifyingFor] = useState<string | null>(null);
   // face verification results: { match: boolean|null, confidence: number, reason: string }
   const [faceResults, setFaceResults] = useState<Record<string, { match: boolean | null; confidence: number; reason: string }>>({});
+  const [orgTimings, setOrgTimings] = useState<{ start: string; end: string } | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
   const dateDisplay = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // Fetch org timings
+  useEffect(() => {
+    const fetchTimings = async () => {
+      if (!profile?.company_name) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('work_start_time, work_end_time')
+        .eq('role', 'admin')
+        .eq('company_name', profile.company_name)
+        .limit(1)
+        .single();
+      if (data) {
+        setOrgTimings({
+          start: (data as any).work_start_time?.slice(0, 5) || '09:00',
+          end: (data as any).work_end_time?.slice(0, 5) || '17:00',
+        });
+      }
+    };
+    fetchTimings();
+  }, [profile?.company_name]);
 
   // Cleanup yesterday's photos from storage on mount
   useEffect(() => {
@@ -206,6 +228,13 @@ const GuardAttendancePage: React.FC = () => {
     } catch (e) {
       console.warn('[Push] Could not send push notification:', e);
     }
+  };
+
+  const getAutoStatus = (): 'present' | 'late' => {
+    const now = new Date();
+    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const startTime = orgTimings?.start || '09:00';
+    return nowTime > startTime ? 'late' : 'present';
   };
 
   const markAttendance = async (employee: Employee, status: 'present' | 'absent' | 'late') => {
@@ -490,20 +519,15 @@ const GuardAttendancePage: React.FC = () => {
                   {!isMarked ? (
                     <>
                       <button
-                        onClick={() => markAttendance(emp, 'present')}
+                        onClick={() => {
+                          const autoStatus = getAutoStatus();
+                          markAttendance(emp, autoStatus);
+                        }}
                         disabled={isSaving}
-                        className="flex-1 h-10 rounded-xl bg-green-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
+                        className={`flex-[2] h-10 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 ${getAutoStatus() === 'late' ? 'bg-amber-500' : 'bg-green-500'}`}
                       >
                         {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                        Present
-                      </button>
-                      <button
-                        onClick={() => markAttendance(emp, 'late')}
-                        disabled={isSaving}
-                        className="flex-1 h-10 rounded-xl bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-                      >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
-                        Late
+                        {getAutoStatus() === 'late' ? 'Mark Late (Auto)' : 'Mark Present (Auto)'}
                       </button>
                       <button
                         onClick={() => markAttendance(emp, 'absent')}

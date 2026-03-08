@@ -4,7 +4,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import {
   AlertTriangle, Trash2, Loader2, Building2, ArrowLeft,
-  ShieldAlert, CheckCircle2,
+  ShieldAlert, CheckCircle2, Clock,
 } from 'lucide-react';
 import TopBar from '../../components/TopBar';
 import BottomNav from '../../components/BottomNav';
@@ -19,15 +19,38 @@ const NAV_ITEMS = [
 ];
 
 const AdminSettingsPage: React.FC = () => {
-  const { profile, session, signOut } = useAuth();
+  const { profile, session, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState<'idle' | 'confirm' | 'done'>('idle');
+  
+  // Timing state
+  const [startTime, setStartTime] = useState((profile as any)?.work_start_time?.slice(0, 5) || '09:00');
+  const [endTime, setEndTime] = useState((profile as any)?.work_end_time?.slice(0, 5) || '17:00');
+  const [savingTimings, setSavingTimings] = useState(false);
+  const [timingSaved, setTimingSaved] = useState(false);
 
   const companyName = profile?.company_name || '';
   const isConfirmed = confirmText.trim() === companyName;
+
+  const handleSaveTimings = async () => {
+    setSavingTimings(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        work_start_time: startTime + ':00',
+        work_end_time: endTime + ':00',
+      } as any)
+      .eq('id', profile!.id);
+    setSavingTimings(false);
+    if (!error) {
+      setTimingSaved(true);
+      await refreshProfile();
+      setTimeout(() => setTimingSaved(false), 2000);
+    }
+  };
 
   const handleDelete = async () => {
     if (!isConfirmed) return;
@@ -90,6 +113,45 @@ const AdminSettingsPage: React.FC = () => {
           <div>
             <p className="font-bold text-foreground">{companyName}</p>
             <p className="text-xs text-muted-foreground capitalize">{(profile as any)?.org_type || 'office'} organisation</p>
+          </div>
+        </div>
+
+        {/* Work Timings */}
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
+            <Clock className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Work Timings</h2>
+          </div>
+          <div className="p-4 space-y-3">
+            <p className="text-xs text-muted-foreground">Set your organisation's work hours. Used to determine late arrivals and overtime.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-foreground mb-1 block">Start Time</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-foreground mb-1 block">End Time</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={e => setEndTime(e.target.value)}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleSaveTimings}
+              disabled={savingTimings}
+              className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all"
+            >
+              {savingTimings ? <Loader2 className="h-4 w-4 animate-spin" /> : timingSaved ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+              {savingTimings ? 'Saving…' : timingSaved ? 'Saved!' : 'Save Timings'}
+            </button>
           </div>
         </div>
 

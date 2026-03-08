@@ -27,8 +27,9 @@ const LoginPage: React.FC = () => {
   // Dynamic roles based on org type of selected company
   const ROLES = [
     { label: isAcademic ? 'Student' : 'Employee', value: 'employee' },
+    ...(isAcademic ? [{ label: 'Teacher', value: 'teacher' }] : []),
     { label: 'Security Guard', value: 'guard' },
-    { label: 'Admin (Principal/MD)', value: 'admin' },
+    { label: isAcademic ? 'Admin (Principal/MD)' : 'Admin (MD/CEO)', value: 'admin' },
   ];
 
   // Fetch all registered companies from admin profiles (with org_type)
@@ -107,6 +108,7 @@ const LoginPage: React.FC = () => {
       const roleLabel =
         freshProfile.role === 'employee' && isAcademicOrg ? 'Student' :
         freshProfile.role === 'employee' ? 'Employee' :
+        freshProfile.role === 'teacher' ? 'Teacher' :
         freshProfile.role === 'guard' ? 'Security Guard' : 'Admin';
       setError(`This account is registered as "${roleLabel}". Please select the correct role.`);
       await signOut();
@@ -123,14 +125,14 @@ const LoginPage: React.FC = () => {
     }
 
     // All good — redirect
-    const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+    const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee', teacher: '/teacher' };
     navigate(routes[freshProfile.role] || '/login');
   };
 
   // If already logged in, redirect
   useEffect(() => {
     if (profile?.role) {
-      const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+      const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee', teacher: '/teacher' };
       navigate(routes[profile.role] || '/login');
     }
   }, [profile, navigate]);
