@@ -253,6 +253,7 @@ export type Database = {
           name: string
           org_type: string | null
           role: Database["public"]["Enums"]["app_role"]
+          user_code: string | null
           work_end_time: string | null
           work_start_time: string | null
         }
@@ -266,6 +267,7 @@ export type Database = {
           name?: string
           org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          user_code?: string | null
           work_end_time?: string | null
           work_start_time?: string | null
         }
@@ -279,6 +281,7 @@ export type Database = {
           name?: string
           org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          user_code?: string | null
           work_end_time?: string | null
           work_start_time?: string | null
         }
