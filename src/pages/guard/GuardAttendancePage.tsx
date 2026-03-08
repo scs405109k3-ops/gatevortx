@@ -178,12 +178,14 @@ const GuardAttendancePage: React.FC = () => {
       if (existing) {
         await supabase.from('attendance').update({
           status,
+          guard_id: profile.id,
           check_in: existing.check_in || (status !== 'absent' ? now : undefined),
           photo_url: photoUrl || existing.photo_url,
         } as any).eq('id', existing.id);
       } else {
         await supabase.from('attendance').insert({
           employee_id: employee.id,
+          guard_id: profile.id,
           date: today,
           status,
           check_in: status !== 'absent' ? now : undefined,
