@@ -164,36 +164,85 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
             {toProfile ? (
               <div className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
                 {toProfile.name}
-                <button onClick={() => { setToProfile(null); setTo(''); }} className="ml-1 hover:text-destructive">
+                <button onClick={() => { setToProfile(null); setTo(''); setShowDirectory(false); }} className="ml-1 hover:text-destructive">
                   <X className="h-3 w-3" />
                 </button>
               </div>
             ) : (
-              <input
-                value={to}
-                onChange={e => searchRecipients(e.target.value)}
-                placeholder="Search by name or email…"
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-              />
+              <>
+                <input
+                  value={to}
+                  onChange={e => searchRecipients(e.target.value)}
+                  onFocus={() => { if (!to && authProfile?.role === 'admin') setShowDirectory(true); }}
+                  placeholder="Search by name or email…"
+                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                />
+                {authProfile?.role === 'admin' && !to && (
+                  <button onClick={() => setShowDirectory(!showDirectory)} className="text-muted-foreground hover:text-foreground">
+                    <Users className="h-4 w-4" />
+                  </button>
+                )}
+              </>
             )}
           </div>
-          {suggestions.length > 0 && (
-            <div className="absolute left-0 right-0 top-full bg-card border border-border rounded-xl shadow-xl z-10 overflow-hidden">
+
+          {/* Search suggestions */}
+          {suggestions.length > 0 && !showDirectory && (
+            <div className="absolute left-0 right-0 top-full bg-card border border-border rounded-xl shadow-xl z-10 overflow-hidden max-h-48 overflow-y-auto">
               {suggestions.map(p => (
                 <button
                   key={p.id}
-                  onClick={() => selectRecipient(p)}
+                  onClick={() => { selectRecipient(p); setShowDirectory(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted text-left"
                 >
                   <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
                     {p.name.charAt(0)}
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">{p.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{p.email}</p>
                   </div>
+                  {p.role && (
+                    <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">
+                      {getRoleLabel(p.role, authProfile?.org_type)}
+                    </span>
+                  )}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* Company directory for admin */}
+          {showDirectory && authProfile?.role === 'admin' && companyUsers.length > 0 && (
+            <div className="absolute left-0 right-0 top-full bg-card border border-border rounded-xl shadow-xl z-10 overflow-hidden max-h-60 overflow-y-auto">
+              {['guard', 'employee', 'teacher'].map(role => {
+                const users = companyUsers.filter(u => u.role === role);
+                if (users.length === 0) return null;
+                return (
+                  <div key={role}>
+                    <div className="px-4 py-1.5 bg-muted/50 sticky top-0">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {getRoleLabel(role, authProfile?.org_type)}s
+                      </span>
+                    </div>
+                    {users.map(p => (
+                      <button
+                        key={p.id}
+                        onClick={() => { selectRecipient(p); setShowDirectory(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-muted text-left"
+                      >
+                        <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
+                          {p.name.charAt(0)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground">{p.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{p.email}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
