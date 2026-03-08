@@ -203,6 +203,15 @@ const AdminUsersPage: React.FC = () => {
             <p className="text-2xl font-bold text-foreground">{guards.length}</p>
             <p className="text-xs text-muted-foreground">Security Guards</p>
           </div>
+          {isAcademic && (
+            <div className="bg-card rounded-2xl p-4 border border-border shadow-sm col-span-2">
+              <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center mb-2">
+                <Users className="h-5 w-5 text-purple-500" />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{teachers.length}</p>
+              <p className="text-xs text-muted-foreground">Teachers</p>
+            </div>
+          )}
         </div>
 
         {/* Guards */}
