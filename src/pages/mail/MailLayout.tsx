@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   Inbox, Send, Star, FileText, Trash2, Tag, PenSquare, X,
-  Menu, LogOut,
+  Menu, LogOut, ArrowLeft,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useMailLabels } from '../../hooks/useMailLabels';
