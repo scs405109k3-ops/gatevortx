@@ -12,6 +12,7 @@ import { checkAndNotifyOvertime } from '../../hooks/useOvertimeNotifier';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/teacher', icon: <Home className="h-5 w-5" /> },
+  { label: 'Students', path: '/teacher/students', icon: <Users className="h-5 w-5" /> },
   { label: 'Attendance', path: '/teacher/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
   { label: 'Leave', path: '/teacher/leave', icon: <FileText className="h-5 w-5" /> },
   { label: 'Profile', path: '/teacher/profile', icon: <User className="h-5 w-5" /> },
