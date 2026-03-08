@@ -8,6 +8,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   role: AppRole | null;
+  orgType: 'office' | 'school' | 'college' | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -83,11 +84,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  const orgType = (user?.user_metadata?.org_type as 'office' | 'school' | 'college' | null) ?? null;
+
   const contextValue = {
     user,
     session,
     profile,
     role: profile?.role ?? null,
+    orgType,
     loading: loading || !splashDone,
     signIn,
     signOut,

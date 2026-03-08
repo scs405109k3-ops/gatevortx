@@ -29,7 +29,8 @@ type TeamMember = {
 };
 
 const AdminUsersPage: React.FC = () => {
-  const { session, profile } = useAuth();
+  const { session, profile, orgType } = useAuth();
+  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -191,7 +192,7 @@ const AdminUsersPage: React.FC = () => {
               <Briefcase className="h-5 w-5 text-blue-500" />
             </div>
             <p className="text-2xl font-bold text-foreground">{employees.length}</p>
-            <p className="text-xs text-muted-foreground">Employees</p>
+            <p className="text-xs text-muted-foreground">{memberLabel}s</p>
           </div>
           <div className="bg-card rounded-2xl p-4 border border-border shadow-sm">
             <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center mb-2">
@@ -213,19 +214,21 @@ const AdminUsersPage: React.FC = () => {
           emptyLabel="No guards added yet"
           onAdd={() => { setRole('guard'); setShowForm(true); }}
           onManage={setActionMember}
+          memberLabel={memberLabel}
         />
 
-        {/* Employees */}
+        {/* Employees / Students */}
         <MemberSection
-          title="Employees"
+          title={`${memberLabel}s`}
           icon={<Briefcase className="h-4 w-4 text-blue-500" />}
           badgeClass="bg-blue-500/10 text-blue-600"
           members={employees}
           loading={loading}
           emptyIcon={<Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />}
-          emptyLabel="No employees added yet"
+          emptyLabel={`No ${memberLabel.toLowerCase()}s added yet`}
           onAdd={() => { setRole('employee'); setShowForm(true); }}
           onManage={setActionMember}
+          memberLabel={memberLabel}
         />
       </div>
 
@@ -253,7 +256,7 @@ const AdminUsersPage: React.FC = () => {
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${role === r ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
                 >
                   {r === 'guard' ? <Shield className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
-                  {r === 'guard' ? 'Security Guard' : 'Employee'}
+                  {r === 'guard' ? 'Security Guard' : memberLabel}
                 </button>
               ))}
             </div>
@@ -332,7 +335,7 @@ const AdminUsersPage: React.FC = () => {
                 className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all shadow-lg shadow-primary/30"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-                {submitting ? 'Creating Account…' : `Add ${role === 'guard' ? 'Security Guard' : 'Employee'}`}
+                {submitting ? 'Creating Account…' : `Add ${role === 'guard' ? 'Security Guard' : memberLabel}`}
               </button>
             </form>
           </div>
@@ -363,7 +366,7 @@ const AdminUsersPage: React.FC = () => {
                 <p className="text-xs text-muted-foreground truncate">{actionMember.email}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${actionMember.role === 'guard' ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
-                    {actionMember.role === 'guard' ? 'Guard' : 'Employee'}
+                    {actionMember.role === 'guard' ? 'Guard' : memberLabel}
                   </span>
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${actionMember.is_active ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
                     {actionMember.is_active ? 'Active' : 'Deactivated'}
@@ -428,10 +431,11 @@ interface MemberSectionProps {
   emptyLabel: string;
   onAdd: () => void;
   onManage: (m: TeamMember) => void;
+  memberLabel: string;
 }
 
 const MemberSection: React.FC<MemberSectionProps> = ({
-  title, icon, badgeClass, members, loading, emptyIcon, emptyLabel, onAdd, onManage,
+  title, icon, badgeClass, members, loading, emptyIcon, emptyLabel, onAdd, onManage, memberLabel,
 }) => (
   <div>
     <div className="flex items-center gap-2 mb-3">
@@ -453,13 +457,13 @@ const MemberSection: React.FC<MemberSectionProps> = ({
       </div>
     ) : (
       <div className="space-y-2">
-        {members.map(m => <MemberCard key={m.id} member={m} onManage={onManage} />)}
+        {members.map(m => <MemberCard key={m.id} member={m} onManage={onManage} memberLabel={memberLabel} />)}
       </div>
     )}
   </div>
 );
 
-const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => void }> = ({ member, onManage }) => {
+const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => void; memberLabel: string }> = ({ member, onManage, memberLabel }) => {
   const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   const isGuard = member.role === 'guard';
 
@@ -479,7 +483,7 @@ const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => vo
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${isGuard ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
-          {isGuard ? 'Guard' : 'Employee'}
+          {isGuard ? 'Guard' : memberLabel}
         </span>
         <button
           onClick={() => onManage(member)}
