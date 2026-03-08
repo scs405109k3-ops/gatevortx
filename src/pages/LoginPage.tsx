@@ -85,21 +85,17 @@ const LoginPage: React.FC = () => {
         return;
       }
     } else {
-      // Other roles: try user code first, if it contains '@' treat as email
-      const input = userCode.trim();
-      if (input.includes('@')) {
-        loginEmail = input;
-      } else {
-        const { data: email, error: lookupError } = await supabase.rpc('get_email_by_user_code', {
-          _user_code: input.toUpperCase(),
-        });
-        if (lookupError || !email) {
-          setLoading(false);
-          setError('Invalid User ID. Please check and try again.');
-          return;
-        }
-        loginEmail = email as string;
+      // Other roles: User ID only
+      const input = userCode.trim().toUpperCase();
+      const { data: email, error: lookupError } = await supabase.rpc('get_email_by_user_code', {
+        _user_code: input,
+      });
+      if (lookupError || !email) {
+        setLoading(false);
+        setError('Invalid User ID. Please check and try again.');
+        return;
       }
+      loginEmail = email as string;
     }
 
     const { error: signInError } = await signIn(loginEmail, password);
