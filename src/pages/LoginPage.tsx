@@ -108,6 +108,7 @@ const LoginPage: React.FC = () => {
       const roleLabel =
         freshProfile.role === 'employee' && isAcademicOrg ? 'Student' :
         freshProfile.role === 'employee' ? 'Employee' :
+        freshProfile.role === 'teacher' ? 'Teacher' :
         freshProfile.role === 'guard' ? 'Security Guard' : 'Admin';
       setError(`This account is registered as "${roleLabel}". Please select the correct role.`);
       await signOut();
