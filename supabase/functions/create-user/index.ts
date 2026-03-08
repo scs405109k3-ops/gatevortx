@@ -22,15 +22,11 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY')!;
 
-    // Use service role client for everything — verify JWT first, then check role
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-    // Verify caller JWT using anon client (fast, no extra DB call for user lookup)
     const callerClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    // Parse body and verify caller identity in parallel
     const [bodyResult, callerResult] = await Promise.all([
       req.json(),
       callerClient.auth.getUser(),
@@ -43,7 +39,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { email, password, name, role } = bodyResult;
+    const { email, password, name, role, user_code } = bodyResult;
 
     if (!email || !password || !name || !role) {
       return new Response(JSON.stringify({ error: 'Missing required fields: email, password, name, role' }), {
@@ -57,7 +53,20 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch caller profile to check admin role + company
+    // Validate custom user_code if provided
+    if (user_code && typeof user_code === 'string' && user_code.trim()) {
+      const { data: existing } = await adminClient
+        .from('profiles')
+        .select('id')
+        .eq('user_code', user_code.trim().toUpperCase())
+        .maybeSingle();
+      if (existing) {
+        return new Response(JSON.stringify({ error: `User ID "${user_code.trim().toUpperCase()}" is already taken` }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const { data: callerProfile } = await adminClient
       .from('profiles')
       .select('role, company_name')
@@ -70,7 +79,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Create auth user immediately with service role (fast, no email verification needed)
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email: email.trim(),
       password,
@@ -88,7 +96,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ user: newUser.user }), {
+    // If custom user_code was provided, update the profile
+    if (user_code && typeof user_code === 'string' && user_code.trim()) {
+      await adminClient
+        .from('profiles')
+        .update({ user_code: user_code.trim().toUpperCase() })
+        .eq('id', newUser.user.id);
+    }
+
+    // Fetch the profile to return user_code
+    const { data: createdProfile } = await adminClient
+      .from('profiles')
+      .select('user_code')
+      .eq('id', newUser.user.id)
+      .single();
+
+    return new Response(JSON.stringify({
+      user: newUser.user,
+      user_code: createdProfile?.user_code || null,
+    }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
