@@ -124,7 +124,7 @@ const AddVisitorPage: React.FC = () => {
         </button>
         <div className="flex-1">
           <h1 className="text-base font-bold text-foreground">Visitor Entry Form</h1>
-          <p className="text-xs text-muted-foreground">GateFlow Security Management</p>
+          <p className="text-xs text-muted-foreground">GateVortx Security Management</p>
         </div>
         <div className="bg-primary/10 rounded-lg p-2">
           <svg className="h-5 w-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
@@ -303,7 +303,7 @@ const AddVisitorPage: React.FC = () => {
 
         <p className="text-center text-xs text-muted-foreground flex items-center justify-center gap-1">
           <Lock className="h-3 w-3" />
-          Secured by GateFlow Cloud Infrastructure
+          Secured by GateVortx Cloud Infrastructure
         </p>
       </div>
     </div>

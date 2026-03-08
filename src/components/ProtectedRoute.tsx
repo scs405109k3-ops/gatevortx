@@ -19,7 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
           <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
-          <p className="text-sm text-muted-foreground">Loading GateFlow...</p>
+          <p className="text-sm text-muted-foreground">Loading GateVortx...</p>
         </div>
       </div>
     );

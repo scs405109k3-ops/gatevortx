@@ -126,7 +126,7 @@ const LoginPage: React.FC = () => {
             <Lock className="h-6 w-6 text-primary-foreground" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateFlow</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateVortx</h1>
         <p className="text-xs font-semibold text-primary uppercase tracking-widest mt-1">Smart Office Management</p>
       </div>
 
@@ -278,7 +278,7 @@ const LoginPage: React.FC = () => {
 
         <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
           <Lock className="h-3 w-3" />
-          Secured by GateFlow Cloud Infrastructure
+          Secured by GateVortx Cloud Infrastructure
         </p>
       </div>
     </div>

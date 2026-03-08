@@ -48,7 +48,7 @@ const SignUpPage: React.FC = () => {
         <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/30">
           <ShieldCheck className="h-8 w-8 text-primary-foreground" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateFlow</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateVortx</h1>
         <p className="text-xs font-semibold text-primary uppercase tracking-widest mt-1">Admin Registration</p>
       </div>
 
@@ -161,7 +161,7 @@ const SignUpPage: React.FC = () => {
 
         <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
           <Lock className="h-3 w-3" />
-          Secured by GateFlow Cloud Infrastructure
+          Secured by GateVortx Cloud Infrastructure
         </p>
       </div>
     </div>
