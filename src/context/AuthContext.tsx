@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
-  if (loading) {
+  if (loading || !splashDone) {
     const SplashScreen = React.lazy(() => import('../components/SplashScreen'));
     return (
       <React.Suspense fallback={null}>
