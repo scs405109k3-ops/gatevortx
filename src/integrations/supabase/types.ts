@@ -251,6 +251,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          org_type: string | null
           role: Database["public"]["Enums"]["app_role"]
         }
         Insert: {
@@ -261,6 +262,7 @@ export type Database = {
           id: string
           is_active?: boolean
           name?: string
+          org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
         }
         Update: {
@@ -271,6 +273,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
         }
         Relationships: []
