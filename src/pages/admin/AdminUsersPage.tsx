@@ -40,12 +40,28 @@ const AdminUsersPage: React.FC = () => {
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailManuallyEdited, setEmailManuallyEdited] = useState(false);
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'employee' | 'guard'>('employee');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+
+  // Auto-generate email from name + company
+  const generateEmail = (fullName: string) => {
+    if (!profile?.company_name) return '';
+    const namePart = fullName.trim().toLowerCase().replace(/\s+/g, '.').replace(/[^a-z0-9.]/g, '');
+    const companyPart = profile.company_name.trim().toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+    return namePart && companyPart ? `${namePart}@${companyPart}.com` : '';
+  };
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!emailManuallyEdited) {
+      setEmail(generateEmail(val));
+    }
+  };
 
   const fetchMembers = useCallback(async () => {
     if (!profile?.company_name) return;
