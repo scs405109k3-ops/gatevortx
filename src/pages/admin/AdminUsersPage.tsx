@@ -123,6 +123,7 @@ const AdminUsersPage: React.FC = () => {
         setShowForm(true);
         setName(optimisticMember.name);
         setEmail(optimisticMember.email);
+        setEmailManuallyEdited(true);
         setFormError(data?.error || error?.message || 'Failed to create user');
       } else {
         // Replace optimistic entry with real data
