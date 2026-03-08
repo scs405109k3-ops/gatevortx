@@ -328,7 +328,7 @@ const AdminUsersPage: React.FC = () => {
             emptyIcon={<Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />}
             emptyLabel="No teachers added yet"
             onAdd={() => { setRole('teacher'); setShowForm(true); }}
-            onManage={setActionMember}
+            onManage={openManageMember}
             memberLabel={memberLabel}
           />
         )}
