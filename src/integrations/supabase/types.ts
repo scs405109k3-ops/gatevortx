@@ -14,7 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance: {
+        Row: {
+          check_in: string | null
+          check_out: string | null
+          created_at: string
+          date: string
+          employee_id: string
+          id: string
+          status: Database["public"]["Enums"]["attendance_status"]
+        }
+        Insert: {
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          date?: string
+          employee_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+        }
+        Update: {
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          date?: string
+          employee_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+        }
+        Relationships: []
+      }
+      leave_requests: {
+        Row: {
+          created_at: string
+          employee_id: string
+          end_date: string
+          id: string
+          reason: string
+          start_date: string
+          status: Database["public"]["Enums"]["leave_status"]
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          end_date: string
+          id?: string
+          reason: string
+          start_date: string
+          status?: Database["public"]["Enums"]["leave_status"]
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          id?: string
+          reason?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["leave_status"]
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id: string
+          name?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      visitors: {
+        Row: {
+          company: string
+          created_at: string
+          date: string
+          guard_id: string
+          guard_name: string | null
+          id: string
+          person_to_meet: string
+          phone: string
+          photo_url: string | null
+          purpose: string
+          status: Database["public"]["Enums"]["visitor_status"]
+          visitor_name: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          date?: string
+          guard_id: string
+          guard_name?: string | null
+          id?: string
+          person_to_meet: string
+          phone: string
+          photo_url?: string | null
+          purpose: string
+          status?: Database["public"]["Enums"]["visitor_status"]
+          visitor_name: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          date?: string
+          guard_id?: string
+          guard_name?: string | null
+          id?: string
+          person_to_meet?: string
+          phone?: string
+          photo_url?: string | null
+          purpose?: string
+          status?: Database["public"]["Enums"]["visitor_status"]
+          visitor_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +181,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "guard" | "employee"
+      attendance_status: "present" | "absent" | "late"
+      leave_status: "pending" | "approved" | "rejected"
+      visitor_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +311,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "guard", "employee"],
+      attendance_status: ["present", "absent", "late"],
+      leave_status: ["pending", "approved", "rejected"],
+      visitor_status: ["pending", "approved", "rejected"],
+    },
   },
 } as const
