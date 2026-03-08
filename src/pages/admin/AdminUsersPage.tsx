@@ -44,7 +44,7 @@ const AdminUsersPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [emailManuallyEdited, setEmailManuallyEdited] = useState(false);
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'employee' | 'guard'>('employee');
+  const [role, setRole] = useState<'employee' | 'guard' | 'teacher'>('employee');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
