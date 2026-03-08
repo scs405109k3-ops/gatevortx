@@ -326,7 +326,7 @@ const LoginPage: React.FC = () => {
           {/* User ID / Email */}
           <div>
             <label className="text-sm font-semibold text-foreground mb-1.5 block">
-              {isAdminRole ? 'Email Address' : 'User ID or Email'}
+              {isAdminRole ? 'Email Address' : 'User ID'}
             </label>
             <div className="relative">
               {isAdminRole ? (
@@ -338,7 +338,7 @@ const LoginPage: React.FC = () => {
                 type={isAdminRole ? 'email' : 'text'}
                 value={userCode}
                 onChange={e => setUserCode(isAdminRole ? e.target.value : e.target.value.toUpperCase())}
-                placeholder={isAdminRole ? 'admin@company.com' : 'e.g. EMP001 or email'}
+                placeholder={isAdminRole ? 'admin@company.com' : 'e.g. EMP001, GRD002'}
                 autoComplete="username"
                 className={`w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm ${!isAdminRole ? 'font-mono tracking-wider uppercase' : ''}`}
               />
@@ -346,7 +346,7 @@ const LoginPage: React.FC = () => {
             <p className="text-xs text-muted-foreground mt-1">
               {isAdminRole
                 ? 'Enter the email you registered with'
-                : 'Enter your User ID (e.g. EMP001) or registered email'}
+                : 'Enter the User ID provided by your admin'}
             </p>
           </div>
 
