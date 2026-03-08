@@ -527,7 +527,15 @@ const AdminUsersPage: React.FC = () => {
                   </button>
                 </div>
               </div>
-            <div className="flex items-center justify-between">
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Copy Credentials Dialog */}
+      {createdCredentials && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end" onClick={() => setCreatedCredentials(null)}>
+          <div className="w-full bg-card rounded-t-3xl p-6 pb-10 space-y-4" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
                 Account Created!
