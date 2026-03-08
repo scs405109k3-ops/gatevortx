@@ -120,7 +120,22 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
   .mobile-container {
-    @apply max-w-[430px] mx-auto min-h-screen relative;
+    @apply w-full mx-auto min-h-screen relative;
+    max-width: 100%;
+  }
+  @media (min-width: 768px) {
+    .mobile-container {
+      max-width: 100%;
+    }
+  }
+  .auth-container {
+    @apply w-full mx-auto min-h-screen relative;
+    max-width: 480px;
+  }
+  @media (min-width: 768px) {
+    .auth-container {
+      max-width: 480px;
+    }
   }
   .status-pending {
     @apply bg-amber-100 text-amber-700 border-amber-200;
