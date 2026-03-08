@@ -4,15 +4,26 @@ import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 
-interface Profile { id: string; name: string; email: string; }
+interface Profile { id: string; name: string; email: string; role?: string; }
 
 interface ComposeModalProps {
   onClose: () => void;
   draft?: { id: string; to_user_id: string; subject: string; body: string; };
 }
 
+const getRoleLabel = (role: string, orgType?: string) => {
+  const isAcademic = orgType === 'school' || orgType === 'college';
+  switch (role) {
+    case 'admin': return 'Admin';
+    case 'guard': return 'Security Guard';
+    case 'teacher': return 'Teacher';
+    case 'employee': return isAcademic ? 'Student' : 'Employee';
+    default: return role;
+  }
+};
+
 const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
-  const { user } = useAuth();
+  const { user, profile: authProfile } = useAuth();
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState(draft?.subject || '');
   const [body, setBody] = useState(draft?.body || '');
@@ -21,6 +32,25 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
   const [suggestions, setSuggestions] = useState<Profile[]>([]);
   const [toProfile, setToProfile] = useState<Profile | null>(null);
   const [searching, setSearching] = useState(false);
+  const [companyUsers, setCompanyUsers] = useState<Profile[]>([]);
+  const [showDirectory, setShowDirectory] = useState(false);
+
+  // Fetch company members for admin
+  useEffect(() => {
+    if (!authProfile?.company_name || authProfile.role !== 'admin') return;
+    const fetchUsers = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, name, email, role')
+        .eq('company_name', authProfile.company_name!)
+        .neq('id', user?.id)
+        .eq('is_active', true)
+        .order('role')
+        .order('name');
+      setCompanyUsers((data as Profile[]) || []);
+    };
+    fetchUsers();
+  }, [authProfile, user]);
 
   // Populate to field from draft
   useEffect(() => {
@@ -33,8 +63,21 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
   const searchRecipients = async (query: string) => {
     setTo(query);
     setToProfile(null);
-    if (query.length < 2) { setSuggestions([]); return; }
+    if (query.length < 2) {
+      setSuggestions([]);
+      setShowDirectory(!query);
+      return;
+    }
+    setShowDirectory(false);
     setSearching(true);
+    // Filter from company users first for admin
+    if (authProfile?.role === 'admin' && companyUsers.length > 0) {
+      const q = query.toLowerCase();
+      const filtered = companyUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+      setSuggestions(filtered.slice(0, 8));
+      setSearching(false);
+      return;
+    }
     const { data } = await supabase
       .from('profiles')
       .select('id, name, email')
