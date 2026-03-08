@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Inbox, Send, Star, FileText, Trash2, Tag, Plus, PenSquare, X, ChevronLeft,
-  Menu, LogOut, Search
+  Inbox, Send, Star, FileText, Trash2, Tag, PenSquare, X,
+  Menu, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useMailLabels } from '../../hooks/useMailLabels';
@@ -12,7 +12,11 @@ import ComposeModal from '../../components/mail/ComposeModal';
 const MailLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) navigate('/login', { replace: true });
+  }, [user, loading, navigate]);
   const { labels } = useMailLabels();
   const { unreadInbox } = useMailStats();
   const [sidebarOpen, setSidebarOpen] = useState(false);
