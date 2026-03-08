@@ -62,10 +62,9 @@ const AdminDashboard: React.FC = () => {
 
   const fetchAttendanceDetail = useCallback(async () => {
     setAttLoading(true);
-    // Fetch attendance with employee profiles joined
     const { data: attData } = await supabase
       .from('attendance')
-      .select('id, employee_id, status, check_in, checked_out_at')
+      .select('id, employee_id, guard_id, status, check_in, checked_out_at')
       .eq('date', today)
       .order('check_in', { ascending: false });
 
@@ -75,15 +74,17 @@ const AdminDashboard: React.FC = () => {
       return;
     }
 
-    const empIds = [...new Set(attData.map((a: any) => a.employee_id))];
+    // Collect all profile IDs needed (employees + guards)
+    const profileIds = [...new Set([
+      ...attData.map((a: any) => a.employee_id),
+      ...attData.map((a: any) => a.guard_id).filter(Boolean),
+    ])];
 
-    // Fetch employee profiles for names
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, name')
-      .in('id', empIds);
+      .in('id', profileIds);
 
-    // Fetch guards (to know who marked — we store guard info in profiles)
     const profileMap: Record<string, string> = {};
     (profiles || []).forEach((p: any) => { profileMap[p.id] = p.name; });
 
@@ -94,6 +95,7 @@ const AdminDashboard: React.FC = () => {
       check_in: a.check_in,
       checked_out_at: a.checked_out_at,
       employee_name: profileMap[a.employee_id] || 'Unknown',
+      guard_name: a.guard_id ? (profileMap[a.guard_id] || 'Unknown Guard') : undefined,
     }));
 
     setAttendanceRows(rows);
@@ -168,7 +170,7 @@ const AdminDashboard: React.FC = () => {
           ) : (
             <div className="space-y-2">
               {attendanceRows.slice(0, 5).map(row => (
-                <div key={row.id} className="bg-card rounded-2xl border border-border p-3 flex items-center gap-3 animate-fade-in">
+                <div key={row.id} className="bg-card rounded-2xl border border-border p-3 flex items-start gap-3 animate-fade-in">
                   <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <span className="text-primary font-bold text-sm">{row.employee_name?.charAt(0) || '?'}</span>
                   </div>
@@ -190,6 +192,14 @@ const AdminDashboard: React.FC = () => {
                         </p>
                       )}
                     </div>
+                    {row.guard_name && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <Shield className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">
+                          By <span className="font-medium text-foreground">{row.guard_name}</span>
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <StatusBadge status={row.status} />
                 </div>

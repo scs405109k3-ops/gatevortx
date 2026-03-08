@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           date: string
           employee_id: string
+          guard_id: string | null
           id: string
           photo_url: string | null
           status: Database["public"]["Enums"]["attendance_status"]
@@ -33,6 +34,7 @@ export type Database = {
           created_at?: string
           date?: string
           employee_id: string
+          guard_id?: string | null
           id?: string
           photo_url?: string | null
           status?: Database["public"]["Enums"]["attendance_status"]
@@ -44,6 +46,7 @@ export type Database = {
           created_at?: string
           date?: string
           employee_id?: string
+          guard_id?: string | null
           id?: string
           photo_url?: string | null
           status?: Database["public"]["Enums"]["attendance_status"]

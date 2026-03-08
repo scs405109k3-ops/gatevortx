@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
 import { toast } from '../../hooks/use-toast';
 import { useNotifications } from '../../hooks/useNotifications';
+import NotificationsDrawer from '../../components/NotificationsDrawer';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/employee', icon: <Home className="h-5 w-5" /> },
@@ -23,7 +24,8 @@ const EmployeeDashboard: React.FC = () => {
   const [todayRecord, setTodayRecord] = useState<Attendance | null>(null);
   const [weekRecords, setWeekRecords] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(false);
-  const { unreadCount } = useNotifications();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { unreadCount, notifications, markAllRead } = useNotifications();
   const today = new Date().toISOString().split('T')[0];
 
   const fetchData = useCallback(async () => {
@@ -133,7 +135,7 @@ const EmployeeDashboard: React.FC = () => {
           </svg>
         </div>
         <h1 className="flex-1 text-lg font-bold text-foreground text-center">GateFlow</h1>
-        <button className="flex h-9 w-9 items-center justify-center relative">
+        <button className="flex h-9 w-9 items-center justify-center relative" onClick={() => setDrawerOpen(true)}>
           <Bell className="h-5 w-5 text-foreground" />
           {unreadCount > 0 && (
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
@@ -286,6 +288,14 @@ const EmployeeDashboard: React.FC = () => {
       </div>
 
       <BottomNav items={NAV_ITEMS} />
+
+      <NotificationsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        notifications={notifications}
+        unreadCount={unreadCount}
+        onMarkAllRead={markAllRead}
+      />
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Users, Search, UserCheck, UserX, LayoutDashboard, BarChart3, CalendarCheck, FileText } from 'lucide-react';
+import { Users, Search, UserCheck, UserX, LayoutDashboard, BarChart3, CalendarCheck, FileText, Shield } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
-import type { Attendance } from '../../types/app';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';
@@ -17,6 +16,7 @@ const NAV_ITEMS = [
 interface AttendanceWithEmployee {
   id: string;
   employee_id: string;
+  guard_id?: string;
   employee_name?: string;
   guard_name?: string;
   date: string;
@@ -35,16 +35,35 @@ const AdminAttendancePage: React.FC = () => {
   const fetchAttendance = useCallback(async () => {
     const { data } = await supabase
       .from('attendance')
-      .select('*, profiles:employee_id(name)')
+      .select('*')
       .eq('date', selectedDate)
       .order('created_at', { ascending: false });
-    if (data) {
-      setRecords(data.map((r: any) => ({
-        ...r,
-        employee_name: r.profiles?.name || 'Unknown',
-        checked_out_at: r.checked_out_at,
-      })));
+
+    if (!data || data.length === 0) {
+      setRecords([]);
+      setLoading(false);
+      return;
     }
+
+    // Collect all unique profile IDs (employees + guards)
+    const profileIds = [...new Set([
+      ...data.map((r: any) => r.employee_id),
+      ...data.map((r: any) => r.guard_id).filter(Boolean),
+    ])];
+
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name, role')
+      .in('id', profileIds);
+
+    const profileMap: Record<string, { name: string; role: string }> = {};
+    (profiles || []).forEach((p: any) => { profileMap[p.id] = { name: p.name, role: p.role }; });
+
+    setRecords(data.map((r: any) => ({
+      ...r,
+      employee_name: profileMap[r.employee_id]?.name || 'Unknown',
+      guard_name: r.guard_id ? (profileMap[r.guard_id]?.name || 'Unknown Guard') : undefined,
+    })));
     setLoading(false);
   }, [selectedDate]);
 
@@ -113,7 +132,7 @@ const AdminAttendancePage: React.FC = () => {
 
         {loading ? (
           <div className="space-y-3">
-            {[1, 2, 3].map(i => <div key={i} className="h-20 bg-muted rounded-2xl animate-pulse" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-2xl animate-pulse" />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-10">
@@ -123,37 +142,48 @@ const AdminAttendancePage: React.FC = () => {
         ) : (
           <div className="space-y-3">
             {filtered.map(record => (
-              <div key={record.id} className="bg-card rounded-2xl p-4 border border-border shadow-sm flex items-center gap-3 animate-fade-in">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">{record.employee_name?.charAt(0) || '?'}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground text-sm">{record.employee_name}</p>
-                  <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
-                    {record.check_in && (
-                      <p className="text-xs text-muted-foreground">
-                        In: <span className="text-foreground font-medium">
-                          {new Date(record.check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </p>
-                    )}
-                    {record.check_out && (
-                      <p className="text-xs text-muted-foreground">
-                        Out: <span className="text-foreground font-medium">
-                          {new Date(record.check_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </p>
-                    )}
-                    {record.checked_out_at && (
-                      <p className="text-xs text-muted-foreground">
-                        Left: <span className="text-foreground font-medium">
-                          {new Date(record.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </p>
+              <div key={record.id} className="bg-card rounded-2xl p-4 border border-border shadow-sm animate-fade-in">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold">{record.employee_name?.charAt(0) || '?'}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-foreground text-sm">{record.employee_name}</p>
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
+                      {record.check_in && (
+                        <p className="text-xs text-muted-foreground">
+                          In: <span className="text-foreground font-medium">
+                            {new Date(record.check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </p>
+                      )}
+                      {record.check_out && (
+                        <p className="text-xs text-muted-foreground">
+                          Out: <span className="text-foreground font-medium">
+                            {new Date(record.check_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </p>
+                      )}
+                      {record.checked_out_at && (
+                        <p className="text-xs text-muted-foreground">
+                          Left: <span className="text-foreground font-medium">
+                            {new Date(record.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                    {/* Guard info */}
+                    {record.guard_name && (
+                      <div className="flex items-center gap-1 mt-1.5">
+                        <Shield className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">
+                          Marked by <span className="font-medium text-foreground">{record.guard_name}</span>
+                        </p>
+                      </div>
                     )}
                   </div>
+                  <StatusBadge status={record.status} />
                 </div>
-                <StatusBadge status={record.status} />
               </div>
             ))}
           </div>
