@@ -5,7 +5,7 @@ import {
   Users, UserPlus, Shield, Briefcase, Mail, Lock, User, Hash, Copy,
   Loader2, X, CheckCircle2, AlertCircle, Eye, EyeOff,
   LayoutDashboard, CalendarCheck, FileText, BarChart3,
-  UserX, UserCheck, Trash2, MoreVertical,
+  UserX, UserCheck, Trash2, MoreVertical, MessageSquare, Share2, Phone,
 } from 'lucide-react';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
@@ -183,6 +183,24 @@ const AdminUsersPage: React.FC = () => {
       setActionResult('Unexpected error. Please try again.');
     }
     setActionLoading(false);
+  };
+
+  const getCredentialsText = (creds: { name: string; userCode: string; password?: string }) => {
+    const lines = [`🔐 GateVortx Login Credentials`, ``, `Name: ${creds.name}`, `User ID: ${creds.userCode}`];
+    if (creds.password) lines.push(`Password: ${creds.password}`);
+    lines.push(``, `Login at: ${window.location.origin}/login`);
+    return lines.join('\n');
+  };
+
+  const handleShare = (method: 'copy' | 'whatsapp' | 'sms', text: string) => {
+    if (method === 'copy') {
+      navigator.clipboard.writeText(text);
+      toast({ title: '📋 Credentials copied to clipboard!' });
+    } else if (method === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    } else if (method === 'sms') {
+      window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
+    }
   };
 
   const employees = members.filter(m => m.role === 'employee');
@@ -478,6 +496,37 @@ const AdminUsersPage: React.FC = () => {
                 {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 Remove from Company
               </button>
+
+              {/* Share User Details */}
+              <div className="pt-2 border-t border-border">
+                <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                  <Share2 className="h-3.5 w-3.5" />
+                  Share User Details
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => handleShare('copy', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    className="py-3 rounded-2xl bg-muted border border-border font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-foreground"
+                  >
+                    <Copy className="h-5 w-5" />
+                    Copy
+                  </button>
+                  <button
+                    onClick={() => handleShare('whatsapp', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    className="py-3 rounded-2xl bg-green-500/10 border border-green-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-green-600"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    WhatsApp
+                  </button>
+                  <button
+                    onClick={() => handleShare('sms', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    className="py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-blue-600"
+                  >
+                    <Phone className="h-5 w-5" />
+                    SMS
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -516,17 +565,30 @@ const AdminUsersPage: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                const text = `🔐 GateVortx Login Credentials\n\nName: ${createdCredentials.name}\nUser ID: ${createdCredentials.userCode}\nPassword: ${createdCredentials.password}\n\nLogin at: ${window.location.origin}/login`;
-                navigator.clipboard.writeText(text);
-                toast({ title: '📋 Credentials copied to clipboard!' });
-              }}
-              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-primary/30"
-            >
-              <Copy className="h-4 w-4" />
-              Copy Credentials
-            </button>
+            <p className="text-xs font-semibold text-muted-foreground mb-2">Share credentials via:</p>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => handleShare('copy', getCredentialsText(createdCredentials))}
+                className="py-3 rounded-2xl bg-muted border border-border font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-foreground"
+              >
+                <Copy className="h-5 w-5" />
+                Copy
+              </button>
+              <button
+                onClick={() => handleShare('whatsapp', getCredentialsText(createdCredentials))}
+                className="py-3 rounded-2xl bg-green-500/10 border border-green-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-green-600"
+              >
+                <MessageSquare className="h-5 w-5" />
+                WhatsApp
+              </button>
+              <button
+                onClick={() => handleShare('sms', getCredentialsText(createdCredentials))}
+                className="py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-blue-600"
+              >
+                <Phone className="h-5 w-5" />
+                SMS
+              </button>
+            </div>
 
             <p className="text-[10px] text-muted-foreground text-center">
               Share these credentials with the new member. They can change their password after first login.
