@@ -130,13 +130,13 @@ const GuardDashboard: React.FC = () => {
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => navigate('/guard/visitors')}
+              onClick={() => navigate('/guard/attendance')}
               className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <QrCode className="h-6 w-6 text-primary" />
+                <UserCheck className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">Scan QR Pass</span>
+              <span className="text-sm font-semibold text-foreground">Attendance</span>
             </button>
             <button
               onClick={() => navigate('/guard/visitors')}
@@ -145,7 +145,7 @@ const GuardDashboard: React.FC = () => {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <ClipboardList className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">View Guard Log</span>
+              <span className="text-sm font-semibold text-foreground">Visitor Log</span>
             </button>
           </div>
         </div>
