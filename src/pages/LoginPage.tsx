@@ -221,7 +221,11 @@ const LoginPage: React.FC = () => {
       {/* Form */}
       <div className="flex-1 px-6 pb-8">
         <h2 className="text-xl font-bold text-foreground mb-1">Welcome Back</h2>
-        <p className="text-sm text-muted-foreground mb-5">Sign in with your User ID to access your dashboard</p>
+        <p className="text-sm text-muted-foreground mb-5">
+          {isAdminRole
+            ? 'Sign in with your email to access your dashboard'
+            : 'Sign in with your User ID or email to access your dashboard'}
+        </p>
 
         <form onSubmit={handleLogin} className="space-y-4">
 
