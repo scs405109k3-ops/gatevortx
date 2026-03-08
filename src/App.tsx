@@ -10,6 +10,7 @@ import SignUpPage from "./pages/SignUpPage";
 import GuardDashboard from "./pages/guard/GuardDashboard";
 import AddVisitorPage from "./pages/guard/AddVisitorPage";
 import VisitorStatusPage from "./pages/guard/VisitorStatusPage";
+import GuardAttendancePage from "./pages/guard/GuardAttendancePage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminVisitorsPage from "./pages/admin/AdminVisitorsPage";
 import AdminAttendancePage from "./pages/admin/AdminAttendancePage";
