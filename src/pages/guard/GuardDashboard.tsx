@@ -147,6 +147,18 @@ const GuardDashboard: React.FC = () => {
               </div>
               <span className="text-sm font-semibold text-foreground">Visitor Log</span>
             </button>
+            <button
+              onClick={() => navigate('/mail/inbox')}
+              className="col-span-2 bg-card rounded-2xl p-4 border border-border flex items-center gap-3 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Mail className="h-6 w-6 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">MailVortx</p>
+                <p className="text-xs text-muted-foreground">Open your company inbox</p>
+              </div>
+            </button>
           </div>
         </div>
 
