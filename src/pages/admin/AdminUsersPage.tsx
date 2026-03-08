@@ -216,15 +216,15 @@ const AdminUsersPage: React.FC = () => {
           onManage={setActionMember}
         />
 
-        {/* Employees */}
+        {/* Employees / Students */}
         <MemberSection
-          title="Employees"
+          title={`${memberLabel}s`}
           icon={<Briefcase className="h-4 w-4 text-blue-500" />}
           badgeClass="bg-blue-500/10 text-blue-600"
           members={employees}
           loading={loading}
           emptyIcon={<Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />}
-          emptyLabel="No employees added yet"
+          emptyLabel={`No ${memberLabel.toLowerCase()}s added yet`}
           onAdd={() => { setRole('employee'); setShowForm(true); }}
           onManage={setActionMember}
         />
