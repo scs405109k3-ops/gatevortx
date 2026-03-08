@@ -208,6 +208,7 @@ const EmployeeDashboard: React.FC = () => {
             <h2 className="text-xl font-bold text-foreground">{profile?.name || 'Employee'}</h2>
             <p className="text-sm text-muted-foreground">
               {(profile as any)?.company_name ? `${(profile as any).company_name} • ` : ''}{memberLabel}
+              {(profile as any)?.user_code && <span className="font-mono font-bold text-primary ml-1.5">#{(profile as any).user_code}</span>}
             </p>
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

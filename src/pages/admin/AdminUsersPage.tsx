@@ -481,6 +481,58 @@ const AdminUsersPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Copy Credentials Dialog */}
+      {createdCredentials && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end" onClick={() => setCreatedCredentials(null)}>
+          <div className="w-full bg-card rounded-t-3xl p-6 pb-10 space-y-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                Account Created!
+              </h3>
+              <button onClick={() => setCreatedCredentials(null)} className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            <div className="bg-muted/50 rounded-2xl p-4 space-y-2 font-mono text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Name:</span>
+                <span className="text-foreground font-semibold">{createdCredentials.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">User ID:</span>
+                <span className="text-primary font-bold">{createdCredentials.userCode}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Email:</span>
+                <span className="text-foreground">{createdCredentials.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Password:</span>
+                <span className="text-foreground">{createdCredentials.password}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                const text = `🔐 GateVortx Login Credentials\n\nName: ${createdCredentials.name}\nUser ID: ${createdCredentials.userCode}\nPassword: ${createdCredentials.password}\n\nLogin at: ${window.location.origin}/login`;
+                navigator.clipboard.writeText(text);
+                toast({ title: '📋 Credentials copied to clipboard!' });
+              }}
+              className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg shadow-primary/30"
+            >
+              <Copy className="h-4 w-4" />
+              Copy Credentials
+            </button>
+
+            <p className="text-[10px] text-muted-foreground text-center">
+              Share these credentials with the new member. They can change their password after first login.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
