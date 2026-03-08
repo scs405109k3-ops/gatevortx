@@ -8,9 +8,11 @@ import BottomNav from '../../components/BottomNav';
 import { toast } from '../../hooks/use-toast';
 import { useNotifications } from '../../hooks/useNotifications';
 import NotificationsDrawer from '../../components/NotificationsDrawer';
+import { checkAndNotifyOvertime } from '../../hooks/useOvertimeNotifier';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/teacher', icon: <Home className="h-5 w-5" /> },
+  { label: 'Students', path: '/teacher/students', icon: <Users className="h-5 w-5" /> },
   { label: 'Attendance', path: '/teacher/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
   { label: 'Leave', path: '/teacher/leave', icon: <FileText className="h-5 w-5" /> },
   { label: 'Profile', path: '/teacher/profile', icon: <User className="h-5 w-5" /> },
@@ -104,11 +106,22 @@ const TeacherDashboard: React.FC = () => {
   const handleCheckOut = async () => {
     if (!profile || !todayRecord) return;
     setLoading(true);
-    const { error } = await supabase.from('attendance').update({ check_out: new Date().toISOString() }).eq('id', todayRecord.id);
+    const checkOutTime = new Date().toISOString();
+    const { error } = await supabase.from('attendance').update({ check_out: checkOutTime }).eq('id', todayRecord.id);
     if (error) {
       toast({ title: 'Error', description: 'Could not check out', variant: 'destructive' });
     } else {
       toast({ title: '👋 Checked Out!', description: 'See you tomorrow!' });
+      if (todayRecord.check_in && orgTimings && (profile as any)?.company_name) {
+        checkAndNotifyOvertime(
+          profile.id,
+          profile.name || 'Teacher',
+          (profile as any).company_name,
+          todayRecord.check_in,
+          checkOutTime,
+          orgTimings.end
+        );
+      }
       await fetchData();
     }
     setLoading(false);
@@ -295,6 +308,15 @@ const TeacherDashboard: React.FC = () => {
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
+              onClick={() => navigate('/teacher/students')}
+              className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Student Attendance</span>
+            </button>
+            <button
               onClick={() => navigate('/teacher/leave')}
               className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
@@ -310,19 +332,16 @@ const TeacherDashboard: React.FC = () => {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <CalendarCheck className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">History</span>
+              <span className="text-sm font-semibold text-foreground">My History</span>
             </button>
             <button
               onClick={() => navigate('/mail/inbox')}
-              className="col-span-2 bg-card rounded-2xl p-4 border border-border flex items-center gap-3 active:scale-95 transition-all shadow-sm"
+              className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Mail className="h-6 w-6 text-primary" />
               </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">MailVortx</p>
-                <p className="text-xs text-muted-foreground">Open your inbox</p>
-              </div>
+              <span className="text-sm font-semibold text-foreground">MailVortx</span>
             </button>
           </div>
         </div>

@@ -32,6 +32,7 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
 import TeacherAttendanceHistoryPage from "./pages/teacher/TeacherAttendanceHistoryPage";
 import TeacherLeaveRequestPage from "./pages/teacher/TeacherLeaveRequestPage";
+import TeacherStudentAttendancePage from "./pages/teacher/TeacherStudentAttendancePage";
 
 // MailVortx
 import MailLayout from "./pages/mail/MailLayout";
@@ -86,6 +87,7 @@ const AppRoutes = () => {
 
       {/* Teacher Routes */}
       <Route path="/teacher" element={<ProtectedRoute allowedRole="teacher"><TeacherDashboard /></ProtectedRoute>} />
+      <Route path="/teacher/students" element={<ProtectedRoute allowedRole="teacher"><TeacherStudentAttendancePage /></ProtectedRoute>} />
       <Route path="/teacher/attendance" element={<ProtectedRoute allowedRole="teacher"><TeacherAttendanceHistoryPage /></ProtectedRoute>} />
       <Route path="/teacher/leave" element={<ProtectedRoute allowedRole="teacher"><TeacherLeaveRequestPage /></ProtectedRoute>} />
       <Route path="/teacher/profile" element={<ProtectedRoute allowedRole="teacher"><TeacherProfilePage /></ProtectedRoute>} />

@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
 import { Home, ClipboardList, Users, UserCheck, User } from 'lucide-react';
+import { checkAndNotifyOvertime } from '../../hooks/useOvertimeNotifier';
 
 interface Employee {
   id: string;
@@ -302,8 +303,9 @@ const GuardAttendancePage: React.FC = () => {
     if (!record) return;
     setSavingFor(record.employee_id);
     try {
+      const checkOutTime = new Date().toISOString();
       await supabase.from('attendance').update({
-        checked_out_at: new Date().toISOString(),
+        checked_out_at: checkOutTime,
       } as any).eq('id', record.id);
 
       // Notify employee of checkout
@@ -313,6 +315,19 @@ const GuardAttendancePage: React.FC = () => {
         message: `👋 Your checkout time has been recorded by ${guardName}.`,
         type: 'attendance',
       });
+
+      // Check overtime and notify admin if > 2h
+      if (record.check_in && orgTimings && profile?.company_name) {
+        const emp = employees.find(e => e.id === record.employee_id);
+        checkAndNotifyOvertime(
+          record.employee_id,
+          emp?.name || employeeName,
+          profile.company_name,
+          record.check_in,
+          checkOutTime,
+          orgTimings.end
+        );
+      }
 
       toast({ title: '👋 Checked Out', description: `${employeeName} checked out.` });
       fetchData();
