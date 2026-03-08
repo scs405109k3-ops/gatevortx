@@ -26,6 +26,7 @@ type TeamMember = {
   company_name: string | null;
   created_at: string;
   is_active: boolean;
+  user_code: string | null;
 };
 
 const AdminUsersPage: React.FC = () => {
