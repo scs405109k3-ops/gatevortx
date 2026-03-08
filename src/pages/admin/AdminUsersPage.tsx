@@ -351,6 +351,7 @@ const AdminUsersPage: React.FC = () => {
                 <p className="text-[10px] text-muted-foreground mt-1">Leave empty to auto-generate (e.g. EMP001, GRD002)</p>
               </div>
 
+              <div>
                 <label className="text-xs font-semibold text-foreground mb-1 block">Temporary Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
