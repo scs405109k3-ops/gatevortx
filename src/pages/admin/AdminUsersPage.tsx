@@ -214,6 +214,7 @@ const AdminUsersPage: React.FC = () => {
           emptyLabel="No guards added yet"
           onAdd={() => { setRole('guard'); setShowForm(true); }}
           onManage={setActionMember}
+          memberLabel={memberLabel}
         />
 
         {/* Employees / Students */}
@@ -227,6 +228,7 @@ const AdminUsersPage: React.FC = () => {
           emptyLabel={`No ${memberLabel.toLowerCase()}s added yet`}
           onAdd={() => { setRole('employee'); setShowForm(true); }}
           onManage={setActionMember}
+          memberLabel={memberLabel}
         />
       </div>
 
