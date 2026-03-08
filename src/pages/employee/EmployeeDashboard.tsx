@@ -94,7 +94,7 @@ const EmployeeDashboard: React.FC = () => {
   };
 
   const now = new Date();
-  const firstName = profile?.name?.split(' ')[0] || 'Employee';
+  const firstName = profile?.name?.split(' ')[0] || memberLabel;
   const isCheckedIn = !!todayRecord?.check_in;
   const isCheckedOut = !!todayRecord?.check_out;
 
