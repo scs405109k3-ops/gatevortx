@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
 import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck, Mail, User } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
