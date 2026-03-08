@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck, Mail, User, GraduationCap, BookOpen } from 'lucide-react';
+
+type OrgType = 'office' | 'school' | 'college';
+
+const ORG_TYPES: { value: OrgType; label: string; icon: React.ReactNode; desc: string }[] = [
+  { value: 'office', label: 'Office', icon: <Building2 className="h-5 w-5" />, desc: 'Corporate / Business' },
+  { value: 'school', label: 'School', icon: <BookOpen className="h-5 w-5" />, desc: 'K-12 Education' },
+  { value: 'college', label: 'College', icon: <GraduationCap className="h-5 w-5" />, desc: 'University / Institute' },
+];
 import logo from '../assets/logo.png';
 
 const SignUpPage: React.FC = () => {
