@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { action, userId } = await req.json();
+    const { action, userId, newPassword } = await req.json();
 
     if (!action || !userId) {
       return new Response(JSON.stringify({ error: 'Missing required fields: action, userId' }), {
