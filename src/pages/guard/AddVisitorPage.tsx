@@ -262,8 +262,27 @@ const AddVisitorPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Photo Capture */}
+
+        {/* Photo Capture — Optional */}
         <div>
+          {/* AI Analysis Toggle */}
+          <div className="flex items-center justify-between bg-card rounded-2xl border border-border px-4 py-3 mb-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-sm font-semibold text-foreground">AI Photo Analysis</p>
+                <p className="text-xs text-muted-foreground">Verify identity against previous visits</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setAiEnabled(v => !v); setFaceResult(null); }}
+              className={`relative h-6 w-11 rounded-full transition-colors ${aiEnabled ? 'bg-primary' : 'bg-muted'}`}
+            >
+              <div className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${aiEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+            </button>
+          </div>
+
           {photoPreview ? (
             <div className="relative space-y-2">
               <div className="relative">
@@ -297,7 +316,6 @@ const AddVisitorPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              {/* Mismatch warning */}
               {faceResult?.match === false && (
                 <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-xl px-3 py-2">
                   <ShieldAlert className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
@@ -310,15 +328,15 @@ const AddVisitorPage: React.FC = () => {
           ) : (
             <button
               onClick={() => cameraRef.current?.click()}
-              className="w-full h-44 rounded-2xl border-2 border-dashed border-border bg-primary/5 flex flex-col items-center justify-center gap-3"
+              className="w-full h-36 rounded-2xl border-2 border-dashed border-border bg-primary/5 flex flex-col items-center justify-center gap-2"
             >
-              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <Camera className="h-7 w-7 text-primary" />
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Camera className="h-6 w-6 text-primary" />
               </div>
               <p className="text-sm font-semibold text-foreground">Capture Visitor Photo</p>
+              <p className="text-xs text-muted-foreground">Optional — helps with identification</p>
             </button>
           )}
-          <p className="text-center text-xs text-muted-foreground mt-2 italic">Required for identification purposes</p>
           <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoSelect} />
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
         </div>
