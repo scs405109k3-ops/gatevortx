@@ -24,7 +24,24 @@ import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
+// MailVortx
+import MailLayout from "./pages/mail/MailLayout";
+import InboxPage from "./pages/mail/InboxPage";
+import SentPage from "./pages/mail/SentPage";
+import StarredPage from "./pages/mail/StarredPage";
+import DraftsPage from "./pages/mail/DraftsPage";
+import TrashPage from "./pages/mail/TrashPage";
+import EmailDetailPage from "./pages/mail/EmailDetailPage";
+import LabelsPage from "./pages/mail/LabelsPage";
+
 const queryClient = new QueryClient();
+
+// MailVortx Protected wrapper (any authenticated role)
+const MailProtectedRoute = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute allowedRole="admin">
+    {children}
+  </ProtectedRoute>
+);
 
 // Inner component so it has access to AuthContext
 const AppRoutes = () => {
@@ -54,6 +71,18 @@ const AppRoutes = () => {
       <Route path="/employee" element={<ProtectedRoute allowedRole="employee"><EmployeeDashboard /></ProtectedRoute>} />
       <Route path="/employee/attendance" element={<ProtectedRoute allowedRole="employee"><AttendanceHistoryPage /></ProtectedRoute>} />
       <Route path="/employee/leave" element={<ProtectedRoute allowedRole="employee"><LeaveRequestPage /></ProtectedRoute>} />
+
+      {/* MailVortx Routes — accessible to all authenticated users */}
+      <Route path="/mail" element={<MailLayout />}>
+        <Route index element={<Navigate to="/mail/inbox" replace />} />
+        <Route path="inbox" element={<InboxPage />} />
+        <Route path="sent" element={<SentPage />} />
+        <Route path="starred" element={<StarredPage />} />
+        <Route path="drafts" element={<DraftsPage />} />
+        <Route path="trash" element={<TrashPage />} />
+        <Route path="email/:id" element={<EmailDetailPage />} />
+        <Route path="labels" element={<LabelsPage />} />
+      </Route>
 
       <Route path="*" element={<NotFound />} />
     </Routes>
