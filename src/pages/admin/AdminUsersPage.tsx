@@ -333,7 +333,7 @@ const AdminUsersPage: React.FC = () => {
                 className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all shadow-lg shadow-primary/30"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
-                {submitting ? 'Creating Account…' : `Add ${role === 'guard' ? 'Security Guard' : 'Employee'}`}
+                {submitting ? 'Creating Account…' : `Add ${role === 'guard' ? 'Security Guard' : memberLabel}`}
               </button>
             </form>
           </div>
