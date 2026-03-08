@@ -15,6 +15,8 @@ import AdminVisitorsPage from "./pages/admin/AdminVisitorsPage";
 import AdminAttendancePage from "./pages/admin/AdminAttendancePage";
 import AdminLeavesPage from "./pages/admin/AdminLeavesPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import CompanySetupPage from "./pages/admin/CompanySetupPage";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
 import LeaveRequestPage from "./pages/employee/LeaveRequestPage";

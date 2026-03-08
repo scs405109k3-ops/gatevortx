@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, Lock, ChevronDown, UserPlus, Building2 } from 'lucide-react';
-import type { AppRole } from '../types/app';
-
-const ROLES: { label: string; value: AppRole }[] = [
-  { label: 'Employee', value: 'employee' },
-  { label: 'Security Guard', value: 'guard' },
-  { label: 'Admin (MD/CEO)', value: 'admin' },
-];
+import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck } from 'lucide-react';
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
