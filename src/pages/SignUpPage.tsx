@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck, Mail, User, GraduationCap, BookOpen } from 'lucide-react';
 import logo from '../assets/logo.png';
+
+type OrgType = 'office' | 'school' | 'college';
+
+const ORG_TYPES: { value: OrgType; label: string; icon: React.ReactNode; desc: string }[] = [
+  { value: 'office', label: 'Office', icon: <Building2 className="h-5 w-5" />, desc: 'Corporate / Business' },
+  { value: 'school', label: 'School', icon: <BookOpen className="h-5 w-5" />, desc: 'K-12 Education' },
+  { value: 'college', label: 'College', icon: <GraduationCap className="h-5 w-5" />, desc: 'University / Institute' },
+];
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [orgType, setOrgType] = useState<OrgType | ''>('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,6 +29,7 @@ const SignUpPage: React.FC = () => {
 
     if (!name.trim()) { setError('Please enter your full name'); return; }
     if (!email.trim()) { setError('Please enter your email'); return; }
+    if (!orgType) { setError('Please select your organization type'); return; }
     if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
     if (password !== confirmPassword) { setError('Passwords do not match'); return; }
 
@@ -28,7 +38,7 @@ const SignUpPage: React.FC = () => {
       email: email.trim(),
       password,
       options: {
-        data: { name: name.trim(), role: 'admin', company_name: '' },
+        data: { name: name.trim(), role: 'admin', company_name: '', org_type: orgType },
       },
     });
     setLoading(false);
@@ -38,7 +48,6 @@ const SignUpPage: React.FC = () => {
       return;
     }
 
-    // After signup, go to company setup
     navigate('/admin/company-setup');
   };
 
@@ -52,14 +61,14 @@ const SignUpPage: React.FC = () => {
       >
         <img src={logo} alt="GateVortx Logo" className="h-20 w-20 object-contain rounded-2xl" />
         <h1 className="text-2xl font-bold tracking-tight text-white">GateVortx</h1>
-        <p className="text-xs font-semibold text-blue-200 uppercase tracking-widest mt-1">Admin Registration</p>
+        <p className="text-xs font-semibold text-primary-foreground/70 uppercase tracking-widest mt-1">Admin Registration</p>
       </div>
 
       {/* Info Banner */}
       <div className="mx-6 mt-5">
         <div
           className="rounded-2xl p-4 flex gap-3"
-          style={{ background: 'linear-gradient(135deg, hsl(270,72%,52%,0.12) 0%, hsl(224,90%,52%,0.12) 100%)', border: '1px solid hsl(var(--primary)/0.25)' }}
+          style={{ background: 'hsl(var(--primary)/0.08)', border: '1px solid hsl(var(--primary)/0.25)' }}
         >
           <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
@@ -102,6 +111,31 @@ const SignUpPage: React.FC = () => {
                 autoComplete="email"
                 className="w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               />
+            </div>
+          </div>
+
+          {/* Organization Type */}
+          <div>
+            <label className="text-sm font-semibold text-foreground mb-2 block">
+              Organization Type <span className="text-destructive">*</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {ORG_TYPES.map(org => (
+                <button
+                  key={org.value}
+                  type="button"
+                  onClick={() => setOrgType(org.value)}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
+                    orgType === org.value
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border bg-card text-muted-foreground hover:border-primary/40'
+                  }`}
+                >
+                  {org.icon}
+                  <span className="text-xs font-bold">{org.label}</span>
+                  <span className="text-[10px] leading-tight text-center opacity-70">{org.desc}</span>
+                </button>
+              ))}
             </div>
           </div>
 
