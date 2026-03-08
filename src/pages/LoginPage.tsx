@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus, Users, ChevronUp } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 type CompanyEntry = { name: string; orgType: string | null };
+type CompanyUser = { name: string; email: string; role: string };
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +15,10 @@ const LoginPage: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState('employee');
   const [selectedCompany, setSelectedCompany] = useState('');
   const [companies, setCompanies] = useState<CompanyEntry[]>([]);
+  const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
+  const [showUsers, setShowUsers] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn, profile, signOut } = useAuth();
@@ -137,12 +141,28 @@ const LoginPage: React.FC = () => {
     }
   }, [profile, navigate]);
 
-  // When company changes, reset role to default
+  // Fetch registered users when company changes
   useEffect(() => {
-    setSelectedRole('employee');
+    setCompanyUsers([]);
+    setShowUsers(false);
+    if (!selectedCompany) return;
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      const { data } = await supabase.rpc('get_company_users', { _company_name: selectedCompany });
+      setCompanyUsers((data as CompanyUser[]) || []);
+      setLoadingUsers(false);
+    };
+    fetchUsers();
   }, [selectedCompany]);
 
   const isAdminRole = selectedRole === 'admin';
+
+  const getRoleLabel = (role: string) => {
+    if (role === 'employee') return isAcademic ? 'Student' : 'Employee';
+    if (role === 'teacher') return 'Teacher';
+    if (role === 'guard') return 'Guard';
+    return role;
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center md:py-10">
@@ -188,6 +208,7 @@ const LoginPage: React.FC = () => {
 
           {/* Company selector — hidden for admin */}
           {!isAdminRole && (
+            <>
             <div>
               <label className="text-sm font-semibold text-foreground mb-1.5 block">
                 Select Company / Institution <span className="text-destructive">*</span>
@@ -214,6 +235,53 @@ const LoginPage: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Registered users for selected company */}
+            {selectedCompany && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowUsers(!showUsers)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  {showUsers ? 'Hide' : 'View'} registered {isAcademic ? 'members' : 'employees'}
+                  {showUsers ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                </button>
+                {showUsers && (
+                  <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-border bg-muted/30 divide-y divide-border">
+                    {loadingUsers ? (
+                      <div className="flex items-center justify-center py-3">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : companyUsers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-3">No members registered yet</p>
+                    ) : (
+                      companyUsers.map((u, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => { setEmail(u.email); setShowUsers(false); }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-primary/5 transition-colors"
+                        >
+                          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-primary">{u.name?.charAt(0)?.toUpperCase() || '?'}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{u.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                          </div>
+                          <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full uppercase">
+                            {getRoleLabel(u.role)}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            </>
           )}
 
           {/* Role selector */}
