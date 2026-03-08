@@ -44,6 +44,9 @@ const GuardAttendancePage: React.FC = () => {
   const [cameraTarget, setCameraTarget] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<Record<string, string>>({});
   const [pendingPhotos, setPendingPhotos] = useState<Record<string, File>>({});
+  const [verifyingFor, setVerifyingFor] = useState<string | null>(null);
+  // face verification results: { match: boolean|null, confidence: number, reason: string }
+  const [faceResults, setFaceResults] = useState<Record<string, { match: boolean | null; confidence: number; reason: string }>>({});
 
   const today = new Date().toISOString().split('T')[0];
   const dateDisplay = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
