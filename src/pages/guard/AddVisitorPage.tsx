@@ -275,12 +275,47 @@ const AddVisitorPage: React.FC = () => {
         {/* Photo Capture */}
         <div>
           {photoPreview ? (
-            <div className="relative">
-              <img src={photoPreview} alt="Visitor" className="w-full h-44 rounded-2xl object-cover border-2 border-primary" />
-              <button
-                onClick={() => { setPhoto(null); setPhotoPreview(null); }}
-                className="absolute top-2 right-2 h-7 w-7 bg-destructive rounded-full text-white text-sm flex items-center justify-center shadow"
-              >×</button>
+            <div className="relative space-y-2">
+              <div className="relative">
+                <img src={photoPreview} alt="Visitor" className="w-full h-44 rounded-2xl object-cover border-2 border-primary" />
+                <button
+                  onClick={() => { setPhoto(null); setPhotoPreview(null); setFaceResult(null); }}
+                  className="absolute top-2 right-2 h-7 w-7 bg-destructive rounded-full text-destructive-foreground text-sm flex items-center justify-center shadow"
+                >×</button>
+                {/* Face verification overlay */}
+                {faceVerifying ? (
+                  <div className="absolute bottom-2 left-2 bg-black/60 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                    <Loader2 className="h-3 w-3 text-white animate-spin" />
+                    <span className="text-[10px] text-white">Checking identity…</span>
+                  </div>
+                ) : faceResult && (
+                  <div className={`absolute bottom-2 left-2 rounded-lg px-2 py-1 flex items-center gap-1.5 ${
+                    faceResult.match === true ? 'bg-green-600/90' : faceResult.match === false ? 'bg-destructive/90' : 'bg-muted/90'
+                  }`}>
+                    {faceResult.match === true
+                      ? <ShieldCheck className="h-3 w-3 text-white" />
+                      : faceResult.match === false
+                      ? <ShieldAlert className="h-3 w-3 text-white" />
+                      : <ShieldQuestion className="h-3 w-3 text-white" />}
+                    <span className="text-[10px] text-white font-medium">
+                      {faceResult.match === true
+                        ? `Returning visitor verified ${faceResult.confidence}%`
+                        : faceResult.match === false
+                        ? `Identity mismatch ${faceResult.confidence}%`
+                        : 'New visitor'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {/* Mismatch warning */}
+              {faceResult?.match === false && (
+                <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-xl px-3 py-2">
+                  <ShieldAlert className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-destructive leading-snug">
+                    <span className="font-bold">Warning:</span> This person's face doesn't match the previous visitor with this phone number. {faceResult.reason}. Verify identity manually.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <button
