@@ -189,6 +189,41 @@ const AdminUsersPage: React.FC = () => {
     setActionLoading(false);
   };
 
+  const handleResetPassword = async () => {
+    if (!actionMember || !resetPassword) return;
+    if (resetPassword.length < 6) {
+      setActionResult('Error: Password must be at least 6 characters');
+      return;
+    }
+    setResetLoading(true);
+    setActionResult('');
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-user', {
+        body: { action: 'reset_password', userId: actionMember.id, newPassword: resetPassword },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+      if (error || data?.error) {
+        setActionResult('Error: ' + (data?.error || error?.message));
+      } else {
+        setMemberPassword(resetPassword);
+        setActionResult('Password changed successfully! You can now share the new credentials.');
+        setResetPassword('');
+        setShowResetPassword(false);
+      }
+    } catch {
+      setActionResult('Unexpected error. Please try again.');
+    }
+    setResetLoading(false);
+  };
+
+  const openManageMember = (m: TeamMember) => {
+    setActionMember(m);
+    setActionResult('');
+    setResetPassword('');
+    setShowResetPassword(false);
+    setMemberPassword(null);
+  };
+
   const getCredentialsText = (creds: { name: string; userCode: string; password?: string }) => {
     const lines = [`🔐 GateVortx Login Credentials`, ``, `Name: ${creds.name}`, `User ID: ${creds.userCode}`];
     if (creds.password) lines.push(`Password: ${creds.password}`);
