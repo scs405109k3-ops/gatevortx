@@ -16,7 +16,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ items }) => {
   const location = useLocation();
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 safe-bottom">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 safe-bottom md:hidden">
       <div className="bg-card border-t border-border flex shadow-lg">
         {items.map(item => {
           const isActive = location.pathname === item.path ||

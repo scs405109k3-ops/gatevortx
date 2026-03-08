@@ -121,7 +121,7 @@ const AdminDashboard: React.FC = () => {
 
       <div className="px-5 py-5 space-y-5">
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
             { label: 'Visitors Today', value: stats.visitorsToday, icon: Eye },
             { label: 'Present Today', value: stats.presentToday, icon: UserCheck },
