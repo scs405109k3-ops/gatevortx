@@ -22,8 +22,43 @@ import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
 import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
 import NotFound from "./pages/NotFound";
+import { usePushNotifications } from "./hooks/usePushNotifications";
 
 const queryClient = new QueryClient();
+
+// Inner component so it has access to AuthContext
+const AppRoutes = () => {
+  usePushNotifications();
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
+
+      {/* Guard Routes */}
+      <Route path="/guard" element={<ProtectedRoute allowedRole="guard"><GuardDashboard /></ProtectedRoute>} />
+      <Route path="/guard/add-visitor" element={<ProtectedRoute allowedRole="guard"><AddVisitorPage /></ProtectedRoute>} />
+      <Route path="/guard/visitors" element={<ProtectedRoute allowedRole="guard"><VisitorStatusPage /></ProtectedRoute>} />
+      <Route path="/guard/attendance" element={<ProtectedRoute allowedRole="guard"><GuardAttendancePage /></ProtectedRoute>} />
+
+      {/* Admin Routes */}
+      <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/company-setup" element={<ProtectedRoute allowedRole="admin"><CompanySetupPage /></ProtectedRoute>} />
+      <Route path="/admin/users" element={<ProtectedRoute allowedRole="admin"><AdminUsersPage /></ProtectedRoute>} />
+      <Route path="/admin/visitors" element={<ProtectedRoute allowedRole="admin"><AdminVisitorsPage /></ProtectedRoute>} />
+      <Route path="/admin/attendance" element={<ProtectedRoute allowedRole="admin"><AdminAttendancePage /></ProtectedRoute>} />
+      <Route path="/admin/leaves" element={<ProtectedRoute allowedRole="admin"><AdminLeavesPage /></ProtectedRoute>} />
+      <Route path="/admin/analytics" element={<ProtectedRoute allowedRole="admin"><AdminAnalyticsPage /></ProtectedRoute>} />
+
+      {/* Employee Routes */}
+      <Route path="/employee" element={<ProtectedRoute allowedRole="employee"><EmployeeDashboard /></ProtectedRoute>} />
+      <Route path="/employee/attendance" element={<ProtectedRoute allowedRole="employee"><AttendanceHistoryPage /></ProtectedRoute>} />
+      <Route path="/employee/leave" element={<ProtectedRoute allowedRole="employee"><LeaveRequestPage /></ProtectedRoute>} />
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -32,33 +67,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-
-            {/* Guard Routes */}
-            <Route path="/guard" element={<ProtectedRoute allowedRole="guard"><GuardDashboard /></ProtectedRoute>} />
-            <Route path="/guard/add-visitor" element={<ProtectedRoute allowedRole="guard"><AddVisitorPage /></ProtectedRoute>} />
-            <Route path="/guard/visitors" element={<ProtectedRoute allowedRole="guard"><VisitorStatusPage /></ProtectedRoute>} />
-            <Route path="/guard/attendance" element={<ProtectedRoute allowedRole="guard"><GuardAttendancePage /></ProtectedRoute>} />
-
-            {/* Admin Routes */}
-            <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/company-setup" element={<ProtectedRoute allowedRole="admin"><CompanySetupPage /></ProtectedRoute>} />
-            <Route path="/admin/users" element={<ProtectedRoute allowedRole="admin"><AdminUsersPage /></ProtectedRoute>} />
-            <Route path="/admin/visitors" element={<ProtectedRoute allowedRole="admin"><AdminVisitorsPage /></ProtectedRoute>} />
-            <Route path="/admin/attendance" element={<ProtectedRoute allowedRole="admin"><AdminAttendancePage /></ProtectedRoute>} />
-            <Route path="/admin/leaves" element={<ProtectedRoute allowedRole="admin"><AdminLeavesPage /></ProtectedRoute>} />
-            <Route path="/admin/analytics" element={<ProtectedRoute allowedRole="admin"><AdminAnalyticsPage /></ProtectedRoute>} />
-
-            {/* Employee Routes */}
-            <Route path="/employee" element={<ProtectedRoute allowedRole="employee"><EmployeeDashboard /></ProtectedRoute>} />
-            <Route path="/employee/attendance" element={<ProtectedRoute allowedRole="employee"><AttendanceHistoryPage /></ProtectedRoute>} />
-            <Route path="/employee/leave" element={<ProtectedRoute allowedRole="employee"><LeaveRequestPage /></ProtectedRoute>} />
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
