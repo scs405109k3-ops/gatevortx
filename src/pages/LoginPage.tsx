@@ -27,8 +27,9 @@ const LoginPage: React.FC = () => {
   // Dynamic roles based on org type of selected company
   const ROLES = [
     { label: isAcademic ? 'Student' : 'Employee', value: 'employee' },
+    ...(isAcademic ? [{ label: 'Teacher', value: 'teacher' }] : []),
     { label: 'Security Guard', value: 'guard' },
-    { label: 'Admin (Principal/MD)', value: 'admin' },
+    { label: isAcademic ? 'Admin (Principal/MD)' : 'Admin (MD/CEO)', value: 'admin' },
   ];
 
   // Fetch all registered companies from admin profiles (with org_type)
