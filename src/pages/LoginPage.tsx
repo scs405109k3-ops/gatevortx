@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus } from 'lucide-react';
 
 const ROLES = [
   { label: 'Employee', value: 'employee' },
@@ -44,7 +44,6 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Admins don't need a company selector — they set it up themselves
     if (selectedRole !== 'admin' && !selectedCompany) {
       setError('Please select your company');
       return;
@@ -65,19 +64,26 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    // After sign-in, fetch the fresh profile to validate company + role
+    // After sign-in, fetch the fresh profile to validate company + role + active status
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); setError('Authentication failed.'); return; }
 
     const { data: freshProfile } = await supabase
       .from('profiles')
-      .select('role, company_name')
+      .select('role, company_name, is_active')
       .eq('id', user.id)
       .single();
 
     setLoading(false);
 
     if (!freshProfile) { setError('Account not found. Please contact your admin.'); await signOut(); return; }
+
+    // Check if account is deactivated
+    if (freshProfile.is_active === false) {
+      setError('Your account has been deactivated. Please contact your admin.');
+      await signOut();
+      return;
+    }
 
     // Role mismatch
     if (freshProfile.role !== selectedRole) {
@@ -252,14 +258,25 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {isAdminRole && (
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            New company?{' '}
-            <Link to="/signup" className="text-primary font-bold">Register as Admin</Link>
-          </p>
-        )}
+        {/* Register CTA — always visible */}
+        <div className="mt-6 bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
+          <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">New Company?</p>
+            <p className="text-xs text-muted-foreground mt-0.5 mb-2">
+              Register as Admin (MD/CEO) to create your company workspace and add team members.
+            </p>
+            <Link
+              to="/signup"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-primary"
+            >
+              <UserPlus className="h-4 w-4" />
+              Register as Admin
+            </Link>
+          </div>
+        </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-8 flex items-center justify-center gap-1">
+        <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
           <Lock className="h-3 w-3" />
           Secured by GateFlow Cloud Infrastructure
         </p>

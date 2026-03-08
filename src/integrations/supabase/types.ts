@@ -108,6 +108,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          is_active: boolean
           name: string
           role: Database["public"]["Enums"]["app_role"]
         }
@@ -117,6 +118,7 @@ export type Database = {
           created_at?: string
           email?: string
           id: string
+          is_active?: boolean
           name?: string
           role?: Database["public"]["Enums"]["app_role"]
         }
@@ -126,6 +128,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          is_active?: boolean
           name?: string
           role?: Database["public"]["Enums"]["app_role"]
         }
@@ -183,6 +186,7 @@ export type Database = {
     Functions: {
       get_user_company: { Args: { _user_id: string }; Returns: string }
       is_company_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_user_active: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "guard" | "employee"
