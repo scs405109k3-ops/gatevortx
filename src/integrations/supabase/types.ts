@@ -337,6 +337,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_company_users: {
+        Args: { _company_name: string }
+        Returns: {
+          email: string
+          name: string
+          role: string
+        }[]
+      }
       get_user_company: { Args: { _user_id: string }; Returns: string }
       is_company_admin: { Args: { _user_id: string }; Returns: boolean }
       is_user_active: { Args: { _user_id: string }; Returns: boolean }
