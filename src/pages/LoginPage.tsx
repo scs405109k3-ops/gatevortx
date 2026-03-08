@@ -298,16 +298,20 @@ const LoginPage: React.FC = () => {
         <div className="mt-6 bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
           <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">New Company / Institution?</p>
+            <p className="text-sm font-semibold text-foreground">
+              {isAcademic ? 'New Institution?' : 'New Company / Institution?'}
+            </p>
             <p className="text-xs text-muted-foreground mt-0.5 mb-2">
-              Register as Admin (MD/CEO/Principal) to create your workspace and add team members.
+              {isAcademic
+                ? 'Register as Admin (Principal/MD) to create your institution workspace and manage students & teachers.'
+                : 'Register as Admin (MD/CEO) to create your workspace and add team members.'}
             </p>
             <Link
               to="/signup"
               className="inline-flex items-center gap-1.5 text-sm font-bold text-primary"
             >
               <UserPlus className="h-4 w-4" />
-              Register as Admin
+              {isAcademic ? 'Register as Principal/Admin' : 'Register as Admin'}
             </Link>
           </div>
         </div>
