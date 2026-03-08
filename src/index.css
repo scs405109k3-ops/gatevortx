@@ -4,30 +4,39 @@
 
 @layer base {
   :root {
-    /* GateVortx Design System */
-    --background: 220 14% 96%;
-    --foreground: 220 26% 14%;
+    /* GateVortx Design System — Vortex Blue/Purple/Cyan */
+    --background: 230 20% 96%;
+    --foreground: 235 30% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 26% 14%;
+    --card-foreground: 235 30% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 26% 14%;
+    --popover-foreground: 235 30% 12%;
 
-    --primary: 220 88% 50%;
+    /* Primary: vivid blue from logo */
+    --primary: 224 90% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --primary-dark: 213 57% 25%;
+    /* Purple accent from logo swirl */
+    --purple: 270 72% 52%;
+    --purple-foreground: 0 0% 100%;
+
+    /* Cyan highlight from logo */
+    --cyan: 192 90% 48%;
+    --cyan-foreground: 235 30% 12%;
+
+    --primary-dark: 240 55% 22%;
     --primary-dark-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 94%;
-    --secondary-foreground: 220 26% 14%;
+    --secondary: 230 18% 93%;
+    --secondary-foreground: 235 30% 12%;
 
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 230 18% 93%;
+    --muted-foreground: 230 10% 48%;
 
-    --accent: 220 14% 90%;
-    --accent-foreground: 220 26% 14%;
+    --accent: 270 30% 92%;
+    --accent-foreground: 235 30% 12%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -38,9 +47,9 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 220 88% 50%;
+    --border: 230 18% 88%;
+    --input: 230 18% 88%;
+    --ring: 224 90% 52%;
 
     --radius: 0.75rem;
 
@@ -49,36 +58,41 @@
     --status-approved: 142 71% 38%;
     --status-rejected: 0 84% 60%;
 
-    --sidebar-background: 213 57% 25%;
+    --sidebar-background: 240 55% 22%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 220 88% 60%;
+    --sidebar-primary: 224 90% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 213 50% 20%;
+    --sidebar-accent: 240 48% 18%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 213 50% 20%;
-    --sidebar-ring: 220 88% 60%;
+    --sidebar-border: 240 48% 18%;
+    --sidebar-ring: 224 90% 60%;
+
+    /* Gradient tokens */
+    --gradient-brand: linear-gradient(135deg, hsl(240,55%,22%) 0%, hsl(224,90%,46%) 55%, hsl(192,90%,48%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(240,55%,18%) 0%, hsl(270,72%,38%) 50%, hsl(224,90%,46%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(224,90%,52%) 0%, hsl(270,72%,52%) 100%);
   }
 
   .dark {
-    --background: 220 26% 8%;
+    --background: 235 28% 8%;
     --foreground: 210 40% 98%;
-    --card: 220 26% 12%;
+    --card: 235 28% 12%;
     --card-foreground: 210 40% 98%;
-    --popover: 220 26% 12%;
+    --popover: 235 28% 12%;
     --popover-foreground: 210 40% 98%;
-    --primary: 220 88% 55%;
+    --primary: 224 88% 58%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 26% 18%;
+    --secondary: 235 28% 18%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 220 26% 18%;
+    --muted: 235 28% 18%;
     --muted-foreground: 215 20% 65%;
-    --accent: 220 26% 20%;
+    --accent: 235 28% 22%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 220 26% 20%;
-    --input: 220 26% 20%;
-    --ring: 220 88% 55%;
+    --border: 235 28% 22%;
+    --input: 235 28% 22%;
+    --ring: 224 88% 58%;
   }
 }
 

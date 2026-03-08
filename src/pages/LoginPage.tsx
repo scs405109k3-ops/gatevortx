@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../integrations/supabase/client';
 import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const ROLES = [
   { label: 'Employee', value: 'employee' },
@@ -120,26 +121,29 @@ const LoginPage: React.FC = () => {
   return (
     <div className="mobile-container bg-card flex flex-col min-h-screen">
       {/* Logo area */}
-      <div className="flex flex-col items-center pt-10 pb-4 px-6">
-        <div className="bg-primary/10 p-3.5 rounded-full mb-4">
-          <div className="bg-primary rounded-full p-2">
-            <Lock className="h-6 w-6 text-primary-foreground" />
-          </div>
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateVortx</h1>
-        <p className="text-xs font-semibold text-primary uppercase tracking-widest mt-1">Smart Office Management</p>
+      <div
+        className="flex flex-col items-center pt-10 pb-6 px-6"
+        style={{ background: 'var(--gradient-brand)' }}
+      >
+        <img src={logo} alt="GateVortx Logo" className="h-20 w-20 object-contain mb-3 drop-shadow-xl" />
+        <h1 className="text-2xl font-bold tracking-tight text-white">GateVortx</h1>
+        <p className="text-xs font-semibold text-blue-200 uppercase tracking-widest mt-1">Smart Office Management</p>
       </div>
 
       {/* Hero banner */}
-      <div className="mx-6 mb-6">
-        <div className="relative h-28 w-full rounded-xl overflow-hidden bg-gradient-to-br from-slate-700 to-slate-900 flex items-end">
-          <div className="absolute inset-0 opacity-20"
-            style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 21px), repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 21px)' }}
+      <div className="mx-6 mt-5 mb-4">
+        <div
+          className="relative h-24 w-full rounded-2xl overflow-hidden flex items-center px-5 gap-4"
+          style={{ background: 'var(--gradient-hero)' }}
+        >
+          <div className="absolute inset-0 opacity-10"
+            style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255,255,255,0.07) 20px, rgba(255,255,255,0.07) 21px), repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.07) 20px, rgba(255,255,255,0.07) 21px)' }}
           />
-          <div className="p-4">
+          <ShieldCheck className="h-9 w-9 text-cyan-300 flex-shrink-0 drop-shadow" />
+          <div>
             <p className="text-white font-bold text-base tracking-wide">Secure Access Terminal</p>
             {selectedCompany && !isAdminRole && (
-              <p className="text-white/70 text-xs mt-0.5 flex items-center gap-1">
+              <p className="text-blue-200 text-xs mt-0.5 flex items-center gap-1">
                 <Building2 className="h-3 w-3" />
                 {selectedCompany}
               </p>

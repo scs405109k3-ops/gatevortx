@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
 import { Eye, EyeOff, Loader2, Lock, UserPlus, Building2, ShieldCheck, Mail, User } from 'lucide-react';
+import logo from '../assets/logo.png';
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -44,17 +45,21 @@ const SignUpPage: React.FC = () => {
   return (
     <div className="mobile-container bg-background flex flex-col min-h-screen">
       {/* Header */}
-      <div className="flex flex-col items-center pt-10 pb-6 px-6 bg-card border-b border-border">
-        <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/30">
-          <ShieldCheck className="h-8 w-8 text-primary-foreground" />
-        </div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateVortx</h1>
-        <p className="text-xs font-semibold text-primary uppercase tracking-widest mt-1">Admin Registration</p>
+      <div
+        className="flex flex-col items-center pt-10 pb-6 px-6"
+        style={{ background: 'var(--gradient-brand)' }}
+      >
+        <img src={logo} alt="GateVortx Logo" className="h-20 w-20 object-contain mb-3 drop-shadow-xl" />
+        <h1 className="text-2xl font-bold tracking-tight text-white">GateVortx</h1>
+        <p className="text-xs font-semibold text-blue-200 uppercase tracking-widest mt-1">Admin Registration</p>
       </div>
 
       {/* Info Banner */}
       <div className="mx-6 mt-5">
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex gap-3">
+        <div
+          className="rounded-2xl p-4 flex gap-3"
+          style={{ background: 'linear-gradient(135deg, hsl(270,72%,52%,0.12) 0%, hsl(224,90%,52%,0.12) 100%)', border: '1px solid hsl(var(--primary)/0.25)' }}
+        >
           <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-foreground">Admin / MD / CEO Account</p>

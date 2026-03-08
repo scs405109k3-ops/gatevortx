@@ -2,6 +2,7 @@ import React from 'react';
 import { Bell, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../hooks/useNotifications';
+import logo from '../assets/logo.png';
 
 interface TopBarProps {
   title: string;
@@ -16,18 +17,21 @@ const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
   return (
     <div
       className="px-5 pt-12 pb-4 text-white"
-      style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}
+      style={{ background: 'var(--gradient-brand)' }}
     >
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-blue-200 text-xs font-medium uppercase tracking-wider">{subtitle || profile?.role?.toUpperCase()}</p>
-          <h1 className="text-xl font-bold">{title}</h1>
+        <div className="flex items-center gap-2.5">
+          <img src={logo} alt="GateVortx" className="h-8 w-8 object-contain drop-shadow" />
+          <div>
+            <p className="text-blue-200 text-xs font-medium uppercase tracking-wider">{subtitle || profile?.role?.toUpperCase()}</p>
+            <h1 className="text-xl font-bold leading-tight">{title}</h1>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {action && action}
           <button
             onClick={markAllRead}
-            className="relative p-2 bg-white/10 rounded-xl"
+            className="relative p-2 bg-white/15 rounded-xl backdrop-blur-sm"
           >
             <Bell className="h-5 w-5" />
             {unreadCount > 0 && (
@@ -38,7 +42,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
           </button>
           <button
             onClick={signOut}
-            className="p-2 bg-white/10 rounded-xl"
+            className="p-2 bg-white/15 rounded-xl backdrop-blur-sm"
           >
             <LogOut className="h-5 w-5" />
           </button>
@@ -46,7 +50,10 @@ const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
       </div>
       {profile && (
         <div className="mt-3 flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-semibold">
+          <div
+            className="h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold text-white"
+            style={{ background: 'linear-gradient(135deg, hsl(var(--purple)) 0%, hsl(var(--cyan)) 100%)' }}
+          >
             {profile.name?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div>
