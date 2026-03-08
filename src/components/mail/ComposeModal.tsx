@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send, ChevronDown, Minus, Maximize2, Loader2, Tag, Users } from 'lucide-react';
+import { X, Send, Minus, Maximize2, Loader2, Users, UsersRound } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
@@ -35,6 +35,10 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
   const [companyUsers, setCompanyUsers] = useState<Profile[]>([]);
   const [showDirectory, setShowDirectory] = useState(false);
 
+  // Bulk mode
+  const [bulkRole, setBulkRole] = useState<string | null>(null);
+  const bulkRecipients = bulkRole ? companyUsers.filter(u => u.role === bulkRole) : [];
+
   // Fetch company members for admin
   useEffect(() => {
     if (!authProfile?.company_name || authProfile.role !== 'admin') return;
@@ -63,6 +67,7 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
   const searchRecipients = async (query: string) => {
     setTo(query);
     setToProfile(null);
+    setBulkRole(null);
     if (query.length < 2) {
       setSuggestions([]);
       setShowDirectory(!query);
@@ -70,7 +75,6 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
     }
     setShowDirectory(false);
     setSearching(true);
-    // Filter from company users first for admin
     if (authProfile?.role === 'admin' && companyUsers.length > 0) {
       const q = query.toLowerCase();
       const filtered = companyUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
@@ -92,6 +96,22 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
     setToProfile(p);
     setTo(p.email);
     setSuggestions([]);
+    setBulkRole(null);
+  };
+
+  const selectBulkRole = (role: string) => {
+    setBulkRole(role);
+    setToProfile(null);
+    setTo('');
+    setSuggestions([]);
+    setShowDirectory(false);
+  };
+
+  const clearRecipient = () => {
+    setToProfile(null);
+    setBulkRole(null);
+    setTo('');
+    setShowDirectory(false);
   };
 
   const saveDraft = async () => {
@@ -106,8 +126,29 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
   };
 
   const sendEmail = async () => {
-    if (!user || !toProfile) { toast({ title: 'Select a recipient', variant: 'destructive' }); return; }
+    if (!user) return;
     if (!subject.trim()) { toast({ title: 'Add a subject', variant: 'destructive' }); return; }
+
+    // Bulk send
+    if (bulkRole && bulkRecipients.length > 0) {
+      setLoading(true);
+      const rows = bulkRecipients.map(r => ({
+        from_user_id: user.id,
+        to_user_id: r.id,
+        subject,
+        body,
+        is_draft: false,
+      }));
+      const { error } = await supabase.from('emails').insert(rows);
+      setLoading(false);
+      if (error) { toast({ title: 'Failed to send', description: error.message, variant: 'destructive' }); return; }
+      toast({ title: `✉️ Sent to ${bulkRecipients.length} ${getRoleLabel(bulkRole, authProfile?.org_type)}s!` });
+      onClose();
+      return;
+    }
+
+    // Single send
+    if (!toProfile) { toast({ title: 'Select a recipient', variant: 'destructive' }); return; }
     setLoading(true);
     const payload = { from_user_id: user.id, to_user_id: toProfile.id, subject, body, is_draft: false };
     let error;
@@ -121,6 +162,8 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
     toast({ title: '✉️ Email sent!' });
     onClose();
   };
+
+  const hasRecipient = !!toProfile || !!bulkRole;
 
   if (minimized) {
     return (
@@ -161,10 +204,20 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
         <div className="relative border-b border-border">
           <div className="flex items-center px-4 py-2.5 gap-2">
             <span className="text-xs text-muted-foreground font-medium w-8">To</span>
-            {toProfile ? (
+
+            {/* Bulk role chip */}
+            {bulkRole ? (
+              <div className="flex items-center gap-1 bg-accent text-accent-foreground rounded-full px-2.5 py-0.5 text-xs font-medium">
+                <UsersRound className="h-3 w-3" />
+                All {getRoleLabel(bulkRole, authProfile?.org_type)}s ({bulkRecipients.length})
+                <button onClick={clearRecipient} className="ml-1 hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : toProfile ? (
               <div className="flex items-center gap-1 bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-medium">
                 {toProfile.name}
-                <button onClick={() => { setToProfile(null); setTo(''); setShowDirectory(false); }} className="ml-1 hover:text-destructive">
+                <button onClick={clearRecipient} className="ml-1 hover:text-destructive">
                   <X className="h-3 w-3" />
                 </button>
               </div>
@@ -218,12 +271,20 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
               {['guard', 'employee', 'teacher'].map(role => {
                 const users = companyUsers.filter(u => u.role === role);
                 if (users.length === 0) return null;
+                const roleLabel = getRoleLabel(role, authProfile?.org_type);
                 return (
                   <div key={role}>
-                    <div className="px-4 py-1.5 bg-muted/50 sticky top-0">
+                    <div className="px-4 py-1.5 bg-muted/50 sticky top-0 flex items-center justify-between">
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        {getRoleLabel(role, authProfile?.org_type)}s
+                        {roleLabel}s ({users.length})
                       </span>
+                      <button
+                        onClick={() => selectBulkRole(role)}
+                        className="flex items-center gap-1 text-[10px] font-semibold text-primary hover:text-primary/80 transition-colors"
+                      >
+                        <UsersRound className="h-3 w-3" />
+                        Send to All
+                      </button>
                     </div>
                     {users.map(p => (
                       <button
@@ -272,11 +333,11 @@ const ComposeModal: React.FC<ComposeModalProps> = ({ onClose, draft }) => {
         <div className="px-4 py-3 border-t border-border flex items-center justify-between flex-shrink-0">
           <button
             onClick={sendEmail}
-            disabled={loading || !toProfile}
+            disabled={loading || !hasRecipient}
             className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded-full text-sm font-semibold disabled:opacity-50 active:scale-95 transition-all"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            Send
+            {bulkRole ? `Send to ${bulkRecipients.length}` : 'Send'}
           </button>
         </div>
       </div>
