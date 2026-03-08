@@ -1,18 +1,44 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, ChevronLeft, Send, Loader2, Phone, Search, Lock } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 
-const PERSONS_TO_MEET = ['CEO / MD', 'Department Manager', 'HR Manager', 'Finance Manager', 'IT Manager', 'Other'];
-const PURPOSES = ['Business Meeting', 'Job Interview', 'Delivery', 'Personal Visit', 'Vendor Meeting', 'Maintenance', 'Other'];
+const OFFICE_PURPOSES = [
+  'Business Meeting', 'Job Interview', 'Delivery', 'Personal Visit',
+  'Vendor Meeting', 'Maintenance', 'Other',
+];
+const SCHOOL_PURPOSES = [
+  'Parent Meeting', 'Admission Enquiry', 'Document Submission',
+  'Event Attendance', 'Delivery', 'Maintenance', 'Other',
+];
+const COLLEGE_PURPOSES = [
+  'Parent Meeting', 'Admission Enquiry', 'Document Submission',
+  'Guest Lecture', 'Campus Tour', 'Delivery', 'Maintenance', 'Other',
+];
+
+const getPurposes = (orgType: string | null) => {
+  if (orgType === 'school') return SCHOOL_PURPOSES;
+  if (orgType === 'college') return COLLEGE_PURPOSES;
+  return OFFICE_PURPOSES;
+};
+
+interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+}
 
 const AddVisitorPage: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, orgType } = useAuth();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+
+  const isAcademic = orgType === 'school' || orgType === 'college';
+  const memberLabel = isAcademic ? 'Student' : 'Employee';
+  const PURPOSES = getPurposes(orgType);
 
   const [form, setForm] = useState({
     visitor_name: '',
@@ -26,10 +52,35 @@ const AddVisitorPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreed, setAgreed] = useState(false);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
+  const [staffSearch, setStaffSearch] = useState('');
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
+  const [staffLoading, setStaffLoading] = useState(false);
 
   const now = new Date();
   const entryDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const entryTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+  useEffect(() => {
+    if (!profile?.company_name) return;
+    const fetchStaff = async () => {
+      setStaffLoading(true);
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, name, role')
+        .eq('company_name', profile.company_name)
+        .neq('role', 'guard')
+        .eq('is_active', true)
+        .order('name');
+      setStaffList((data as StaffMember[]) || []);
+      setStaffLoading(false);
+    };
+    fetchStaff();
+  }, [profile?.company_name]);
+
+  const filteredStaff = staffList.filter(s =>
+    s.name.toLowerCase().includes(staffSearch.toLowerCase())
+  );
 
   const handleChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -42,6 +93,15 @@ const AddVisitorPage: React.FC = () => {
     if (file.size > 5 * 1024 * 1024) { toast({ title: 'Photo too large', description: 'Max 5MB', variant: 'destructive' }); return; }
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const selectStaff = (member: StaffMember) => {
+    const roleLabel = member.role === 'admin'
+      ? (isAcademic ? 'Principal/Admin' : 'Admin')
+      : memberLabel;
+    handleChange('person_to_meet', `${member.name} (${roleLabel})`);
+    setStaffSearch(member.name);
+    setShowStaffDropdown(false);
   };
 
   const validate = () => {
@@ -91,7 +151,7 @@ const AddVisitorPage: React.FC = () => {
 
       if (error) throw error;
 
-      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin').eq('company_name', profile!.company_name!);
       if (admins && visitor) {
         await Promise.all(admins.map(admin =>
           supabase.from('notifications').insert({
@@ -221,12 +281,14 @@ const AddVisitorPage: React.FC = () => {
 
             {/* Company */}
             <div>
-              <label className="text-sm font-semibold text-foreground mb-1.5 block">Company Name</label>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                {isAcademic ? 'School / College Name' : 'Company Name'}
+              </label>
               <input
                 type="text"
                 value={form.company}
                 onChange={e => handleChange('company', e.target.value)}
-                placeholder="e.g. Acme Corp"
+                placeholder={isAcademic ? 'e.g. Springfield High School' : 'e.g. Acme Corp'}
                 className={`w-full h-12 px-4 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm ${errors.company ? 'border-destructive' : 'border-border'}`}
               />
               {errors.company && <p className="text-xs text-destructive mt-1">{errors.company}</p>}
@@ -251,22 +313,52 @@ const AddVisitorPage: React.FC = () => {
               {errors.purpose && <p className="text-xs text-destructive mt-1">{errors.purpose}</p>}
             </div>
 
-            {/* Person to Meet */}
+            {/* Person to Meet — live search from DB */}
             <div>
-              <label className="text-sm font-semibold text-foreground mb-1.5 block">Person to Meet</label>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                {isAcademic ? 'Student / Teacher to Meet' : 'Person to Meet'}
+              </label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <select
-                  value={form.person_to_meet}
-                  onChange={e => handleChange('person_to_meet', e.target.value)}
-                  className={`w-full h-12 pl-10 pr-10 rounded-xl border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm appearance-none ${errors.person_to_meet ? 'border-destructive' : 'border-border'} ${!form.person_to_meet ? 'text-muted-foreground' : ''}`}
-                >
-                  <option value="">Search staff...</option>
-                  {PERSONS_TO_MEET.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-                <svg className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+                <input
+                  type="text"
+                  value={staffSearch}
+                  onChange={e => {
+                    setStaffSearch(e.target.value);
+                    handleChange('person_to_meet', e.target.value);
+                    setShowStaffDropdown(true);
+                  }}
+                  onFocus={() => setShowStaffDropdown(true)}
+                  placeholder={staffLoading ? 'Loading staff...' : `Search ${isAcademic ? 'students & teachers' : 'employees'}...`}
+                  className={`w-full h-12 pl-10 pr-4 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm ${errors.person_to_meet ? 'border-destructive' : 'border-border'}`}
+                />
+                {/* Dropdown */}
+                {showStaffDropdown && filteredStaff.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto">
+                    {filteredStaff.map(member => (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onMouseDown={() => selectStaff(member)}
+                        className="w-full px-4 py-3 text-left hover:bg-muted transition-colors flex items-center gap-3 border-b border-border last:border-0"
+                      >
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-primary text-xs font-bold">{member.name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{member.name}</p>
+                          <p className="text-xs text-muted-foreground capitalize">
+                            {member.role === 'admin'
+                              ? (isAcademic ? 'Principal / Admin' : 'Admin')
+                              : member.role === 'employee'
+                                ? memberLabel
+                                : member.role}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               {errors.person_to_meet && <p className="text-xs text-destructive mt-1">{errors.person_to_meet}</p>}
             </div>

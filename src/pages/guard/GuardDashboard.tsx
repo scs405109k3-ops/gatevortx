@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserPlus, QrCode, ClipboardList, Users, Home, UserCheck, Mail } from 'lucide-react';
+import { Bell, UserPlus, ClipboardList, Users, Home, UserCheck, Mail, LogOut } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 ];
 
 const GuardDashboard: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,6 +83,13 @@ const GuardDashboard: React.FC = () => {
               <span className="text-primary font-bold text-sm">{profile?.name?.charAt(0) || 'G'}</span>
             )}
           </div>
+          <button
+            onClick={signOut}
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-destructive/10 transition-colors"
+            title="Logout"
+          >
+            <LogOut className="h-5 w-5 text-destructive" />
+          </button>
         </div>
       </header>
 
@@ -114,7 +121,7 @@ const GuardDashboard: React.FC = () => {
             </div>
             <div>
               <h2 className="text-base font-bold">Add New Visitor</h2>
-              <p className="text-blue-100 text-xs">Register a guest or delivery person</p>
+              <p className="text-primary-foreground/70 text-xs">Register a guest or delivery person</p>
             </div>
           </div>
           <button
