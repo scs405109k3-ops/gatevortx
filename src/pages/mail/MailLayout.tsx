@@ -36,6 +36,16 @@ const MailLayout: React.FC = () => {
     <div className="flex flex-col h-full bg-[hsl(220,26%,10%)] text-white">
       {/* Brand */}
       <div className="px-5 pt-6 pb-4 border-b border-white/10">
+        <button
+          onClick={() => {
+            const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+            navigate(routes[profile?.role || ''] || '/login');
+          }}
+          className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs font-medium mb-3 transition-all"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Dashboard
+        </button>
         <div className="flex items-center gap-2 mb-1">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
             <Send className="h-4 w-4 text-primary-foreground" />
@@ -109,16 +119,6 @@ const MailLayout: React.FC = () => {
 
       {/* Footer */}
       <div className="px-4 py-4 border-t border-white/10 space-y-1">
-        <button
-          onClick={() => {
-            const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
-            navigate(routes[profile?.role || ''] || '/login');
-          }}
-          className="w-full flex items-center gap-2 text-white/50 hover:text-white text-xs font-medium py-2 px-3 rounded-xl hover:bg-white/10 transition-all"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Dashboard
-        </button>
         <button
           onClick={() => navigate('/mail/labels')}
           className="w-full flex items-center gap-2 text-white/50 hover:text-white text-xs font-medium py-2 px-3 rounded-xl hover:bg-white/10 transition-all"
