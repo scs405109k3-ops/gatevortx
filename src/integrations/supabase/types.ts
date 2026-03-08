@@ -253,6 +253,8 @@ export type Database = {
           name: string
           org_type: string | null
           role: Database["public"]["Enums"]["app_role"]
+          work_end_time: string | null
+          work_start_time: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -264,6 +266,8 @@ export type Database = {
           name?: string
           org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          work_end_time?: string | null
+          work_start_time?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -275,6 +279,8 @@ export type Database = {
           name?: string
           org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          work_end_time?: string | null
+          work_start_time?: string | null
         }
         Relationships: []
       }
@@ -336,7 +342,7 @@ export type Database = {
       is_user_active: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "guard" | "employee"
+      app_role: "admin" | "guard" | "employee" | "teacher"
       attendance_status: "present" | "absent" | "late"
       leave_status: "pending" | "approved" | "rejected"
       visitor_status: "pending" | "approved" | "rejected"
@@ -467,7 +473,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "guard", "employee"],
+      app_role: ["admin", "guard", "employee", "teacher"],
       attendance_status: ["present", "absent", "late"],
       leave_status: ["pending", "approved", "rejected"],
       visitor_status: ["pending", "approved", "rejected"],
