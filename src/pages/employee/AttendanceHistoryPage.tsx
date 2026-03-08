@@ -91,7 +91,7 @@ const AttendanceHistoryPage: React.FC = () => {
                   <p className="text-sm font-semibold text-foreground">
                     {new Date(record.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                   </p>
-                  <div className="flex gap-3 mt-0.5">
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
                     {record.check_in && (
                       <p className="text-xs text-muted-foreground">
                         In: <span className="font-medium text-foreground">
@@ -106,7 +106,14 @@ const AttendanceHistoryPage: React.FC = () => {
                         </span>
                       </p>
                     )}
-                    {!record.check_in && <p className="text-xs text-muted-foreground">No check-in</p>}
+                    {(record as any).checked_out_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Left: <span className="font-medium text-foreground">
+                          {new Date((record as any).checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </p>
+                    )}
+                    {!record.check_in && <p className="text-xs text-muted-foreground">No check-in recorded</p>}
                   </div>
                 </div>
                 <StatusBadge status={record.status} />
