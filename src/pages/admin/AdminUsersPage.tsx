@@ -535,7 +535,14 @@ const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => vo
             <span className="text-[10px] font-bold bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full flex-shrink-0">INACTIVE</span>
           )}
         </div>
-        <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+          {member.user_code && (
+            <span className="text-[10px] font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full flex-shrink-0">
+              {member.user_code}
+            </span>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${isGuard ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
