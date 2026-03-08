@@ -22,7 +22,7 @@ type TeamMember = {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'guard';
+  role: 'employee' | 'guard' | 'teacher';
   company_name: string | null;
   created_at: string;
   is_active: boolean;
