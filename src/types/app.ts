@@ -13,6 +13,9 @@ export interface Profile {
   company_name?: string;
   avatar_url?: string;
   created_at?: string;
+  work_start_time?: string;
+  work_end_time?: string;
+  org_type?: string;
 }
 
 export interface Visitor {

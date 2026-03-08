@@ -31,6 +31,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
       admin: '/admin',
       guard: '/guard',
       employee: '/employee',
+      teacher: '/teacher',
     };
     return <Navigate to={roleRoutes[profile.role]} replace />;
   }

@@ -115,6 +115,34 @@ const CompanySetupPage: React.FC = () => {
             </select>
           </div>
 
+          {/* Work Timings */}
+          <div>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">
+              Work Timings <span className="text-destructive">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Start Time</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">End Time</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={e => setEndTime(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5">Used to determine if employees are late or working overtime</p>
+          </div>
+
           {error && (
             <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl px-4 py-3">
               {error}
