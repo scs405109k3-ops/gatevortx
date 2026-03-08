@@ -5,7 +5,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
-import { Home, ClipboardList, Users, UserCheck } from 'lucide-react';
+import { Home, ClipboardList, Users, UserCheck, User } from 'lucide-react';
 
 interface Employee {
   id: string;
