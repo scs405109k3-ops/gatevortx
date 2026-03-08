@@ -185,6 +185,24 @@ const AdminUsersPage: React.FC = () => {
     setActionLoading(false);
   };
 
+  const getCredentialsText = (creds: { name: string; userCode: string; password?: string }) => {
+    const lines = [`🔐 GateVortx Login Credentials`, ``, `Name: ${creds.name}`, `User ID: ${creds.userCode}`];
+    if (creds.password) lines.push(`Password: ${creds.password}`);
+    lines.push(``, `Login at: ${window.location.origin}/login`);
+    return lines.join('\n');
+  };
+
+  const handleShare = (method: 'copy' | 'whatsapp' | 'sms', text: string) => {
+    if (method === 'copy') {
+      navigator.clipboard.writeText(text);
+      toast({ title: '📋 Credentials copied to clipboard!' });
+    } else if (method === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    } else if (method === 'sms') {
+      window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
+    }
+  };
+
   const employees = members.filter(m => m.role === 'employee');
   const guards = members.filter(m => m.role === 'guard');
   const teachers = members.filter(m => m.role === 'teacher');
