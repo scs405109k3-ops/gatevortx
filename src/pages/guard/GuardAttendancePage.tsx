@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
 import { Home, ClipboardList, Users, UserCheck, User } from 'lucide-react';
+import { checkAndNotifyOvertime } from '../../hooks/useOvertimeNotifier';
 
 interface Employee {
   id: string;
