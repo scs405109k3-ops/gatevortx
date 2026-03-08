@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus, Users, ChevronUp } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 type CompanyEntry = { name: string; orgType: string | null };
