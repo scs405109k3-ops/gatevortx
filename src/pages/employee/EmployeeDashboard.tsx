@@ -130,6 +130,20 @@ const EmployeeDashboard: React.FC = () => {
     return acc;
   }, 0);
 
+  // Calculate today's overtime
+  const calcTodayOvertime = () => {
+    if (!todayRecord?.check_in || !orgTimings) return 0;
+    const endTimeToday = new Date();
+    const [eh, em] = orgTimings.end.split(':').map(Number);
+    endTimeToday.setHours(eh, em, 0, 0);
+    const checkOut = todayRecord.check_out ? new Date(todayRecord.check_out) : new Date();
+    if (checkOut > endTimeToday) {
+      return (checkOut.getTime() - endTimeToday.getTime()) / 3600000;
+    }
+    return 0;
+  };
+  const todayOvertime = calcTodayOvertime();
+
   // Get today's day index (Mon=0)
   const todayDayIndex = now.getDay() === 0 ? 6 : now.getDay() - 1;
 
