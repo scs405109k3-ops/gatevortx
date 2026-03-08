@@ -107,6 +107,7 @@ const AdminUsersPage: React.FC = () => {
     setShowForm(false);
     setName('');
     setEmail('');
+    setEmailManuallyEdited(false);
     setPassword('');
     setRole('employee');
 
