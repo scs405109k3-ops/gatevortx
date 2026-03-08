@@ -170,7 +170,7 @@ const AdminDashboard: React.FC = () => {
           ) : (
             <div className="space-y-2">
               {attendanceRows.slice(0, 5).map(row => (
-                <div key={row.id} className="bg-card rounded-2xl border border-border p-3 flex items-center gap-3 animate-fade-in">
+                <div key={row.id} className="bg-card rounded-2xl border border-border p-3 flex items-start gap-3 animate-fade-in">
                   <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                     <span className="text-primary font-bold text-sm">{row.employee_name?.charAt(0) || '?'}</span>
                   </div>
@@ -192,6 +192,14 @@ const AdminDashboard: React.FC = () => {
                         </p>
                       )}
                     </div>
+                    {row.guard_name && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <Shield className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-xs text-muted-foreground">
+                          By <span className="font-medium text-foreground">{row.guard_name}</span>
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <StatusBadge status={row.status} />
                 </div>
