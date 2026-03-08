@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserPlus, QrCode, ClipboardList, Users, Home, UserCheck } from 'lucide-react';
+import { Bell, UserPlus, QrCode, ClipboardList, Users, Home, UserCheck, Mail } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -146,6 +146,18 @@ const GuardDashboard: React.FC = () => {
                 <ClipboardList className="h-6 w-6 text-primary" />
               </div>
               <span className="text-sm font-semibold text-foreground">Visitor Log</span>
+            </button>
+            <button
+              onClick={() => navigate('/mail/inbox')}
+              className="col-span-2 bg-card rounded-2xl p-4 border border-border flex items-center gap-3 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Mail className="h-6 w-6 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">MailVortx</p>
+                <p className="text-xs text-muted-foreground">Open your company inbox</p>
+              </div>
             </button>
           </div>
         </div>

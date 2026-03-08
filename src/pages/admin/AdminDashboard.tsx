@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, UserCheck, Clock, BarChart3, CalendarCheck, FileText,
-  LayoutDashboard, Eye, TrendingUp, UserX, Shield,
+  LayoutDashboard, Eye, TrendingUp, UserX, Shield, Mail,
 } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import BottomNav from '../../components/BottomNav';
@@ -112,6 +112,7 @@ const AdminDashboard: React.FC = () => {
     { label: 'Team Members', sub: 'Manage employees & guards', icon: UserCheck, path: '/admin/users', badge: 0, color: 'bg-green-500/10 text-green-600' },
     { label: 'Leave Requests', sub: `${stats.pendingLeaves} pending`, icon: FileText, path: '/admin/leaves', badge: stats.pendingLeaves, color: 'bg-yellow-500/10 text-yellow-600' },
     { label: 'Analytics', sub: 'View reports', icon: BarChart3, path: '/admin/analytics', badge: 0, color: 'bg-purple-500/10 text-purple-600' },
+    { label: 'MailVortx', sub: 'Company inbox & messaging', icon: Mail, path: '/mail/inbox', badge: 0, color: 'bg-primary/10 text-primary' },
   ];
 
   return (

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Home, CalendarCheck, FileText, User, Loader2, LogIn, LogOut } from 'lucide-react';
+import { Bell, Home, CalendarCheck, FileText, User, Loader2, LogIn, LogOut, Mail } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Attendance } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -282,6 +282,18 @@ const EmployeeDashboard: React.FC = () => {
                 <CalendarCheck className="h-6 w-6 text-primary" />
               </div>
               <span className="text-sm font-semibold text-foreground">History</span>
+            </button>
+            <button
+              onClick={() => navigate('/mail/inbox')}
+              className="col-span-2 bg-card rounded-2xl p-4 border border-border flex items-center gap-3 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Mail className="h-6 w-6 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-foreground">MailVortx</p>
+                <p className="text-xs text-muted-foreground">Open your company inbox</p>
+              </div>
             </button>
           </div>
         </div>
