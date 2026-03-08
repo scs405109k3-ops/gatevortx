@@ -129,7 +129,7 @@ const AdminAttendancePage: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-foreground text-sm">{record.employee_name}</p>
-                  <div className="flex items-center gap-3 mt-0.5">
+                  <div className="flex items-center flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
                     {record.check_in && (
                       <p className="text-xs text-muted-foreground">
                         In: <span className="text-foreground font-medium">
@@ -141,6 +141,13 @@ const AdminAttendancePage: React.FC = () => {
                       <p className="text-xs text-muted-foreground">
                         Out: <span className="text-foreground font-medium">
                           {new Date(record.check_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </p>
+                    )}
+                    {record.checked_out_at && (
+                      <p className="text-xs text-muted-foreground">
+                        Left: <span className="text-foreground font-medium">
+                          {new Date(record.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </p>
                     )}
