@@ -431,10 +431,11 @@ interface MemberSectionProps {
   emptyLabel: string;
   onAdd: () => void;
   onManage: (m: TeamMember) => void;
+  memberLabel: string;
 }
 
 const MemberSection: React.FC<MemberSectionProps> = ({
-  title, icon, badgeClass, members, loading, emptyIcon, emptyLabel, onAdd, onManage,
+  title, icon, badgeClass, members, loading, emptyIcon, emptyLabel, onAdd, onManage, memberLabel,
 }) => (
   <div>
     <div className="flex items-center gap-2 mb-3">
@@ -456,13 +457,13 @@ const MemberSection: React.FC<MemberSectionProps> = ({
       </div>
     ) : (
       <div className="space-y-2">
-        {members.map(m => <MemberCard key={m.id} member={m} onManage={onManage} />)}
+        {members.map(m => <MemberCard key={m.id} member={m} onManage={onManage} memberLabel={memberLabel} />)}
       </div>
     )}
   </div>
 );
 
-const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => void }> = ({ member, onManage }) => {
+const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => void; memberLabel: string }> = ({ member, onManage, memberLabel }) => {
   const initials = member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   const isGuard = member.role === 'guard';
 
@@ -482,7 +483,7 @@ const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => vo
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${isGuard ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
-          {isGuard ? 'Guard' : 'Employee'}
+          {isGuard ? 'Guard' : memberLabel}
         </span>
         <button
           onClick={() => onManage(member)}
