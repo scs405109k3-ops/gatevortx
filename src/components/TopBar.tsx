@@ -6,9 +6,10 @@ import { useNotifications } from '../hooks/useNotifications';
 interface TopBarProps {
   title: string;
   subtitle?: string;
+  action?: React.ReactNode;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ title, subtitle }) => {
+const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
   const { profile, signOut } = useAuth();
   const { unreadCount, markAllRead } = useNotifications();
 
