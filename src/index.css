@@ -4,29 +4,29 @@
 
 @layer base {
   :root {
-    /* GateVortx Design System — Vortex Blue/Purple/Cyan */
-    --background: 230 20% 96%;
-    --foreground: 235 30% 12%;
+    /* GateVortx Design System — Deep Blue/Violet/Cyan */
+    --background: 220 25% 95%;
+    --foreground: 230 35% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 235 30% 12%;
+    --card-foreground: 230 35% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 235 30% 12%;
+    --popover-foreground: 230 35% 10%;
 
-    /* Primary: vivid blue from logo */
-    --primary: 224 90% 52%;
+    /* Primary: deep vivid blue */
+    --primary: 220 85% 50%;
     --primary-foreground: 0 0% 100%;
 
     /* Purple accent from logo swirl */
-    --purple: 270 72% 52%;
+    --purple: 265 80% 48%;
     --purple-foreground: 0 0% 100%;
 
     /* Cyan highlight from logo */
-    --cyan: 192 90% 48%;
-    --cyan-foreground: 235 30% 12%;
+    --cyan: 188 95% 45%;
+    --cyan-foreground: 230 35% 10%;
 
-    --primary-dark: 240 55% 22%;
+    --primary-dark: 230 60% 18%;
     --primary-dark-foreground: 0 0% 100%;
 
     --secondary: 230 18% 93%;
