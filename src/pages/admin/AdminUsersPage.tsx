@@ -41,6 +41,10 @@ const AdminUsersPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionResult, setActionResult] = useState('');
   const [createdCredentials, setCreatedCredentials] = useState<{ name: string; userCode: string; email: string; password: string } | null>(null);
+  const [resetPassword, setResetPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [memberPassword, setMemberPassword] = useState<string | null>(null); // holds the last-set password for sharing
 
   // Form state
   const [name, setName] = useState('');
