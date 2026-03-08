@@ -9,6 +9,8 @@ const CompanySetupPage: React.FC = () => {
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState('');
   const [industry, setIndustry] = useState('');
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('17:00');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,7 +22,11 @@ const CompanySetupPage: React.FC = () => {
 
     const { error: updateError } = await supabase
       .from('profiles')
-      .update({ company_name: companyName.trim() })
+      .update({
+        company_name: companyName.trim(),
+        work_start_time: startTime + ':00',
+        work_end_time: endTime + ':00',
+      } as any)
       .eq('id', user!.id);
 
     setLoading(false);
