@@ -31,13 +31,13 @@ const LoginPage: React.FC = () => {
     { label: 'Admin (Principal/MD)', value: 'admin' },
   ];
 
-  // Fetch all registered companies from admin profiles
+  // Fetch all registered companies from admin profiles (with org_type)
   useEffect(() => {
     const fetchCompanies = async () => {
       setLoadingCompanies(true);
       const { data } = await supabase
         .from('profiles')
-        .select('company_name')
+        .select('company_name, org_type')
         .eq('role', 'admin')
         .not('company_name', 'is', null)
         .neq('company_name', '');
