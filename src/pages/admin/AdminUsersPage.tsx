@@ -420,6 +420,9 @@ const AdminUsersPage: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-foreground text-sm truncate">{actionMember.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{actionMember.email}</p>
+                {actionMember.user_code && (
+                  <p className="text-xs font-mono font-semibold text-primary mt-0.5">ID: {actionMember.user_code}</p>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${actionMember.role === 'guard' ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
                     {actionMember.role === 'guard' ? 'Guard' : memberLabel}
