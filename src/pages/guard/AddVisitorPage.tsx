@@ -98,6 +98,55 @@ const AddVisitorPage: React.FC = () => {
     setPhotoPreview(URL.createObjectURL(file));
     setFaceResult(null);
 
+    // Only run AI face check if guard opted in
+    if (!aiEnabled) return;
+
+    const phoneVal = form.phone.replace(/[\s\-\(\)\+]/g, '');
+    if (phoneVal.length >= 10) {
+      setFaceVerifying(true);
+      try {
+        const { data: prevVisits } = await supabase
+          .from('visitors')
+          .select('photo_url, visitor_name')
+          .eq('phone', form.phone.trim())
+          .eq('status', 'approved')
+          .not('photo_url', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        const prevVisit = prevVisits?.[0];
+        if (prevVisit?.photo_url) {
+          const tempPath = `temp/visitor-${Date.now()}.jpg`;
+          await supabase.storage.from('visitor-photos').upload(tempPath, file, { contentType: file.type, upsert: true });
+          const { data: { publicUrl: currentUrl } } = supabase.storage.from('visitor-photos').getPublicUrl(tempPath);
+
+          const { data, error } = await supabase.functions.invoke('verify-face', {
+            body: { reference_url: prevVisit.photo_url, current_url: currentUrl, context: 'visitor' },
+          });
+
+          if (!error && data) {
+            setFaceResult(data);
+            if (data.match === false && data.confidence >= 70) {
+              toast({ title: '⚠️ Possible Identity Mismatch', description: 'This person looks different from a previous visit. Verify identity.', variant: 'destructive' });
+            } else if (data.match === true) {
+              toast({ title: '✅ Returning Visitor Verified', description: `Face matches previous visit (${data.confidence}% confidence).` });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[FaceVerify] Visitor check error:', err);
+      } finally {
+        setFaceVerifying(false);
+      }
+    }
+  };
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast({ title: 'Photo too large', description: 'Max 5MB', variant: 'destructive' }); return; }
+    setPhoto(file);
+    setPhotoPreview(URL.createObjectURL(file));
+    setFaceResult(null);
+
     // Check if visitor has visited before (by phone) and compare faces
     const phoneVal = form.phone.replace(/[\s\-\(\)\+]/g, '');
     if (phoneVal.length >= 10) {
