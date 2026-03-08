@@ -278,7 +278,7 @@ const LoginPage: React.FC = () => {
 
         <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
           <Lock className="h-3 w-3" />
-          Secured by GateFlow Cloud Infrastructure
+          Secured by GateVortx Cloud Infrastructure
         </p>
       </div>
     </div>

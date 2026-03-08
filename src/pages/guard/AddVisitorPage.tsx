@@ -124,7 +124,7 @@ const AddVisitorPage: React.FC = () => {
         </button>
         <div className="flex-1">
           <h1 className="text-base font-bold text-foreground">Visitor Entry Form</h1>
-          <p className="text-xs text-muted-foreground">GateFlow Security Management</p>
+          <p className="text-xs text-muted-foreground">GateVortx Security Management</p>
         </div>
         <div className="bg-primary/10 rounded-lg p-2">
           <svg className="h-5 w-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
