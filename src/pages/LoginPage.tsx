@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, ChevronDown } from 'lucide-react';
+import { supabase } from '../integrations/supabase/client';
+import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown } from 'lucide-react';
 
 const ROLES = [
   { label: 'Employee', value: 'employee' },
@@ -14,29 +15,101 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState('employee');
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { signIn, profile } = useAuth();
+  const { signIn, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch all registered companies from admin profiles
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      setLoadingCompanies(true);
+      const { data } = await supabase
+        .from('profiles')
+        .select('company_name')
+        .eq('role', 'admin')
+        .not('company_name', 'is', null)
+        .neq('company_name', '');
+      const names = [...new Set((data || []).map((r: any) => r.company_name).filter(Boolean))];
+      setCompanies(names);
+      if (names.length === 1) setSelectedCompany(names[0]);
+      setLoadingCompanies(false);
+    };
+    fetchCompanies();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) { setError('Please fill in all fields'); return; }
+
+    // Admins don't need a company selector — they set it up themselves
+    if (selectedRole !== 'admin' && !selectedCompany) {
+      setError('Please select your company');
+      return;
+    }
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
     setLoading(true);
     setError('');
+
     const { error: signInError } = await signIn(email.trim(), password);
-    setLoading(false);
+
     if (signInError) {
+      setLoading(false);
       setError('Invalid email or password. Please try again.');
+      return;
     }
+
+    // After sign-in, fetch the fresh profile to validate company + role
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); setError('Authentication failed.'); return; }
+
+    const { data: freshProfile } = await supabase
+      .from('profiles')
+      .select('role, company_name')
+      .eq('id', user.id)
+      .single();
+
+    setLoading(false);
+
+    if (!freshProfile) { setError('Account not found. Please contact your admin.'); await signOut(); return; }
+
+    // Role mismatch
+    if (freshProfile.role !== selectedRole) {
+      const roleLabel = ROLES.find(r => r.value === freshProfile.role)?.label || freshProfile.role;
+      setError(`This account is registered as "${roleLabel}". Please select the correct role.`);
+      await signOut();
+      return;
+    }
+
+    // Company mismatch for non-admins
+    if (selectedRole !== 'admin') {
+      if (!freshProfile.company_name || freshProfile.company_name !== selectedCompany) {
+        setError(`You do not belong to "${selectedCompany}". Please select the correct company.`);
+        await signOut();
+        return;
+      }
+    }
+
+    // All good — redirect
+    const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+    navigate(routes[freshProfile.role] || '/login');
   };
 
-  React.useEffect(() => {
+  // If already logged in, redirect
+  useEffect(() => {
     if (profile?.role) {
       const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
       navigate(routes[profile.role] || '/login');
     }
   }, [profile, navigate]);
+
+  const isAdminRole = selectedRole === 'admin';
 
   return (
     <div className="mobile-container bg-card flex flex-col min-h-screen">
@@ -59,6 +132,12 @@ const LoginPage: React.FC = () => {
           />
           <div className="p-4">
             <p className="text-white font-bold text-base tracking-wide">Secure Access Terminal</p>
+            {selectedCompany && !isAdminRole && (
+              <p className="text-white/70 text-xs mt-0.5 flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                {selectedCompany}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -69,6 +148,37 @@ const LoginPage: React.FC = () => {
         <p className="text-sm text-muted-foreground mb-5">Sign in to manage your workplace flow</p>
 
         <form onSubmit={handleLogin} className="space-y-4">
+
+          {/* Company selector — hidden for admin */}
+          {!isAdminRole && (
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-1.5 block">
+                Select Company <span className="text-destructive">*</span>
+              </label>
+              {loadingCompanies ? (
+                <div className="w-full h-12 rounded-xl border border-border bg-muted animate-pulse" />
+              ) : companies.length === 0 ? (
+                <div className="w-full h-12 rounded-xl border border-dashed border-border bg-muted/50 flex items-center px-4 gap-2">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">No companies registered yet</span>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                  <select
+                    value={selectedCompany}
+                    onChange={e => setSelectedCompany(e.target.value)}
+                    className="w-full h-12 pl-10 pr-10 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm appearance-none"
+                  >
+                    <option value="">Select your company…</option>
+                    {companies.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Role selector */}
           <div>
             <label className="text-sm font-semibold text-foreground mb-1.5 block">Select User Role</label>
@@ -86,7 +196,7 @@ const LoginPage: React.FC = () => {
 
           {/* Email */}
           <div>
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">Email or Username</label>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
@@ -134,7 +244,7 @@ const LoginPage: React.FC = () => {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || (!isAdminRole && !selectedCompany && companies.length > 0)}
             className="w-full h-13 py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-base flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all shadow-lg shadow-primary/30"
           >
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <LogIn className="h-5 w-5" />}
@@ -142,10 +252,12 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          Need help?{' '}
-          <Link to="/signup" className="text-primary font-bold">Create Account</Link>
-        </p>
+        {isAdminRole && (
+          <p className="text-center text-sm text-muted-foreground mt-6">
+            New company?{' '}
+            <Link to="/signup" className="text-primary font-bold">Register as Admin</Link>
+          </p>
+        )}
 
         <p className="text-center text-xs text-muted-foreground mt-8 flex items-center justify-center gap-1">
           <Lock className="h-3 w-3" />

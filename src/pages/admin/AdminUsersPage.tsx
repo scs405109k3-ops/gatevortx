@@ -43,15 +43,17 @@ const AdminUsersPage: React.FC = () => {
   const [formSuccess, setFormSuccess] = useState('');
 
   const fetchMembers = useCallback(async () => {
+    if (!profile?.company_name) return;
     setLoading(true);
     const { data } = await supabase
       .from('profiles')
       .select('id, name, email, role, company_name, created_at')
       .in('role', ['employee', 'guard'])
+      .eq('company_name', profile.company_name)
       .order('created_at', { ascending: false });
     setMembers((data as TeamMember[]) || []);
     setLoading(false);
-  }, []);
+  }, [profile?.company_name]);
 
   useEffect(() => { fetchMembers(); }, [fetchMembers]);
 
