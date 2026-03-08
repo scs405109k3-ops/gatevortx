@@ -121,7 +121,7 @@ const GuardDashboard: React.FC = () => {
             </div>
             <div>
               <h2 className="text-base font-bold">Add New Visitor</h2>
-              <p className="text-blue-100 text-xs">Register a guest or delivery person</p>
+              <p className="text-primary-foreground/70 text-xs">Register a guest or delivery person</p>
             </div>
           </div>
           <button
