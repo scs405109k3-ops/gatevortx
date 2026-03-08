@@ -97,8 +97,9 @@ const AdminUsersPage: React.FC = () => {
     }
 
     setSubmitting(true);
+    const savedPassword = password;
+    const savedCustomCode = customUserCode.trim().toUpperCase();
 
-    // Optimistic UI: add member immediately to list
     const optimisticMember: TeamMember = {
       id: `optimistic-${Date.now()}`,
       name: name.trim(),
@@ -107,7 +108,7 @@ const AdminUsersPage: React.FC = () => {
       company_name: profile?.company_name || null,
       created_at: new Date().toISOString(),
       is_active: true,
-      user_code: customUserCode.trim().toUpperCase() || null,
+      user_code: savedCustomCode || null,
     };
     setMembers(prev => [optimisticMember, ...prev]);
     setShowForm(false);
@@ -122,16 +123,15 @@ const AdminUsersPage: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('create-user', {
         body: {
           email: optimisticMember.email,
-          password,
+          password: savedPassword,
           name: optimisticMember.name,
           role,
-          user_code: customUserCode.trim() || undefined,
+          user_code: savedCustomCode || undefined,
         },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
       if (error || data?.error) {
-        // Rollback optimistic update
         setMembers(prev => prev.filter(m => m.id !== optimisticMember.id));
         setShowForm(true);
         setName(optimisticMember.name);
@@ -139,8 +139,14 @@ const AdminUsersPage: React.FC = () => {
         setEmailManuallyEdited(true);
         setFormError(data?.error || error?.message || 'Failed to create user');
       } else {
-        // Replace optimistic entry with real data
         fetchMembers();
+        // Show copy credentials dialog
+        setCreatedCredentials({
+          name: optimisticMember.name,
+          userCode: data?.user_code || savedCustomCode || '—',
+          email: optimisticMember.email,
+          password: savedPassword,
+        });
       }
     } catch {
       setMembers(prev => prev.filter(m => m.id !== optimisticMember.id));
