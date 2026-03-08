@@ -419,7 +419,7 @@ const GuardAttendancePage: React.FC = () => {
 
                 {/* Photo capture area — only if not absent */}
                 {!isAbsent && (
-                  <div className="px-4 pb-3">
+                  <div className="px-4 pb-3 space-y-2">
                     {preview ? (
                       <div className="relative">
                         <img src={preview} alt="Captured" className="w-full h-32 rounded-xl object-cover border-2 border-primary/30" />
@@ -427,11 +427,40 @@ const GuardAttendancePage: React.FC = () => {
                           onClick={() => removePhoto(emp.id)}
                           className="absolute top-2 right-2 h-7 w-7 bg-destructive rounded-full flex items-center justify-center shadow"
                         >
-                          <X className="h-4 w-4 text-white" />
+                          <X className="h-4 w-4 text-destructive-foreground" />
                         </button>
-                        <div className="absolute bottom-2 left-2 bg-black/50 rounded-lg px-2 py-0.5">
-                          <p className="text-[10px] text-white">Photo captured ✓</p>
-                        </div>
+                        {/* Face verification badge */}
+                        {verifyingFor === emp.id ? (
+                          <div className="absolute bottom-2 left-2 bg-black/60 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                            <Loader2 className="h-3 w-3 text-white animate-spin" />
+                            <span className="text-[10px] text-white">Verifying identity…</span>
+                          </div>
+                        ) : faceResults[emp.id] ? (
+                          <div className={`absolute bottom-2 left-2 rounded-lg px-2 py-1 flex items-center gap-1.5 ${
+                            faceResults[emp.id].match === true
+                              ? 'bg-green-600/90'
+                              : faceResults[emp.id].match === false
+                              ? 'bg-destructive/90'
+                              : 'bg-muted/90'
+                          }`}>
+                            {faceResults[emp.id].match === true
+                              ? <ShieldCheck className="h-3 w-3 text-white" />
+                              : faceResults[emp.id].match === false
+                              ? <ShieldAlert className="h-3 w-3 text-white" />
+                              : <ShieldQuestion className="h-3 w-3 text-white" />}
+                            <span className="text-[10px] text-white font-medium">
+                              {faceResults[emp.id].match === true
+                                ? `Verified ${faceResults[emp.id].confidence}%`
+                                : faceResults[emp.id].match === false
+                                ? `Mismatch ${faceResults[emp.id].confidence}%`
+                                : 'No ref photo'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="absolute bottom-2 left-2 bg-black/50 rounded-lg px-2 py-0.5">
+                            <p className="text-[10px] text-white">Photo captured ✓</p>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <button
@@ -443,6 +472,15 @@ const GuardAttendancePage: React.FC = () => {
                           {isMarked ? 'Retake Photo' : 'Capture Photo (Required)'}
                         </span>
                       </button>
+                    )}
+                    {/* Face mismatch warning strip */}
+                    {faceResults[emp.id]?.match === false && (
+                      <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
+                        <ShieldAlert className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-destructive leading-snug">
+                          <span className="font-bold">Identity mismatch!</span> {faceResults[emp.id].reason}. Please verify the person manually before marking attendance.
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
