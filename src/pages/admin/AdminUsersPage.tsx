@@ -76,27 +76,44 @@ const AdminUsersPage: React.FC = () => {
     }
 
     setSubmitting(true);
+
+    // Optimistic UI: add member immediately to list
+    const optimisticMember: TeamMember = {
+      id: `optimistic-${Date.now()}`,
+      name: name.trim(),
+      email: email.trim(),
+      role,
+      company_name: profile?.company_name || null,
+      created_at: new Date().toISOString(),
+      is_active: true,
+    };
+    setMembers(prev => [optimisticMember, ...prev]);
+    setShowForm(false);
+    setName('');
+    setEmail('');
+    setPassword('');
+    setRole('employee');
+
     try {
       const { data, error } = await supabase.functions.invoke('create-user', {
-        body: { email: email.trim(), password, name: name.trim(), role },
+        body: { email: optimisticMember.email, password, name: optimisticMember.name, role },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
       if (error || data?.error) {
+        // Rollback optimistic update
+        setMembers(prev => prev.filter(m => m.id !== optimisticMember.id));
+        setShowForm(true);
+        setName(optimisticMember.name);
+        setEmail(optimisticMember.email);
         setFormError(data?.error || error?.message || 'Failed to create user');
       } else {
-        setFormSuccess(`${role === 'guard' ? 'Security Guard' : 'Employee'} "${name}" created successfully!`);
-        setName('');
-        setEmail('');
-        setPassword('');
-        setRole('employee');
+        // Replace optimistic entry with real data
         fetchMembers();
-        setTimeout(() => {
-          setShowForm(false);
-          setFormSuccess('');
-        }, 2000);
       }
     } catch {
+      setMembers(prev => prev.filter(m => m.id !== optimisticMember.id));
+      setShowForm(true);
       setFormError('Unexpected error. Please try again.');
     }
     setSubmitting(false);
