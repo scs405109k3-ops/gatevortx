@@ -183,6 +183,19 @@ const AdminAttendancePage: React.FC = () => {
                           </span>
                         </p>
                       )}
+                      {/* Overtime calculation */}
+                      {record.check_in && (record.check_out || record.checked_out_at) && orgTimings && (() => {
+                        const checkOut = new Date(record.check_out || record.checked_out_at!);
+                        const endRef = new Date(checkOut);
+                        const [eh, em] = orgTimings.end.split(':').map(Number);
+                        endRef.setHours(eh, em, 0, 0);
+                        const overtime = checkOut > endRef ? (checkOut.getTime() - endRef.getTime()) / 3600000 : 0;
+                        return overtime > 0 ? (
+                          <span className="text-xs font-semibold text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> +{overtime.toFixed(1)}h OT
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                     {/* Guard info */}
                     {record.guard_name && (
