@@ -18,28 +18,34 @@ export type Database = {
         Row: {
           check_in: string | null
           check_out: string | null
+          checked_out_at: string | null
           created_at: string
           date: string
           employee_id: string
           id: string
+          photo_url: string | null
           status: Database["public"]["Enums"]["attendance_status"]
         }
         Insert: {
           check_in?: string | null
           check_out?: string | null
+          checked_out_at?: string | null
           created_at?: string
           date?: string
           employee_id: string
           id?: string
+          photo_url?: string | null
           status?: Database["public"]["Enums"]["attendance_status"]
         }
         Update: {
           check_in?: string | null
           check_out?: string | null
+          checked_out_at?: string | null
           created_at?: string
           date?: string
           employee_id?: string
           id?: string
+          photo_url?: string | null
           status?: Database["public"]["Enums"]["attendance_status"]
         }
         Relationships: []
@@ -136,6 +142,7 @@ export type Database = {
       }
       visitors: {
         Row: {
+          checked_out_at: string | null
           company: string
           created_at: string
           date: string
@@ -150,6 +157,7 @@ export type Database = {
           visitor_name: string
         }
         Insert: {
+          checked_out_at?: string | null
           company: string
           created_at?: string
           date?: string
@@ -164,6 +172,7 @@ export type Database = {
           visitor_name: string
         }
         Update: {
+          checked_out_at?: string | null
           company?: string
           created_at?: string
           date?: string
