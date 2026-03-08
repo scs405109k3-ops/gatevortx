@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, Star, Reply, Tag, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Trash2, Star, Reply, Tag, MoreVertical, CheckCheck } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
