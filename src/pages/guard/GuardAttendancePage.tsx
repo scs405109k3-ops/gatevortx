@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, ChevronLeft, Check, X, Clock, Trash2, LogOut, Loader2 } from 'lucide-react';
+import { Camera, ChevronLeft, Check, X, Clock, Trash2, LogOut, Loader2, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
@@ -44,6 +44,9 @@ const GuardAttendancePage: React.FC = () => {
   const [cameraTarget, setCameraTarget] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<Record<string, string>>({});
   const [pendingPhotos, setPendingPhotos] = useState<Record<string, File>>({});
+  const [verifyingFor, setVerifyingFor] = useState<string | null>(null);
+  // face verification results: { match: boolean|null, confidence: number, reason: string }
+  const [faceResults, setFaceResults] = useState<Record<string, { match: boolean | null; confidence: number; reason: string }>>({});
 
   const today = new Date().toISOString().split('T')[0];
   const dateDisplay = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -117,21 +120,65 @@ const GuardAttendancePage: React.FC = () => {
 
   const openCamera = (employeeId: string) => {
     setCameraTarget(employeeId);
+    // clear previous face result when retaking photo
+    setFaceResults(prev => { const n = { ...prev }; delete n[employeeId]; return n; });
     setTimeout(() => cameraRef.current?.click(), 50);
   };
 
-  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !cameraTarget) return;
     if (file.size > 8 * 1024 * 1024) {
       toast({ title: 'Photo too large', description: 'Max 8MB', variant: 'destructive' });
       return;
     }
-    setPendingPhotos(prev => ({ ...prev, [cameraTarget]: file }));
-    setPhotoPreview(prev => ({ ...prev, [cameraTarget]: URL.createObjectURL(file) }));
-    // Reset input so same file can be recaptured
+    const targetId = cameraTarget;
+    setPendingPhotos(prev => ({ ...prev, [targetId]: file }));
+    setPhotoPreview(prev => ({ ...prev, [targetId]: URL.createObjectURL(file) }));
     e.target.value = '';
     setCameraTarget(null);
+
+    // Find employee profile photo and run face verification
+    const emp = employees.find(e => e.id === targetId);
+    if (emp) {
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', targetId)
+        .single();
+      const referenceUrl = prof?.avatar_url;
+
+      if (referenceUrl) {
+        setVerifyingFor(targetId);
+        try {
+          // Upload temp to get a URL for the AI
+          const tempPath = `temp/${targetId}-${Date.now()}.jpg`;
+          await supabase.storage.from('employee-photos').upload(tempPath, file, { contentType: file.type, upsert: true });
+          const { data: { publicUrl: currentUrl } } = supabase.storage.from('employee-photos').getPublicUrl(tempPath);
+
+          const { data, error } = await supabase.functions.invoke('verify-face', {
+            body: { reference_url: referenceUrl, current_url: currentUrl, context: 'employee' },
+          });
+          if (!error && data) {
+            setFaceResults(prev => ({ ...prev, [targetId]: data }));
+            if (data.match === false && data.confidence >= 70) {
+              toast({
+                title: '⚠️ Face Mismatch',
+                description: `This may not be ${emp.name}. Confidence: ${data.confidence}%. Please verify manually.`,
+                variant: 'destructive',
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('[FaceVerify] Error:', err);
+        } finally {
+          setVerifyingFor(null);
+        }
+      } else {
+        // No reference photo — inform guard
+        setFaceResults(prev => ({ ...prev, [targetId]: { match: null, confidence: 0, reason: 'No profile photo for reference' } }));
+      }
+    }
   };
 
   const sendAttendanceNotification = async (employeeId: string, employeeName: string, status: 'present' | 'absent' | 'late') => {
@@ -372,7 +419,7 @@ const GuardAttendancePage: React.FC = () => {
 
                 {/* Photo capture area — only if not absent */}
                 {!isAbsent && (
-                  <div className="px-4 pb-3">
+                  <div className="px-4 pb-3 space-y-2">
                     {preview ? (
                       <div className="relative">
                         <img src={preview} alt="Captured" className="w-full h-32 rounded-xl object-cover border-2 border-primary/30" />
@@ -380,11 +427,40 @@ const GuardAttendancePage: React.FC = () => {
                           onClick={() => removePhoto(emp.id)}
                           className="absolute top-2 right-2 h-7 w-7 bg-destructive rounded-full flex items-center justify-center shadow"
                         >
-                          <X className="h-4 w-4 text-white" />
+                          <X className="h-4 w-4 text-destructive-foreground" />
                         </button>
-                        <div className="absolute bottom-2 left-2 bg-black/50 rounded-lg px-2 py-0.5">
-                          <p className="text-[10px] text-white">Photo captured ✓</p>
-                        </div>
+                        {/* Face verification badge */}
+                        {verifyingFor === emp.id ? (
+                          <div className="absolute bottom-2 left-2 bg-black/60 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                            <Loader2 className="h-3 w-3 text-white animate-spin" />
+                            <span className="text-[10px] text-white">Verifying identity…</span>
+                          </div>
+                        ) : faceResults[emp.id] ? (
+                          <div className={`absolute bottom-2 left-2 rounded-lg px-2 py-1 flex items-center gap-1.5 ${
+                            faceResults[emp.id].match === true
+                              ? 'bg-green-600/90'
+                              : faceResults[emp.id].match === false
+                              ? 'bg-destructive/90'
+                              : 'bg-muted/90'
+                          }`}>
+                            {faceResults[emp.id].match === true
+                              ? <ShieldCheck className="h-3 w-3 text-white" />
+                              : faceResults[emp.id].match === false
+                              ? <ShieldAlert className="h-3 w-3 text-white" />
+                              : <ShieldQuestion className="h-3 w-3 text-white" />}
+                            <span className="text-[10px] text-white font-medium">
+                              {faceResults[emp.id].match === true
+                                ? `Verified ${faceResults[emp.id].confidence}%`
+                                : faceResults[emp.id].match === false
+                                ? `Mismatch ${faceResults[emp.id].confidence}%`
+                                : 'No ref photo'}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="absolute bottom-2 left-2 bg-black/50 rounded-lg px-2 py-0.5">
+                            <p className="text-[10px] text-white">Photo captured ✓</p>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <button
@@ -396,6 +472,15 @@ const GuardAttendancePage: React.FC = () => {
                           {isMarked ? 'Retake Photo' : 'Capture Photo (Required)'}
                         </span>
                       </button>
+                    )}
+                    {/* Face mismatch warning strip */}
+                    {faceResults[emp.id]?.match === false && (
+                      <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
+                        <ShieldAlert className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-destructive leading-snug">
+                          <span className="font-bold">Identity mismatch!</span> {faceResults[emp.id].reason}. Please verify the person manually before marking attendance.
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
