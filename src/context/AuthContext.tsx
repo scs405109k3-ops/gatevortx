@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     profile,
     role: profile?.role ?? null,
-    loading: loading || !splashDone,
+    loading,
     signIn,
     signOut,
     refreshProfile,
