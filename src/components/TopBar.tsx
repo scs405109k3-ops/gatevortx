@@ -23,7 +23,8 @@ const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
           <p className="text-blue-200 text-xs font-medium uppercase tracking-wider">{subtitle || profile?.role?.toUpperCase()}</p>
           <h1 className="text-xl font-bold">{title}</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {action && action}
           <button
             onClick={markAllRead}
             className="relative p-2 bg-white/10 rounded-xl"
