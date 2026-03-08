@@ -35,6 +35,23 @@ const AdminSettingsPage: React.FC = () => {
   const companyName = profile?.company_name || '';
   const isConfirmed = confirmText.trim() === companyName;
 
+  const handleSaveTimings = async () => {
+    setSavingTimings(true);
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        work_start_time: startTime + ':00',
+        work_end_time: endTime + ':00',
+      } as any)
+      .eq('id', profile!.id);
+    setSavingTimings(false);
+    if (!error) {
+      setTimingSaved(true);
+      await refreshProfile();
+      setTimeout(() => setTimingSaved(false), 2000);
+    }
+  };
+
   const handleDelete = async () => {
     if (!isConfirmed) return;
     setDeleting(true);
