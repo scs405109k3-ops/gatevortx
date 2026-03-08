@@ -84,11 +84,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  const orgType = (user?.user_metadata?.org_type as 'office' | 'school' | 'college' | null) ?? null;
+
   const contextValue = {
     user,
     session,
     profile,
     role: profile?.role ?? null,
+    orgType,
     loading: loading || !splashDone,
     signIn,
     signOut,
