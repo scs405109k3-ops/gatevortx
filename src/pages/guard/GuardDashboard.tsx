@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 ];
 
 const GuardDashboard: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(true);
