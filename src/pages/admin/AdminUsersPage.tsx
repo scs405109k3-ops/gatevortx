@@ -536,29 +536,64 @@ const AdminUsersPage: React.FC = () => {
                 Remove from Company
               </button>
 
+              {/* Change Password */}
+              <div className="pt-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setShowResetPassword(!showResetPassword)}
+                  className="w-full py-3.5 rounded-2xl bg-primary/10 border border-primary/20 text-primary font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+                >
+                  <KeyRound className="h-4 w-4" />
+                  Change Password
+                </button>
+                {showResetPassword && (
+                  <div className="mt-3 space-y-2">
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={resetPassword}
+                        onChange={e => setResetPassword(e.target.value)}
+                        placeholder="Enter new password (min 6 chars)"
+                        className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleResetPassword}
+                      disabled={resetLoading || !resetPassword}
+                      className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all"
+                    >
+                      {resetLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                      Set New Password
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {/* Share User Details */}
               <div className="pt-2 border-t border-border">
                 <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
                   <Share2 className="h-3.5 w-3.5" />
-                  Share User Details
+                  Share User Details {memberPassword && <span className="text-primary">(includes password)</span>}
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <button
-                    onClick={() => handleShare('copy', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    onClick={() => handleShare('copy', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—', password: memberPassword || undefined }))}
                     className="py-3 rounded-2xl bg-muted border border-border font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-foreground"
                   >
                     <Copy className="h-5 w-5" />
                     Copy
                   </button>
                   <button
-                    onClick={() => handleShare('whatsapp', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    onClick={() => handleShare('whatsapp', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—', password: memberPassword || undefined }))}
                     className="py-3 rounded-2xl bg-green-500/10 border border-green-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-green-600"
                   >
                     <MessageSquare className="h-5 w-5" />
                     WhatsApp
                   </button>
                   <button
-                    onClick={() => handleShare('sms', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    onClick={() => handleShare('sms', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—', password: memberPassword || undefined }))}
                     className="py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-blue-600"
                   >
                     <Phone className="h-5 w-5" />
