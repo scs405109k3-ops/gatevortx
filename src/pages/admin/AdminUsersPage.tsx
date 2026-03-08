@@ -496,15 +496,37 @@ const AdminUsersPage: React.FC = () => {
                 {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 Remove from Company
               </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Copy Credentials Dialog */}
-      {createdCredentials && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-end" onClick={() => setCreatedCredentials(null)}>
-          <div className="w-full bg-card rounded-t-3xl p-6 pb-10 space-y-4" onClick={e => e.stopPropagation()}>
+              {/* Share User Details */}
+              <div className="pt-2 border-t border-border">
+                <p className="text-xs font-semibold text-muted-foreground mb-2 flex items-center gap-1.5">
+                  <Share2 className="h-3.5 w-3.5" />
+                  Share User Details
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => handleShare('copy', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    className="py-3 rounded-2xl bg-muted border border-border font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-foreground"
+                  >
+                    <Copy className="h-5 w-5" />
+                    Copy
+                  </button>
+                  <button
+                    onClick={() => handleShare('whatsapp', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    className="py-3 rounded-2xl bg-green-500/10 border border-green-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-green-600"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                    WhatsApp
+                  </button>
+                  <button
+                    onClick={() => handleShare('sms', getCredentialsText({ name: actionMember.name, userCode: actionMember.user_code || '—' }))}
+                    className="py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 font-semibold text-sm flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-all text-blue-600"
+                  >
+                    <Phone className="h-5 w-5" />
+                    SMS
+                  </button>
+                </div>
+              </div>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
