@@ -13,7 +13,8 @@ const NAV_ITEMS = [
 ];
 
 const AttendanceHistoryPage: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, orgType } = useAuth();
+  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const [records, setRecords] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
@@ -48,7 +49,7 @@ const AttendanceHistoryPage: React.FC = () => {
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <div className="px-5 pt-12 pb-4 text-white" style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
         <h1 className="text-xl font-bold">Attendance History</h1>
-        <p className="text-blue-200 text-xs mt-0.5">Your monthly attendance record</p>
+        <p className="text-blue-200 text-xs mt-0.5">Your monthly {memberLabel.toLowerCase()} attendance record</p>
       </div>
 
       <div className="px-5 py-4 space-y-4">

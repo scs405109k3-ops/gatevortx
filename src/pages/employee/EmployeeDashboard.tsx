@@ -19,7 +19,8 @@ const NAV_ITEMS = [
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
 
 const EmployeeDashboard: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, orgType } = useAuth();
+  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const navigate = useNavigate();
   const [todayRecord, setTodayRecord] = useState<Attendance | null>(null);
   const [weekRecords, setWeekRecords] = useState<Attendance[]>([]);
@@ -93,7 +94,7 @@ const EmployeeDashboard: React.FC = () => {
   };
 
   const now = new Date();
-  const firstName = profile?.name?.split(' ')[0] || 'Employee';
+  const firstName = profile?.name?.split(' ')[0] || memberLabel;
   const isCheckedIn = !!todayRecord?.check_in;
   const isCheckedOut = !!todayRecord?.check_out;
 
@@ -156,7 +157,7 @@ const EmployeeDashboard: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold text-foreground">{profile?.name || 'Employee'}</h2>
             <p className="text-sm text-muted-foreground">
-              {(profile as any)?.company_name ? `${(profile as any).company_name} • ` : ''}Employee
+              {(profile as any)?.company_name ? `${(profile as any).company_name} • ` : ''}{memberLabel}
             </p>
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
