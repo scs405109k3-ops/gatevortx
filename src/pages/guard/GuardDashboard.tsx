@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserPlus, QrCode, ClipboardList, Users, Home } from 'lucide-react';
+import { Bell, UserPlus, QrCode, ClipboardList, Users, Home, UserCheck } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -10,9 +10,9 @@ import { useNotifications } from '../../hooks/useNotifications';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/guard', icon: <Home className="h-5 w-5" /> },
-  { label: 'Logs', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
-  { label: 'Visitors', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
-  { label: 'Profile', path: '/guard/profile', icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
+  { label: 'Attendance', path: '/guard/attendance', icon: <UserCheck className="h-5 w-5" /> },
+  { label: 'Visitors', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
+  { label: 'Add', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
 ];
 
 const GuardDashboard: React.FC = () => {
@@ -130,13 +130,13 @@ const GuardDashboard: React.FC = () => {
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
-              onClick={() => navigate('/guard/visitors')}
+              onClick={() => navigate('/guard/attendance')}
               className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <QrCode className="h-6 w-6 text-primary" />
+                <UserCheck className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">Scan QR Pass</span>
+              <span className="text-sm font-semibold text-foreground">Attendance</span>
             </button>
             <button
               onClick={() => navigate('/guard/visitors')}
@@ -145,7 +145,7 @@ const GuardDashboard: React.FC = () => {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <ClipboardList className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">View Guard Log</span>
+              <span className="text-sm font-semibold text-foreground">Visitor Log</span>
             </button>
           </div>
         </div>

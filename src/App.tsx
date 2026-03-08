@@ -10,6 +10,7 @@ import SignUpPage from "./pages/SignUpPage";
 import GuardDashboard from "./pages/guard/GuardDashboard";
 import AddVisitorPage from "./pages/guard/AddVisitorPage";
 import VisitorStatusPage from "./pages/guard/VisitorStatusPage";
+import GuardAttendancePage from "./pages/guard/GuardAttendancePage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminVisitorsPage from "./pages/admin/AdminVisitorsPage";
 import AdminAttendancePage from "./pages/admin/AdminAttendancePage";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/guard" element={<ProtectedRoute allowedRole="guard"><GuardDashboard /></ProtectedRoute>} />
             <Route path="/guard/add-visitor" element={<ProtectedRoute allowedRole="guard"><AddVisitorPage /></ProtectedRoute>} />
             <Route path="/guard/visitors" element={<ProtectedRoute allowedRole="guard"><VisitorStatusPage /></ProtectedRoute>} />
+            <Route path="/guard/attendance" element={<ProtectedRoute allowedRole="guard"><GuardAttendancePage /></ProtectedRoute>} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
