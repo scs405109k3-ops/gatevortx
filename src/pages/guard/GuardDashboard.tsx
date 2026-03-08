@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserPlus, QrCode, ClipboardList, Users, Home } from 'lucide-react';
+import { Bell, UserPlus, QrCode, ClipboardList, Users, Home, UserCheck } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -10,9 +10,9 @@ import { useNotifications } from '../../hooks/useNotifications';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/guard', icon: <Home className="h-5 w-5" /> },
-  { label: 'Logs', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
-  { label: 'Visitors', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
-  { label: 'Profile', path: '/guard/profile', icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
+  { label: 'Attendance', path: '/guard/attendance', icon: <UserCheck className="h-5 w-5" /> },
+  { label: 'Visitors', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
+  { label: 'Add', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
 ];
 
 const GuardDashboard: React.FC = () => {
