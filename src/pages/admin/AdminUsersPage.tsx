@@ -39,6 +39,7 @@ const AdminUsersPage: React.FC = () => {
   const [actionMember, setActionMember] = useState<TeamMember | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionResult, setActionResult] = useState('');
+  const [createdCredentials, setCreatedCredentials] = useState<{ name: string; userCode: string; email: string; password: string } | null>(null);
 
   // Form state
   const [name, setName] = useState('');
