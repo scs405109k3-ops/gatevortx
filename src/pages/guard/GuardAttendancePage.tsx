@@ -137,11 +137,27 @@ const GuardAttendancePage: React.FC = () => {
     const statusEmoji = status === 'present' ? '✅' : status === 'late' ? '⏰' : '❌';
     const guardName = profile?.name || 'Guard';
     const message = `${statusEmoji} Your attendance for today has been marked as "${status}" by ${guardName}.`;
+
+    // Insert in-app notification
     await supabase.from('notifications').insert({
       user_id: employeeId,
       message,
       type: 'attendance',
     });
+
+    // Fire push notification via edge function (best-effort)
+    try {
+      await supabase.functions.invoke('send-push', {
+        body: {
+          user_ids: [employeeId],
+          title: `Attendance: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+          body: message,
+          data: { type: 'attendance', status },
+        },
+      });
+    } catch (e) {
+      console.warn('[Push] Could not send push notification:', e);
+    }
   };
 
   const markAttendance = async (employee: Employee, status: 'present' | 'absent' | 'late') => {
