@@ -18,9 +18,11 @@ interface AttendanceWithEmployee {
   id: string;
   employee_id: string;
   employee_name?: string;
+  guard_name?: string;
   date: string;
   check_in?: string;
   check_out?: string;
+  checked_out_at?: string;
   status: 'present' | 'absent' | 'late';
 }
 
@@ -37,7 +39,11 @@ const AdminAttendancePage: React.FC = () => {
       .eq('date', selectedDate)
       .order('created_at', { ascending: false });
     if (data) {
-      setRecords(data.map((r: any) => ({ ...r, employee_name: r.profiles?.name || 'Unknown' })));
+      setRecords(data.map((r: any) => ({
+        ...r,
+        employee_name: r.profiles?.name || 'Unknown',
+        checked_out_at: r.checked_out_at,
+      })));
     }
     setLoading(false);
   }, [selectedDate]);
