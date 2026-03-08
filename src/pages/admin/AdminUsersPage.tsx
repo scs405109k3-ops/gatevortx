@@ -276,14 +276,14 @@ const AdminUsersPage: React.FC = () => {
             </div>
 
             <div className="flex gap-2 p-1 bg-muted rounded-xl">
-              {(['employee', 'guard'] as const).map(r => (
+              {(['employee', 'guard', ...(isAcademic ? ['teacher'] : [])] as const).map(r => (
                 <button
                   key={r}
-                  onClick={() => setRole(r)}
+                  onClick={() => setRole(r as any)}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${role === r ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
                 >
-                  {r === 'guard' ? <Shield className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
-                  {r === 'guard' ? 'Security Guard' : memberLabel}
+                  {r === 'guard' ? <Shield className="h-4 w-4" /> : r === 'teacher' ? <Users className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
+                  {r === 'guard' ? 'Guard' : r === 'teacher' ? 'Teacher' : memberLabel}
                 </button>
               ))}
             </div>

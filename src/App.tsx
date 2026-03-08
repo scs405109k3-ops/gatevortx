@@ -84,6 +84,12 @@ const AppRoutes = () => {
       <Route path="/employee/leave" element={<ProtectedRoute allowedRole="employee"><LeaveRequestPage /></ProtectedRoute>} />
       <Route path="/employee/profile" element={<ProtectedRoute allowedRole="employee"><EmployeeProfilePage /></ProtectedRoute>} />
 
+      {/* Teacher Routes */}
+      <Route path="/teacher" element={<ProtectedRoute allowedRole="teacher"><TeacherDashboard /></ProtectedRoute>} />
+      <Route path="/teacher/attendance" element={<ProtectedRoute allowedRole="teacher"><TeacherAttendanceHistoryPage /></ProtectedRoute>} />
+      <Route path="/teacher/leave" element={<ProtectedRoute allowedRole="teacher"><TeacherLeaveRequestPage /></ProtectedRoute>} />
+      <Route path="/teacher/profile" element={<ProtectedRoute allowedRole="teacher"><TeacherProfilePage /></ProtectedRoute>} />
+
       {/* MailVortx Routes — accessible to all authenticated users */}
       <Route path="/mail" element={<MailLayout />}>
         <Route index element={<Navigate to="/mail/inbox" replace />} />
