@@ -11,7 +11,7 @@ import TopBar from '../../components/TopBar';
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
   { label: 'Visitors', path: '/admin/visitors', icon: <Users className="h-5 w-5" /> },
-  { label: 'Attendance', path: '/admin/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
+  { label: 'Team', path: '/admin/users', icon: <UserCheck className="h-5 w-5" /> },
   { label: 'Leaves', path: '/admin/leaves', icon: <FileText className="h-5 w-5" /> },
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-5 w-5" /> },
 ];
