@@ -254,7 +254,7 @@ const AdminUsersPage: React.FC = () => {
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${role === r ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
                 >
                   {r === 'guard' ? <Shield className="h-4 w-4" /> : <Briefcase className="h-4 w-4" />}
-                  {r === 'guard' ? 'Security Guard' : 'Employee'}
+                  {r === 'guard' ? 'Security Guard' : memberLabel}
                 </button>
               ))}
             </div>
