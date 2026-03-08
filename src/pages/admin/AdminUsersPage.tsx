@@ -241,6 +241,22 @@ const AdminUsersPage: React.FC = () => {
           onManage={setActionMember}
           memberLabel={memberLabel}
         />
+
+        {/* Teachers (academic only) */}
+        {isAcademic && (
+          <MemberSection
+            title="Teachers"
+            icon={<Users className="h-4 w-4 text-purple-500" />}
+            badgeClass="bg-purple-500/10 text-purple-600"
+            members={teachers}
+            loading={loading}
+            emptyIcon={<Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />}
+            emptyLabel="No teachers added yet"
+            onAdd={() => { setRole('teacher'); setShowForm(true); }}
+            onManage={setActionMember}
+            memberLabel={memberLabel}
+          />
+        )}
       </div>
 
       <BottomNav items={NAV_ITEMS} />
