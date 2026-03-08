@@ -116,6 +116,45 @@ const AdminSettingsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Work Timings */}
+        <div className="bg-card rounded-2xl border border-border overflow-hidden">
+          <div className="px-4 py-3 flex items-center gap-2 border-b border-border">
+            <Clock className="h-4 w-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Work Timings</h2>
+          </div>
+          <div className="p-4 space-y-3">
+            <p className="text-xs text-muted-foreground">Set your organisation's work hours. Used to determine late arrivals and overtime.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold text-foreground mb-1 block">Start Time</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={e => setStartTime(e.target.value)}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-foreground mb-1 block">End Time</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={e => setEndTime(e.target.value)}
+                  className="w-full h-11 px-3 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleSaveTimings}
+              disabled={savingTimings}
+              className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all"
+            >
+              {savingTimings ? <Loader2 className="h-4 w-4 animate-spin" /> : timingSaved ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+              {savingTimings ? 'Saving…' : timingSaved ? 'Saved!' : 'Save Timings'}
+            </button>
+          </div>
+        </div>
+
         {/* Danger Zone */}
         <div className="bg-card rounded-2xl border-2 border-destructive/30 overflow-hidden">
           <div className="bg-destructive/5 px-4 py-3 flex items-center gap-2 border-b border-destructive/20">
