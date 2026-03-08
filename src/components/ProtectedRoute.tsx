@@ -35,6 +35,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }
     return <Navigate to={roleRoutes[profile.role]} replace />;
   }
 
+  // If admin has no company set up yet, redirect to company setup (except if already there)
+  if (
+    profile?.role === 'admin' &&
+    allowedRole === 'admin' &&
+    !profile.company_name &&
+    typeof window !== 'undefined' &&
+    !window.location.pathname.includes('/company-setup')
+  ) {
+    return <Navigate to="/admin/company-setup" replace />;
+  }
+
   return <>{children}</>;
 };
 
