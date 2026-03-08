@@ -90,7 +90,7 @@ const EmployeeDashboard: React.FC = () => {
     const { error } = await supabase.from('attendance').insert({
       employee_id: profile.id,
       date: today,
-      check_in: now,
+      check_in: now.toISOString(),
       status,
     });
 
