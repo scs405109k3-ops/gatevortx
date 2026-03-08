@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, Clock, CheckCircle, XCircle, Shield } from 'lucide-react';
+import { Bell, UserPlus, QrCode, ClipboardList, Users, Home } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
-import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';
+import { useNotifications } from '../../hooks/useNotifications';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', path: '/guard', icon: <Shield className="h-5 w-5" /> },
-  { label: 'Visitors', path: '/guard/visitors', icon: <Users className="h-5 w-5" /> },
+  { label: 'Home', path: '/guard', icon: <Home className="h-5 w-5" /> },
+  { label: 'Logs', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
+  { label: 'Visitors', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
+  { label: 'Profile', path: '/guard/profile', icon: <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> },
 ];
 
 const GuardDashboard: React.FC = () => {
@@ -18,11 +20,18 @@ const GuardDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(true);
+  const { unreadCount } = useNotifications();
   const today = new Date().toISOString().split('T')[0];
+
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
   useEffect(() => {
     if (!profile) return;
-    const fetch = async () => {
+    const fetchVisitors = async () => {
       const { data } = await supabase
         .from('visitors')
         .select('*')
@@ -32,104 +41,161 @@ const GuardDashboard: React.FC = () => {
       setVisitors((data as Visitor[]) || []);
       setLoading(false);
     };
-    fetch();
+    fetchVisitors();
 
-    // Realtime subscription
     const channel = supabase
       .channel('guard-visitors')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'visitors', filter: `guard_id=eq.${profile.id}` },
-        () => fetch())
+        () => fetchVisitors())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, [profile, today]);
 
-  const stats = {
-    total: visitors.length,
-    pending: visitors.filter(v => v.status === 'pending').length,
-    approved: visitors.filter(v => v.status === 'approved').length,
-    rejected: visitors.filter(v => v.status === 'rejected').length,
-  };
+  const firstName = profile?.name?.split(' ')[0] || 'Officer';
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-20">
-      <TopBar title="Guard Dashboard" subtitle="Security Guard" />
+    <div className="mobile-container bg-background flex flex-col pb-24">
+      {/* Header */}
+      <header className="flex items-center bg-card px-4 py-3.5 sticky top-0 z-10 border-b border-border justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="bg-primary/10 p-1.5 rounded-lg">
+            <svg className="h-5 w-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+            </svg>
+          </div>
+          <span className="text-lg font-bold text-foreground">GateFlow</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/guard/notifications')}
+            className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors"
+          >
+            <Bell className="h-5 w-5 text-foreground" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
+            )}
+          </button>
+          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.name} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-primary font-bold text-sm">{profile?.name?.charAt(0) || 'G'}</span>
+            )}
+          </div>
+        </div>
+      </header>
 
-      <div className="px-5 py-5 space-y-5">
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: 'Total Today', value: stats.total, icon: Users, color: 'bg-blue-50 text-blue-600' },
-            { label: 'Pending', value: stats.pending, icon: Clock, color: 'bg-yellow-50 text-yellow-600' },
-            { label: 'Approved', value: stats.approved, icon: CheckCircle, color: 'bg-green-50 text-green-600' },
-            { label: 'Rejected', value: stats.rejected, icon: XCircle, color: 'bg-red-50 text-red-600' },
-          ].map(stat => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="bg-card rounded-2xl p-4 border border-border shadow-sm">
-                <div className={`h-10 w-10 rounded-xl ${stat.color} flex items-center justify-center mb-2`}>
-                  <Icon className="h-5 w-5" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </div>
-            );
-          })}
+      <div className="px-5 py-5 space-y-6">
+        {/* Greeting */}
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{greeting}, {firstName}</h1>
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {dateStr} • {timeStr}
+          </p>
         </div>
 
-        {/* Add Visitor CTA */}
-        <button
-          onClick={() => navigate('/guard/add-visitor')}
-          className="w-full h-16 rounded-2xl bg-primary text-primary-foreground font-semibold flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all text-base"
+        {/* Add Visitor Hero Card */}
+        <div
+          className="rounded-2xl p-5 text-white overflow-hidden relative"
+          style={{ background: 'linear-gradient(135deg, hsl(220,88%,42%) 0%, hsl(220,88%,58%) 100%)' }}
         >
-          <div className="h-8 w-8 bg-white/20 rounded-xl flex items-center justify-center">
-            <Plus className="h-5 w-5" />
+          <div className="absolute right-0 top-0 h-full w-32 opacity-10">
+            <svg viewBox="0 0 100 100" fill="white">
+              <circle cx="80" cy="20" r="60"/>
+            </svg>
           </div>
-          Add New Visitor
-        </button>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-white/20 rounded-full p-2">
+              <UserPlus className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold">Add New Visitor</h2>
+              <p className="text-blue-100 text-xs">Register a guest or delivery person</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/guard/add-visitor')}
+            className="w-full bg-white text-primary font-bold py-2.5 rounded-xl text-sm active:scale-95 transition-all"
+          >
+            Register Now
+          </button>
+        </div>
 
-        {/* Today's Visitors */}
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => navigate('/guard/visitors')}
+              className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <QrCode className="h-6 w-6 text-primary" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Scan QR Pass</span>
+            </button>
+            <button
+              onClick={() => navigate('/guard/visitors')}
+              className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <ClipboardList className="h-6 w-6 text-primary" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">View Guard Log</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Recent Visitors */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-semibold text-foreground">Today's Visitors</h2>
-            <span className="text-xs text-muted-foreground">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+            <h2 className="text-base font-bold text-foreground">Recent Visitors</h2>
+            <button
+              onClick={() => navigate('/guard/visitors')}
+              className="text-sm font-semibold text-primary"
+            >
+              See All
+            </button>
           </div>
 
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="bg-card rounded-2xl p-4 border border-border h-24 animate-pulse bg-muted" />
+                <div key={i} className="bg-card rounded-2xl p-4 border border-border h-16 animate-pulse bg-muted" />
               ))}
             </div>
           ) : visitors.length === 0 ? (
             <div className="bg-card rounded-2xl p-8 border border-border text-center">
               <Users className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">No visitors today</p>
-              <p className="text-xs text-muted-foreground mt-1">Tap the button above to add a visitor</p>
+              <p className="text-xs text-muted-foreground mt-1">Tap "Register Now" to add a visitor</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {visitors.map(visitor => (
-                <div key={visitor.id} className="bg-card rounded-2xl p-4 border border-border shadow-sm animate-fade-in">
-                  <div className="flex items-start gap-3">
+            <div className="space-y-2">
+              {visitors.slice(0, 5).map(visitor => (
+                <div key={visitor.id} className="bg-card rounded-2xl px-4 py-3 border border-border flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                     {visitor.photo_url ? (
-                      <img src={visitor.photo_url} alt={visitor.visitor_name} className="h-12 w-12 rounded-xl object-cover flex-shrink-0" />
+                      <img src={visitor.photo_url} alt={visitor.visitor_name} className="h-10 w-10 rounded-full object-cover" />
                     ) : (
-                      <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-primary font-bold text-lg">{visitor.visitor_name.charAt(0)}</span>
-                      </div>
+                      <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                      </svg>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-foreground text-sm truncate">{visitor.visitor_name}</p>
-                        <StatusBadge status={visitor.status} />
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{visitor.company}</p>
-                      <p className="text-xs text-muted-foreground">Meets: {visitor.person_to_meet}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(visitor.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-foreground truncate">{visitor.visitor_name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{visitor.company} • {visitor.purpose}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <StatusBadge status={visitor.status} />
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(visitor.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
                   </div>
                 </div>
               ))}

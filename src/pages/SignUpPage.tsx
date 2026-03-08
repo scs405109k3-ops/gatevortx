@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../integrations/supabase/client';
-import { Shield, User, Crown, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, ChevronDown, UserPlus, Building2 } from 'lucide-react';
 import type { AppRole } from '../types/app';
 
-const ROLES: { label: string; value: AppRole; icon: typeof Shield; color: string; bg: string }[] = [
-  { label: 'Security Guard', value: 'guard', icon: Shield, color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200' },
-  { label: 'Employee', value: 'employee', icon: User, color: 'text-green-600', bg: 'bg-green-50 border-green-200' },
-  { label: 'Admin (MD/CEO)', value: 'admin', icon: Crown, color: 'text-purple-600', bg: 'bg-purple-50 border-purple-200' },
+const ROLES: { label: string; value: AppRole }[] = [
+  { label: 'Employee', value: 'employee' },
+  { label: 'Security Guard', value: 'guard' },
+  { label: 'Admin (MD/CEO)', value: 'admin' },
 ];
 
 const SignUpPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<AppRole>('employee');
@@ -35,7 +36,7 @@ const SignUpPage: React.FC = () => {
       email: email.trim(),
       password,
       options: {
-        data: { name: name.trim(), role },
+        data: { name: name.trim(), role, company_name: companyName.trim() },
       },
     });
     setLoading(false);
@@ -50,94 +51,91 @@ const SignUpPage: React.FC = () => {
   };
 
   return (
-    <div className="mobile-container bg-background flex flex-col">
-      {/* Header */}
-      <div className="bg-primary px-6 pt-14 pb-10 text-center" style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 mb-4">
-          <Shield className="h-8 w-8 text-white" />
+    <div className="mobile-container bg-card flex flex-col min-h-screen">
+      {/* Logo area */}
+      <div className="flex flex-col items-center pt-8 pb-4 px-6">
+        <div className="bg-primary/10 p-3.5 rounded-full mb-4">
+          <div className="bg-primary rounded-full p-2">
+            <UserPlus className="h-6 w-6 text-primary-foreground" />
+          </div>
         </div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">GateFlow</h1>
-        <p className="text-blue-100 text-sm mt-1">Create your account</p>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">GateFlow</h1>
+        <p className="text-xs font-semibold text-primary uppercase tracking-widest mt-1">Create Your Account</p>
       </div>
 
-      {/* Form */}
-      <div className="flex-1 px-6 py-8">
-        <h2 className="text-xl font-semibold text-foreground mb-1">Sign Up</h2>
-        <p className="text-sm text-muted-foreground mb-6">Create a new account</p>
+      <div className="flex-1 px-6 pb-8">
+        <h2 className="text-xl font-bold text-foreground mb-1">Sign Up</h2>
+        <p className="text-sm text-muted-foreground mb-5">Fill in your details to get started</p>
 
         <form onSubmit={handleSignUp} className="space-y-4">
           {/* Full Name */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Full Name</label>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Full Name</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Enter your full name"
               autoComplete="name"
-              className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+              className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             />
+          </div>
+
+          {/* Company Name */}
+          <div>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Company / Organization</label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={companyName}
+                onChange={e => setCompanyName(e.target.value)}
+                placeholder="e.g. Acme Corp"
+                className="w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              />
+            </div>
           </div>
 
           {/* Email */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Email Address</label>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Email Address</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="name@company.com"
               autoComplete="email"
-              className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+              className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
             />
           </div>
 
           {/* Role */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">Your Role</label>
-            <div className="space-y-2">
-              {ROLES.map(r => {
-                const Icon = r.icon;
-                const selected = role === r.value;
-                return (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => setRole(r.value)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all ${
-                      selected
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border bg-card'
-                    }`}
-                  >
-                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${selected ? 'bg-primary/10' : 'bg-muted'}`}>
-                      <Icon className={`h-4 w-4 ${selected ? 'text-primary' : r.color}`} />
-                    </div>
-                    <span className={`text-sm font-medium ${selected ? 'text-primary' : 'text-foreground'}`}>{r.label}</span>
-                    {selected && (
-                      <div className="ml-auto h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Select User Role</label>
+            <div className="relative">
+              <select
+                value={role}
+                onChange={e => setRole(e.target.value as AppRole)}
+                className="w-full h-12 px-4 pr-10 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm appearance-none"
+              >
+                {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Password</label>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Password</label>
             <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Min 6 characters"
                 autoComplete="new-password"
-                className="w-full h-12 px-4 pr-12 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                className="w-full h-12 pl-10 pr-12 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               />
               <button
                 type="button"
@@ -151,15 +149,18 @@ const SignUpPage: React.FC = () => {
 
           {/* Confirm Password */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Confirm Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter your password"
-              autoComplete="new-password"
-              className="w-full h-12 px-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-            />
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">Confirm Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                autoComplete="new-password"
+                className="w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+              />
+            </div>
           </div>
 
           {error && (
@@ -171,20 +172,21 @@ const SignUpPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all mt-2"
+            className="w-full h-13 py-3.5 rounded-full bg-primary text-primary-foreground font-bold text-base flex items-center justify-center gap-2 disabled:opacity-60 active:scale-95 transition-all shadow-lg shadow-primary/30"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <UserPlus className="h-5 w-5" />}
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary font-semibold">Sign In</Link>
+          <Link to="/login" className="text-primary font-bold">Sign In</Link>
         </p>
 
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          GateFlow v1.0 · Secure Office Management
+        <p className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1">
+          <Lock className="h-3 w-3" />
+          Secured by GateFlow Cloud Infrastructure
         </p>
       </div>
     </div>
