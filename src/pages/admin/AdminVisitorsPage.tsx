@@ -95,7 +95,7 @@ const AdminVisitorsPage: React.FC = () => {
   const totalToday = visitors.filter(v => v.date === new Date().toISOString().split('T')[0]).length;
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       {/* Header */}
       <header className="flex items-center bg-card px-4 py-3.5 border-b border-border">
         <button className="flex h-9 w-9 items-center justify-center text-primary mr-2">

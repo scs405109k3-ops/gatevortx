@@ -87,7 +87,7 @@ const VisitorStatusPage: React.FC = () => {
   });
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <div className="px-5 pt-12 pb-4 text-white" style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
         <h1 className="text-xl font-bold">Visitor Log</h1>
         <p className="text-blue-200 text-xs mt-0.5">Track all visitors & departures</p>

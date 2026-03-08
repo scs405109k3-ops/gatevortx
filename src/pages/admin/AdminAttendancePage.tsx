@@ -83,7 +83,7 @@ const AdminAttendancePage: React.FC = () => {
   };
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <TopBar title="Attendance" subtitle="Admin" />
 
       <div className="px-5 py-4 space-y-4">

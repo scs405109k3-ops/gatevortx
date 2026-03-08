@@ -264,7 +264,7 @@ const GuardAttendancePage: React.FC = () => {
   };
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       {/* Header */}
       <div className="px-5 pt-12 pb-5 text-white" style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
         <div className="flex items-center gap-3 mb-4">
