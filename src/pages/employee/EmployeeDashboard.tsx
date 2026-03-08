@@ -200,9 +200,9 @@ const EmployeeDashboard: React.FC = () => {
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
               </svg>
-              {now.getHours() < 12 ? 'Morning' : now.getHours() < 17 ? 'Afternoon' : 'Evening'}: {
-                now.getHours() < 12 ? '08:00 - 12:00' : now.getHours() < 17 ? '13:00 - 17:00' : '17:00 - 21:00'
-              }
+              {orgTimings ? `Shift: ${orgTimings.start} - ${orgTimings.end}` : (
+                now.getHours() < 12 ? 'Morning' : now.getHours() < 17 ? 'Afternoon' : 'Evening'
+              )}
             </p>
           </div>
         </div>
