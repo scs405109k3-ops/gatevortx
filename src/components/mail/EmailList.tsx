@@ -188,9 +188,15 @@ const EmailList: React.FC<EmailListProps> = ({ folder, title, labelId }) => {
                       {formatDistanceToNow(new Date(email.created_at), { addSuffix: true })}
                     </span>
                   </div>
-                  <p className={`text-sm truncate ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                    {email.subject || '(no subject)'}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className={`text-sm truncate ${unread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+                      {email.subject || '(no subject)'}
+                    </p>
+                    {/* Read receipt for sent emails */}
+                    {folder === 'sent' && (
+                      <CheckCheck className={`h-3.5 w-3.5 flex-shrink-0 ${email.is_read ? 'text-primary' : 'text-muted-foreground/40'}`} />
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">
                     {email.body.slice(0, 80)}
                   </p>

@@ -114,9 +114,20 @@ const EmailDetailPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-muted-foreground">{email.sender_email}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              To: <span className="text-foreground">{email.recipient_name}</span> &lt;{email.recipient_email}&gt;
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-xs text-muted-foreground">
+                To: <span className="text-foreground">{email.recipient_name}</span> &lt;{email.recipient_email}&gt;
+              </p>
+              {/* Read receipt for sender */}
+              {email.from_user_id === user?.id && (
+                <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  email.is_read ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                }`}>
+                  <CheckCheck className="h-3 w-3" />
+                  {email.is_read ? 'Read' : 'Unread'}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
