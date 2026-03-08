@@ -169,6 +169,7 @@ const AdminUsersPage: React.FC = () => {
 
   const employees = members.filter(m => m.role === 'employee');
   const guards = members.filter(m => m.role === 'guard');
+  const teachers = members.filter(m => m.role === 'teacher');
 
   return (
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
