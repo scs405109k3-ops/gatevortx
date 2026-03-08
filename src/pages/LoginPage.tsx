@@ -120,7 +120,12 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-8">
+        <p className="text-center text-sm text-muted-foreground mt-6">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-primary font-semibold">Sign Up</Link>
+        </p>
+
+        <p className="text-center text-xs text-muted-foreground mt-4">
           GateFlow v1.0 · Secure Office Management
         </p>
       </div>
