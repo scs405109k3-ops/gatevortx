@@ -74,18 +74,35 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Look up email from user code
-    const { data: email, error: lookupError } = await supabase.rpc('get_email_by_user_code', {
-      _user_code: userCode.trim().toUpperCase(),
-    });
+    let loginEmail = '';
 
-    if (lookupError || !email) {
-      setLoading(false);
-      setError('Invalid User ID. Please check and try again.');
-      return;
+    if (selectedRole === 'admin') {
+      // Admin logs in with email directly
+      loginEmail = userCode.trim(); // userCode field holds email for admin
+      if (!loginEmail.includes('@')) {
+        setLoading(false);
+        setError('Please enter a valid email address.');
+        return;
+      }
+    } else {
+      // Other roles: try user code first, if it contains '@' treat as email
+      const input = userCode.trim();
+      if (input.includes('@')) {
+        loginEmail = input;
+      } else {
+        const { data: email, error: lookupError } = await supabase.rpc('get_email_by_user_code', {
+          _user_code: input.toUpperCase(),
+        });
+        if (lookupError || !email) {
+          setLoading(false);
+          setError('Invalid User ID. Please check and try again.');
+          return;
+        }
+        loginEmail = email as string;
+      }
     }
 
-    const { error: signInError } = await signIn(email as string, password);
+    const { error: signInError } = await signIn(loginEmail, password);
 
     if (signInError) {
       setLoading(false);
