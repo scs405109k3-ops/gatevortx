@@ -192,7 +192,7 @@ const AdminUsersPage: React.FC = () => {
               <Briefcase className="h-5 w-5 text-blue-500" />
             </div>
             <p className="text-2xl font-bold text-foreground">{employees.length}</p>
-            <p className="text-xs text-muted-foreground">Employees</p>
+            <p className="text-xs text-muted-foreground">{memberLabel}s</p>
           </div>
           <div className="bg-card rounded-2xl p-4 border border-border shadow-sm">
             <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center mb-2">
