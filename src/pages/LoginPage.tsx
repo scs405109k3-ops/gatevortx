@@ -42,49 +42,14 @@ const LoginPage: React.FC = () => {
         .not('company_name', 'is', null)
         .neq('company_name', '');
 
-      // For each admin company, also fetch org_type from auth metadata via a safe approach:
-      // We store org_type in user metadata but we need it per company.
-      // Fetch all admin profiles with company names, then batch get org_type from metadata.
-      const uniqueNames = [...new Set((data || []).map((r: any) => r.company_name).filter(Boolean))] as string[];
-
-      // Fetch org_type for each company admin
-      const { data: adminProfiles } = await supabase
-        .from('profiles')
-        .select('id, company_name')
-        .eq('role', 'admin')
-        .in('company_name', uniqueNames);
-
-      // Build a map: company_name -> orgType
-      // org_type is in auth.users metadata — we can't read it directly from client.
-      // Instead, read it from a dedicated column we'll use, OR read from user metadata via session.
-      // Best approach: we stored org_type in user_metadata at signup. We can't query that from client.
-      // Fallback: we'll get org_type from the session user metadata when available, and for login we
-      // show all companies with org_type fetched via RPC or just rely on what we know.
-      // For now, try to get org_type by querying each company admin's session — not possible from client.
-      // SOLUTION: fetch org_type from admin user metadata using service role via edge function,
-      // OR store it in profiles table. Since we can't modify types.ts, we'll read it from raw_user_meta_data
-      // via a supabase query on profiles using jsonb (but it's not stored there).
-      // SIMPLEST: We store org_type in the profile as metadata via the trigger's raw_user_meta_data.
-      // The trigger only stores name/role/company_name. We need to also select by company and detect
-      // org_type from the metadata approach.
-      //
-      // PRACTICAL FIX: Store org_type in company_name suffix or use a separate fetch.
-      // Actually the cleanest: just query auth.users for admins — not accessible from client anon key.
-      //
-      // We'll use the edge function approach or just check if user metadata has org_type when they log in.
-      // For the LOGIN PAGE (before login), we don't have auth context for the company admin.
-      //
-      // FINAL APPROACH: Store org_type in profiles via a migration (add column), but since we can't
-      // edit types.ts, we'll use a workaround: fetch via the manage-user/create-user edge function,
-      // or simply check via supabase rpc.
-      //
-      // SIMPLEST WORKABLE: We'll call a new RPC or just use supabase to query user metadata.
-      // Since profiles doesn't have org_type, let's just query the raw metadata via admin client
-      // in an edge function. But that's complex for a login page.
-      //
-      // PRAGMATIC: Add org_type to profiles table via migration.
-
-      const entries: CompanyEntry[] = uniqueNames.map(name => ({ name, orgType: null }));
+      const seen = new Set<string>();
+      const entries: CompanyEntry[] = [];
+      for (const row of (data || []) as any[]) {
+        if (row.company_name && !seen.has(row.company_name)) {
+          seen.add(row.company_name);
+          entries.push({ name: row.company_name, orgType: row.org_type || 'office' });
+        }
+      }
       setCompanies(entries);
       if (entries.length === 1) setSelectedCompany(entries[0].name);
       setLoadingCompanies(false);
