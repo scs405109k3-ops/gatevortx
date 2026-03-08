@@ -182,6 +182,9 @@ const GuardProfilePage: React.FC = () => {
           <div className="flex-1 min-w-0">
             <p className="font-bold text-foreground text-lg truncate">{profile?.name}</p>
             <p className="text-sm text-muted-foreground truncate">{profile?.email}</p>
+            {(profile as any)?.user_code && (
+              <p className="text-xs font-mono font-bold text-primary mt-0.5">ID: {(profile as any).user_code}</p>
+            )}
             <div className="flex items-center gap-1.5 mt-1">
               <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs font-semibold px-2.5 py-0.5 rounded-full">
                 <Shield className="h-3 w-3" /> Security Guard

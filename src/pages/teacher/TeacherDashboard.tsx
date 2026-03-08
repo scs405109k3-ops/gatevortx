@@ -201,6 +201,7 @@ const TeacherDashboard: React.FC = () => {
             <h2 className="text-xl font-bold text-foreground">{profile?.name || 'Teacher'}</h2>
             <p className="text-sm text-muted-foreground">
               {(profile as any)?.company_name ? `${(profile as any).company_name} • ` : ''}Teacher
+              {(profile as any)?.user_code && <span className="font-mono font-bold text-primary ml-1.5">#{(profile as any).user_code}</span>}
             </p>
             {orgTimings && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">

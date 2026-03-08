@@ -176,6 +176,7 @@ const EmployeeProfilePage: React.FC = () => {
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Account Details</p>
           </div>
           {[
+            { label: 'User ID', value: (profile as any)?.user_code || '—' },
             { label: 'Full Name', value: profile?.name },
             { label: 'Email', value: profile?.email },
             { label: 'Role', value: memberLabel },
@@ -183,7 +184,7 @@ const EmployeeProfilePage: React.FC = () => {
           ].map(({ label, value }) => (
             <div key={label} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-0">
               <span className="text-xs text-muted-foreground">{label}</span>
-              <span className="text-sm font-medium text-foreground text-right max-w-[60%] truncate">{value || '—'}</span>
+              <span className={`text-sm font-medium text-right max-w-[60%] truncate ${label === 'User ID' ? 'font-mono font-bold text-primary' : 'text-foreground'}`}>{value || '—'}</span>
             </div>
           ))}
         </div>
