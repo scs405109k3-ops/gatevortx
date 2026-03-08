@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/guard" element={<ProtectedRoute allowedRole="guard"><GuardDashboard /></ProtectedRoute>} />
             <Route path="/guard/add-visitor" element={<ProtectedRoute allowedRole="guard"><AddVisitorPage /></ProtectedRoute>} />
             <Route path="/guard/visitors" element={<ProtectedRoute allowedRole="guard"><VisitorStatusPage /></ProtectedRoute>} />
+            <Route path="/guard/attendance" element={<ProtectedRoute allowedRole="guard"><GuardAttendancePage /></ProtectedRoute>} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
