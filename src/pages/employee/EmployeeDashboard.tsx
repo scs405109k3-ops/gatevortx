@@ -135,7 +135,7 @@ const EmployeeDashboard: React.FC = () => {
           </svg>
         </div>
         <h1 className="flex-1 text-lg font-bold text-foreground text-center">GateFlow</h1>
-        <button className="flex h-9 w-9 items-center justify-center relative">
+        <button className="flex h-9 w-9 items-center justify-center relative" onClick={() => setDrawerOpen(true)}>
           <Bell className="h-5 w-5 text-foreground" />
           {unreadCount > 0 && (
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
