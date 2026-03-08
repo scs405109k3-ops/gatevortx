@@ -222,6 +222,11 @@ const EmployeeDashboard: React.FC = () => {
               ? `You checked out at ${new Date(todayRecord!.check_out!).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
               : 'You are currently clocked out.'}
           </p>
+          {todayOvertime > 0 && (
+            <div className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-amber-600 bg-amber-500/10 px-3 py-1.5 rounded-full w-fit">
+              ⏱️ Overtime: {todayOvertime.toFixed(1)}h
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-muted-foreground uppercase">{isCheckedIn && !isCheckedOut ? 'ONLINE' : 'OFFLINE'}</span>
             <div
