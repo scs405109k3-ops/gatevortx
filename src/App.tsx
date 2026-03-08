@@ -27,6 +27,12 @@ import EmployeeProfilePage from "./pages/employee/EmployeeProfilePage";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
+// Teacher pages
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
+import TeacherAttendanceHistoryPage from "./pages/teacher/TeacherAttendanceHistoryPage";
+import TeacherLeaveRequestPage from "./pages/teacher/TeacherLeaveRequestPage";
+
 // MailVortx
 import MailLayout from "./pages/mail/MailLayout";
 import InboxPage from "./pages/mail/InboxPage";
