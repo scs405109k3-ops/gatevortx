@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { action, userId } = await req.json();
+    const { action, userId, newPassword } = await req.json();
 
     if (!action || !userId) {
       return new Response(JSON.stringify({ error: 'Missing required fields: action, userId' }), {
@@ -108,7 +108,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ error: 'Invalid action. Use: deactivate, reactivate, or delete' }), {
+    if (action === 'reset_password') {
+      if (!newPassword || newPassword.length < 6) {
+        return new Response(JSON.stringify({ error: 'Password must be at least 6 characters' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, { password: newPassword });
+      if (updateError) {
+        return new Response(JSON.stringify({ error: updateError.message }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true, action: 'password_reset' }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: 'Invalid action. Use: deactivate, reactivate, delete, or reset_password' }), {
       status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
