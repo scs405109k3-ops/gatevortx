@@ -43,7 +43,8 @@ const SignUpPage: React.FC = () => {
   };
 
   return (
-    <div className="mobile-container bg-background flex flex-col min-h-screen">
+    <div className="min-h-screen bg-background flex items-center justify-center md:py-10">
+    <div className="auth-container bg-background flex flex-col min-h-screen md:min-h-0 md:rounded-3xl md:shadow-2xl md:border md:border-border md:overflow-hidden">
       {/* Header */}
       <div
         className="flex flex-col items-center pt-10 pb-6 px-6"
