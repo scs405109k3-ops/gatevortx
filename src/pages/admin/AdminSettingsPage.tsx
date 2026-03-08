@@ -19,12 +19,18 @@ const NAV_ITEMS = [
 ];
 
 const AdminSettingsPage: React.FC = () => {
-  const { profile, session, signOut } = useAuth();
+  const { profile, session, signOut, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState<'idle' | 'confirm' | 'done'>('idle');
+  
+  // Timing state
+  const [startTime, setStartTime] = useState((profile as any)?.work_start_time?.slice(0, 5) || '09:00');
+  const [endTime, setEndTime] = useState((profile as any)?.work_end_time?.slice(0, 5) || '17:00');
+  const [savingTimings, setSavingTimings] = useState(false);
+  const [timingSaved, setTimingSaved] = useState(false);
 
   const companyName = profile?.company_name || '';
   const isConfirmed = confirmText.trim() === companyName;
