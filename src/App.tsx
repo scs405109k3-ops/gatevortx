@@ -23,6 +23,7 @@ import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
 import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
+import EmployeeProfilePage from "./pages/employee/EmployeeProfilePage";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
