@@ -77,6 +77,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
+  if (loading) {
+    const SplashScreen = React.lazy(() => import('../components/SplashScreen'));
+    return (
+      <React.Suspense fallback={null}>
+        <SplashScreen />
+      </React.Suspense>
+    );
+  }
+
   return (
     <AuthContext.Provider value={{
       user,
