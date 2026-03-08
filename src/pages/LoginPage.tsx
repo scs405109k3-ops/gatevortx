@@ -6,6 +6,7 @@ import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, Shield
 import logo from '../assets/logo.png';
 
 type CompanyEntry = { name: string; orgType: string | null };
+type CompanyUser = { name: string; email: string; role: string };
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +15,10 @@ const LoginPage: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState('employee');
   const [selectedCompany, setSelectedCompany] = useState('');
   const [companies, setCompanies] = useState<CompanyEntry[]>([]);
+  const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
+  const [showUsers, setShowUsers] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn, profile, signOut } = useAuth();
