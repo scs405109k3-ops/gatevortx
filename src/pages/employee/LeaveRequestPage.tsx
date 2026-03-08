@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CalendarCheck, FileText, Send, Loader2, User } from 'lucide-react';
-import { supabase, LeaveRequest } from '../../integrations/supabase/client';
+import { supabase } from '../../integrations/supabase/client';
+import type { LeaveRequest } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
 import StatusBadge from '../../components/StatusBadge';

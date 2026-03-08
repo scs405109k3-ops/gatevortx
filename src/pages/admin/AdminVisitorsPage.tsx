@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckCircle, XCircle, Users, Clock, Building2, Phone, UserCheck, Shield, Loader2 } from 'lucide-react';
-import { supabase, Visitor } from '../../integrations/supabase/client';
+import { supabase } from '../../integrations/supabase/client';
+import type { Visitor } from '../../types/app';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';

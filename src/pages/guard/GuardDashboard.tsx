@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Users, Clock, CheckCircle, XCircle, Shield } from 'lucide-react';
-import { supabase, Visitor } from '../../integrations/supabase/client';
+import { supabase } from '../../integrations/supabase/client';
+import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Users, Search, UserCheck, UserX, LayoutDashboard, BarChart3, CalendarCheck, FileText } from 'lucide-react';
-import { supabase, Attendance } from '../../integrations/supabase/client';
+import { supabase } from '../../integrations/supabase/client';
+import type { Attendance } from '../../types/app';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';

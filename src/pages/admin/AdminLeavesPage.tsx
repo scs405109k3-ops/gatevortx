@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { CheckCircle, XCircle, Users, Calendar, Loader2, FileText, LayoutDashboard, BarChart3, CalendarCheck } from 'lucide-react';
-import { supabase, LeaveRequest } from '../../integrations/supabase/client';
+import { supabase } from '../../integrations/supabase/client';
+import type { LeaveRequest } from '../../types/app';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
 import StatusBadge from '../../components/StatusBadge';
