@@ -230,6 +230,13 @@ const GuardAttendancePage: React.FC = () => {
     }
   };
 
+  const getAutoStatus = (): 'present' | 'late' => {
+    const now = new Date();
+    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const startTime = orgTimings?.start || '09:00';
+    return nowTime > startTime ? 'late' : 'present';
+  };
+
   const markAttendance = async (employee: Employee, status: 'present' | 'absent' | 'late') => {
     if (!profile) return;
     setSavingFor(employee.id);
