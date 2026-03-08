@@ -27,10 +27,21 @@ interface AttendanceWithEmployee {
 }
 
 const AdminAttendancePage: React.FC = () => {
+  const { profile } = useAuth();
   const [records, setRecords] = useState<AttendanceWithEmployee[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [orgTimings, setOrgTimings] = useState<{ start: string; end: string } | null>(null);
+
+  // Fetch admin's org timings
+  useEffect(() => {
+    if (!profile) return;
+    setOrgTimings({
+      start: (profile as any)?.work_start_time?.slice(0, 5) || '09:00',
+      end: (profile as any)?.work_end_time?.slice(0, 5) || '17:00',
+    });
+  }, [profile]);
 
   const fetchAttendance = useCallback(async () => {
     const { data } = await supabase
