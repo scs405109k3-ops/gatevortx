@@ -72,7 +72,7 @@ const AdminUsersPage: React.FC = () => {
     setLoading(true);
     const { data } = await supabase
       .from('profiles')
-      .select('id, name, email, role, company_name, created_at, is_active')
+      .select('id, name, email, role, company_name, created_at, is_active, user_code')
       .in('role', ['employee', 'guard', 'teacher'])
       .eq('company_name', profile.company_name)
       .order('created_at', { ascending: false });
