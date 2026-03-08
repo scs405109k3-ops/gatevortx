@@ -132,7 +132,7 @@ const LoginPage: React.FC = () => {
   // If already logged in, redirect
   useEffect(() => {
     if (profile?.role) {
-      const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+      const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee', teacher: '/teacher' };
       navigate(routes[profile.role] || '/login');
     }
   }, [profile, navigate]);
