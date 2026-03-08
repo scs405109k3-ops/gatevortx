@@ -55,9 +55,9 @@ const AdminSettingsPage: React.FC = () => {
   if (step === 'done') {
     return (
       <div className="mobile-container bg-background flex flex-col items-center justify-center min-h-screen px-6 text-center">
-        <div className="h-20 w-20 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
-          <CheckCircle2 className="h-10 w-10 text-green-500" />
-        </div>
+      <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+        <CheckCircle2 className="h-10 w-10 text-primary" />
+      </div>
         <h2 className="text-xl font-bold text-foreground">Organisation Deleted</h2>
         <p className="text-sm text-muted-foreground mt-2">
           All data has been permanently removed. Redirecting to login…
