@@ -133,6 +133,17 @@ const GuardAttendancePage: React.FC = () => {
     setCameraTarget(null);
   };
 
+  const sendAttendanceNotification = async (employeeId: string, employeeName: string, status: 'present' | 'absent' | 'late') => {
+    const statusEmoji = status === 'present' ? '✅' : status === 'late' ? '⏰' : '❌';
+    const guardName = profile?.name || 'Guard';
+    const message = `${statusEmoji} Your attendance for today has been marked as "${status}" by ${guardName}.`;
+    await supabase.from('notifications').insert({
+      user_id: employeeId,
+      message,
+      type: 'attendance',
+    });
+  };
+
   const markAttendance = async (employee: Employee, status: 'present' | 'absent' | 'late') => {
     if (!profile) return;
     setSavingFor(employee.id);
@@ -180,6 +191,9 @@ const GuardAttendancePage: React.FC = () => {
         } as any);
       }
 
+      // Send real-time notification to employee
+      await sendAttendanceNotification(employee.id, employee.name, status);
+
       toast({ title: `✅ Marked ${status}`, description: `${employee.name} marked as ${status}` });
       fetchData();
     } catch (err) {
@@ -196,6 +210,15 @@ const GuardAttendancePage: React.FC = () => {
       await supabase.from('attendance').update({
         checked_out_at: new Date().toISOString(),
       } as any).eq('id', record.id);
+
+      // Notify employee of checkout
+      const guardName = profile?.name || 'Guard';
+      await supabase.from('notifications').insert({
+        user_id: record.employee_id,
+        message: `👋 Your checkout time has been recorded by ${guardName}.`,
+        type: 'attendance',
+      });
+
       toast({ title: '👋 Checked Out', description: `${employeeName} checked out.` });
       fetchData();
     } finally {
