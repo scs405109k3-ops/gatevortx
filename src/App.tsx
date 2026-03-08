@@ -58,6 +58,7 @@ const AppRoutes = () => {
       <Route path="/guard/add-visitor" element={<ProtectedRoute allowedRole="guard"><AddVisitorPage /></ProtectedRoute>} />
       <Route path="/guard/visitors" element={<ProtectedRoute allowedRole="guard"><VisitorStatusPage /></ProtectedRoute>} />
       <Route path="/guard/attendance" element={<ProtectedRoute allowedRole="guard"><GuardAttendancePage /></ProtectedRoute>} />
+      <Route path="/guard/profile" element={<ProtectedRoute allowedRole="guard"><GuardProfilePage /></ProtectedRoute>} />
 
       {/* Admin Routes */}
       <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />

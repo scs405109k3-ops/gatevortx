@@ -209,7 +209,7 @@ const GuardDashboard: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-foreground truncate">{visitor.visitor_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{visitor.company} • {visitor.purpose}</p>
+                    <p className="text-xs text-muted-foreground truncate">👤 {visitor.person_to_meet} • {visitor.purpose}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <StatusBadge status={visitor.status} />
