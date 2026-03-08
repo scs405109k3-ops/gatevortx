@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Send, ChevronDown, Minus, Maximize2, Loader2, Tag } from 'lucide-react';
+import { X, Send, ChevronDown, Minus, Maximize2, Loader2, Tag, Users } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
