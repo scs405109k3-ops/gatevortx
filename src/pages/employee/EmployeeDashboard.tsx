@@ -97,7 +97,7 @@ const EmployeeDashboard: React.FC = () => {
     if (error) {
       toast({ title: 'Error', description: 'Could not check in', variant: 'destructive' });
     } else {
-      toast({ title: '✅ Checked In!', description: `Checked in at ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}` });
+      toast({ title: status === 'late' ? '⏰ Checked In (Late)' : '✅ Checked In!', description: `Checked in at ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}` });
       await fetchData();
     }
     setLoading(false);
