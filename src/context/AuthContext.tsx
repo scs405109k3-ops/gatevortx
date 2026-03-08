@@ -83,27 +83,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
-  if (loading || !splashDone) {
-    const SplashScreen = React.lazy(() => import('../components/SplashScreen'));
-    return (
-      <React.Suspense fallback={null}>
-        <SplashScreen />
-      </React.Suspense>
-    );
-  }
+  const contextValue = {
+    user,
+    session,
+    profile,
+    role: profile?.role ?? null,
+    loading: loading || !splashDone,
+    signIn,
+    signOut,
+    refreshProfile,
+  };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      profile,
-      role: profile?.role ?? null,
-      loading,
-      signIn,
-      signOut,
-      refreshProfile,
-    }}>
-      {children}
+    <AuthContext.Provider value={contextValue}>
+      {loading || !splashDone ? (
+        <React.Suspense fallback={null}>
+          {React.createElement(React.lazy(() => import('../components/SplashScreen')))}
+        </React.Suspense>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
