@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Users, UserPlus, Shield, Briefcase, Mail, Lock, User,
+  Users, UserPlus, Shield, Briefcase, Mail, Lock, User, Hash,
   Loader2, X, CheckCircle2, AlertCircle, Eye, EyeOff,
   LayoutDashboard, CalendarCheck, FileText, BarChart3,
   UserX, UserCheck, Trash2, MoreVertical,
