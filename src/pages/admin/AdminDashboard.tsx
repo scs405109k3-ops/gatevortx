@@ -62,10 +62,9 @@ const AdminDashboard: React.FC = () => {
 
   const fetchAttendanceDetail = useCallback(async () => {
     setAttLoading(true);
-    // Fetch attendance with employee profiles joined
     const { data: attData } = await supabase
       .from('attendance')
-      .select('id, employee_id, status, check_in, checked_out_at')
+      .select('id, employee_id, guard_id, status, check_in, checked_out_at')
       .eq('date', today)
       .order('check_in', { ascending: false });
 
@@ -75,15 +74,17 @@ const AdminDashboard: React.FC = () => {
       return;
     }
 
-    const empIds = [...new Set(attData.map((a: any) => a.employee_id))];
+    // Collect all profile IDs needed (employees + guards)
+    const profileIds = [...new Set([
+      ...attData.map((a: any) => a.employee_id),
+      ...attData.map((a: any) => a.guard_id).filter(Boolean),
+    ])];
 
-    // Fetch employee profiles for names
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, name')
-      .in('id', empIds);
+      .in('id', profileIds);
 
-    // Fetch guards (to know who marked — we store guard info in profiles)
     const profileMap: Record<string, string> = {};
     (profiles || []).forEach((p: any) => { profileMap[p.id] = p.name; });
 
@@ -94,6 +95,7 @@ const AdminDashboard: React.FC = () => {
       check_in: a.check_in,
       checked_out_at: a.checked_out_at,
       employee_name: profileMap[a.employee_id] || 'Unknown',
+      guard_name: a.guard_id ? (profileMap[a.guard_id] || 'Unknown Guard') : undefined,
     }));
 
     setAttendanceRows(rows);
