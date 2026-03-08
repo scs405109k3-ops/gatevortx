@@ -83,6 +83,13 @@ const GuardDashboard: React.FC = () => {
               <span className="text-primary font-bold text-sm">{profile?.name?.charAt(0) || 'G'}</span>
             )}
           </div>
+          <button
+            onClick={signOut}
+            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-destructive/10 transition-colors"
+            title="Logout"
+          >
+            <LogOut className="h-5 w-5 text-destructive" />
+          </button>
         </div>
       </header>
 
