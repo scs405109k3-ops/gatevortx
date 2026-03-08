@@ -346,8 +346,10 @@ export type Database = {
           email: string
           name: string
           role: string
+          user_code: string
         }[]
       }
+      get_email_by_user_code: { Args: { _user_code: string }; Returns: string }
       get_user_company: { Args: { _user_id: string }; Returns: string }
       is_company_admin: { Args: { _user_id: string }; Returns: boolean }
       is_user_active: { Args: { _user_id: string }; Returns: boolean }
