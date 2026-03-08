@@ -234,6 +234,52 @@ const LoginPage: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Registered users for selected company */}
+            {selectedCompany && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowUsers(!showUsers)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  {showUsers ? 'Hide' : 'View'} registered {isAcademic ? 'members' : 'employees'}
+                  {showUsers ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                </button>
+                {showUsers && (
+                  <div className="mt-2 max-h-40 overflow-y-auto rounded-xl border border-border bg-muted/30 divide-y divide-border">
+                    {loadingUsers ? (
+                      <div className="flex items-center justify-center py-3">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : companyUsers.length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-3">No members registered yet</p>
+                    ) : (
+                      companyUsers.map((u, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => { setEmail(u.email); setShowUsers(false); }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-primary/5 transition-colors"
+                        >
+                          <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <span className="text-xs font-bold text-primary">{u.name?.charAt(0)?.toUpperCase() || '?'}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{u.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                          </div>
+                          <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full uppercase">
+                            {getRoleLabel(u.role)}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           )}
 
           {/* Role selector */}
