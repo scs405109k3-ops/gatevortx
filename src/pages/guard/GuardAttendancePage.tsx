@@ -519,20 +519,15 @@ const GuardAttendancePage: React.FC = () => {
                   {!isMarked ? (
                     <>
                       <button
-                        onClick={() => markAttendance(emp, 'present')}
+                        onClick={() => {
+                          const autoStatus = getAutoStatus();
+                          markAttendance(emp, autoStatus);
+                        }}
                         disabled={isSaving}
-                        className="flex-1 h-10 rounded-xl bg-green-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
+                        className={`flex-[2] h-10 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 ${getAutoStatus() === 'late' ? 'bg-amber-500' : 'bg-green-500'}`}
                       >
                         {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                        Present
-                      </button>
-                      <button
-                        onClick={() => markAttendance(emp, 'late')}
-                        disabled={isSaving}
-                        className="flex-1 h-10 rounded-xl bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-                      >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
-                        Late
+                        {getAutoStatus() === 'late' ? 'Mark Late (Auto)' : 'Mark Present (Auto)'}
                       </button>
                       <button
                         onClick={() => markAttendance(emp, 'absent')}
