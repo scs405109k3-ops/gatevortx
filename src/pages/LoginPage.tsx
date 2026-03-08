@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../integrations/supabase/client';
-import { Eye, EyeOff, Loader2, LogIn, Lock, Building2, ChevronDown, ShieldCheck, UserPlus, Users, ChevronUp, Hash } from 'lucide-react';
+import { Eye, EyeOff, Loader2, LogIn, Lock, Building2, ChevronDown, ShieldCheck, UserPlus, Users, ChevronUp, Hash, Mail } from 'lucide-react';
 import logo from '../assets/logo.png';
 
 type CompanyEntry = { name: string; orgType: string | null };
@@ -74,18 +74,35 @@ const LoginPage: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Look up email from user code
-    const { data: email, error: lookupError } = await supabase.rpc('get_email_by_user_code', {
-      _user_code: userCode.trim().toUpperCase(),
-    });
+    let loginEmail = '';
 
-    if (lookupError || !email) {
-      setLoading(false);
-      setError('Invalid User ID. Please check and try again.');
-      return;
+    if (selectedRole === 'admin') {
+      // Admin logs in with email directly
+      loginEmail = userCode.trim(); // userCode field holds email for admin
+      if (!loginEmail.includes('@')) {
+        setLoading(false);
+        setError('Please enter a valid email address.');
+        return;
+      }
+    } else {
+      // Other roles: try user code first, if it contains '@' treat as email
+      const input = userCode.trim();
+      if (input.includes('@')) {
+        loginEmail = input;
+      } else {
+        const { data: email, error: lookupError } = await supabase.rpc('get_email_by_user_code', {
+          _user_code: input.toUpperCase(),
+        });
+        if (lookupError || !email) {
+          setLoading(false);
+          setError('Invalid User ID. Please check and try again.');
+          return;
+        }
+        loginEmail = email as string;
+      }
     }
 
-    const { error: signInError } = await signIn(email as string, password);
+    const { error: signInError } = await signIn(loginEmail, password);
 
     if (signInError) {
       setLoading(false);
@@ -204,7 +221,11 @@ const LoginPage: React.FC = () => {
       {/* Form */}
       <div className="flex-1 px-6 pb-8">
         <h2 className="text-xl font-bold text-foreground mb-1">Welcome Back</h2>
-        <p className="text-sm text-muted-foreground mb-5">Sign in with your User ID to access your dashboard</p>
+        <p className="text-sm text-muted-foreground mb-5">
+          {isAdminRole
+            ? 'Sign in with your email to access your dashboard'
+            : 'Sign in with your User ID or email to access your dashboard'}
+        </p>
 
         <form onSubmit={handleLogin} className="space-y-4">
 
@@ -292,7 +313,7 @@ const LoginPage: React.FC = () => {
             <div className="relative">
               <select
                 value={selectedRole}
-                onChange={e => setSelectedRole(e.target.value)}
+                onChange={e => { setSelectedRole(e.target.value); setUserCode(''); }}
                 className="w-full h-12 px-4 pr-10 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm appearance-none"
               >
                 {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
@@ -306,21 +327,31 @@ const LoginPage: React.FC = () => {
             )}
           </div>
 
-          {/* User ID */}
+          {/* User ID / Email */}
           <div>
-            <label className="text-sm font-semibold text-foreground mb-1.5 block">User ID</label>
+            <label className="text-sm font-semibold text-foreground mb-1.5 block">
+              {isAdminRole ? 'Email Address' : 'User ID or Email'}
+            </label>
             <div className="relative">
-              <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              {isAdminRole ? (
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              ) : (
+                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              )}
               <input
-                type="text"
+                type={isAdminRole ? 'email' : 'text'}
                 value={userCode}
-                onChange={e => setUserCode(e.target.value.toUpperCase())}
-                placeholder="e.g. EMP001, GRD002, ADM001"
+                onChange={e => setUserCode(isAdminRole ? e.target.value : e.target.value.toUpperCase())}
+                placeholder={isAdminRole ? 'admin@company.com' : 'e.g. EMP001 or email'}
                 autoComplete="username"
-                className="w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm font-mono tracking-wider uppercase"
+                className={`w-full h-12 pl-10 pr-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm ${!isAdminRole ? 'font-mono tracking-wider uppercase' : ''}`}
               />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Enter the User ID provided by your admin</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {isAdminRole
+                ? 'Enter the email you registered with'
+                : 'Enter your User ID (e.g. EMP001) or registered email'}
+            </p>
           </div>
 
           {/* Password */}
