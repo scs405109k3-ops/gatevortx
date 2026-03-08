@@ -90,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider value={contextValue}>
-      {loading || !splashDone ? (
+      {loading ? (
         <React.Suspense fallback={null}>
           {React.createElement(React.lazy(() => import('../components/SplashScreen')))}
         </React.Suspense>
