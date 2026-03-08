@@ -62,7 +62,7 @@ const AdminLeavesPage: React.FC = () => {
   const filtered = leaves.filter(l => filter === 'all' || l.status === filter);
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <TopBar title="Leave Requests" subtitle="Admin" />
 
       <div className="px-5 py-4">

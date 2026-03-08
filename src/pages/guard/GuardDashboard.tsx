@@ -55,7 +55,7 @@ const GuardDashboard: React.FC = () => {
   const firstName = profile?.name?.split(' ')[0] || 'Officer';
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       {/* Header */}
       <header className="flex items-center bg-card px-4 py-3.5 sticky top-0 z-10 border-b border-border justify-between">
         <div className="flex items-center gap-2.5">

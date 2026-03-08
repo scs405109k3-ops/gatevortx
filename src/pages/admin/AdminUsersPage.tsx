@@ -134,7 +134,7 @@ const AdminUsersPage: React.FC = () => {
   const guards = members.filter(m => m.role === 'guard');
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <TopBar
         title="Team Members"
         subtitle={profile?.company_name || 'My Company'}

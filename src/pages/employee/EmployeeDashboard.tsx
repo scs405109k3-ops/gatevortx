@@ -125,7 +125,7 @@ const EmployeeDashboard: React.FC = () => {
   };
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       {/* Header */}
       <header className="flex items-center bg-card px-4 py-3.5 border-b border-border">
         <div className="flex h-9 w-9 items-center justify-center bg-primary/10 rounded-lg mr-3">

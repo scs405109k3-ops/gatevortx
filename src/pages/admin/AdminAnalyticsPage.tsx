@@ -87,7 +87,7 @@ const AdminAnalyticsPage: React.FC = () => {
   ];
 
   return (
-    <div className="mobile-container bg-background flex flex-col pb-24">
+    <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <TopBar title="Analytics" subtitle="Admin" />
 
       <div className="px-5 py-5 space-y-5">

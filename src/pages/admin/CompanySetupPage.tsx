@@ -31,7 +31,7 @@ const CompanySetupPage: React.FC = () => {
   };
 
   return (
-    <div className="mobile-container bg-background flex flex-col min-h-screen">
+    <div className="mobile-container bg-background flex flex-col min-h-screen md:items-center md:justify-center">
       {/* Header */}
       <div className="flex flex-col items-center pt-10 pb-6 px-6 bg-card border-b border-border">
         <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
