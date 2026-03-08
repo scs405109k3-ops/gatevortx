@@ -313,7 +313,7 @@ const AdminUsersPage: React.FC = () => {
           emptyIcon={<Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />}
           emptyLabel={`No ${memberLabel.toLowerCase()}s added yet`}
           onAdd={() => { setRole('employee'); setShowForm(true); }}
-          onManage={setActionMember}
+          onManage={openManageMember}
           memberLabel={memberLabel}
         />
 
