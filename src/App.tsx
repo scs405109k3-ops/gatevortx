@@ -18,6 +18,7 @@ import AdminLeavesPage from "./pages/admin/AdminLeavesPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import CompanySetupPage from "./pages/admin/CompanySetupPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
 import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
@@ -66,6 +67,7 @@ const AppRoutes = () => {
       <Route path="/admin/attendance" element={<ProtectedRoute allowedRole="admin"><AdminAttendancePage /></ProtectedRoute>} />
       <Route path="/admin/leaves" element={<ProtectedRoute allowedRole="admin"><AdminLeavesPage /></ProtectedRoute>} />
       <Route path="/admin/analytics" element={<ProtectedRoute allowedRole="admin"><AdminAnalyticsPage /></ProtectedRoute>} />
+      <Route path="/admin/settings" element={<ProtectedRoute allowedRole="admin"><AdminSettingsPage /></ProtectedRoute>} />
 
       {/* Employee Routes */}
       <Route path="/employee" element={<ProtectedRoute allowedRole="employee"><EmployeeDashboard /></ProtectedRoute>} />
