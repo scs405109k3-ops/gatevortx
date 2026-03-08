@@ -5,7 +5,7 @@ import {
   Users, UserPlus, Shield, Briefcase, Mail, Lock, User, Hash, Copy,
   Loader2, X, CheckCircle2, AlertCircle, Eye, EyeOff,
   LayoutDashboard, CalendarCheck, FileText, BarChart3,
-  UserX, UserCheck, Trash2, MoreVertical,
+  UserX, UserCheck, Trash2, MoreVertical, MessageSquare, Share2, Phone,
 } from 'lucide-react';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
