@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CalendarCheck, Search, User, FileText } from 'lucide-react';
+import { CalendarCheck, User, FileText, Home } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Attendance } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -7,9 +7,10 @@ import BottomNav from '../../components/BottomNav';
 import StatusBadge from '../../components/StatusBadge';
 
 const NAV_ITEMS = [
-  { label: 'Home', path: '/employee', icon: <User className="h-5 w-5" /> },
+  { label: 'Home', path: '/employee', icon: <Home className="h-5 w-5" /> },
   { label: 'Attendance', path: '/employee/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
   { label: 'Leave', path: '/employee/leave', icon: <FileText className="h-5 w-5" /> },
+  { label: 'Profile', path: '/employee/profile', icon: <User className="h-5 w-5" /> },
 ];
 
 const AttendanceHistoryPage: React.FC = () => {

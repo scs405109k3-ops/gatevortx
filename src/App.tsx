@@ -23,6 +23,7 @@ import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
 import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
+import EmployeeProfilePage from "./pages/employee/EmployeeProfilePage";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "./hooks/usePushNotifications";
 
@@ -75,6 +76,7 @@ const AppRoutes = () => {
       <Route path="/employee" element={<ProtectedRoute allowedRole="employee"><EmployeeDashboard /></ProtectedRoute>} />
       <Route path="/employee/attendance" element={<ProtectedRoute allowedRole="employee"><AttendanceHistoryPage /></ProtectedRoute>} />
       <Route path="/employee/leave" element={<ProtectedRoute allowedRole="employee"><LeaveRequestPage /></ProtectedRoute>} />
+      <Route path="/employee/profile" element={<ProtectedRoute allowedRole="employee"><EmployeeProfilePage /></ProtectedRoute>} />
 
       {/* MailVortx Routes — accessible to all authenticated users */}
       <Route path="/mail" element={<MailLayout />}>
