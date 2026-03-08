@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, ChevronLeft, Send, Loader2, Phone, Search, Lock } from 'lucide-react';
+import { Camera, ChevronLeft, Send, Loader2, Phone, Search, Lock, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
