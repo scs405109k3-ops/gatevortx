@@ -58,6 +58,7 @@ const AddVisitorPage: React.FC = () => {
   const [staffLoading, setStaffLoading] = useState(false);
   const [faceVerifying, setFaceVerifying] = useState(false);
   const [faceResult, setFaceResult] = useState<{ match: boolean | null; confidence: number; reason: string } | null>(null);
+  const [aiEnabled, setAiEnabled] = useState(false);
 
   const now = new Date();
   const entryDate = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
