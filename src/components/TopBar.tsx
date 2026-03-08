@@ -21,9 +21,7 @@ const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="rounded-full p-1" style={{ background: 'var(--gradient-card)' }}>
-            <img src={logo} alt="GateVortx" className="h-7 w-7 object-contain" style={{ mixBlendMode: 'luminosity' }} />
-          </div>
+          <img src={logo} alt="GateVortx" className="h-9 w-9 object-contain rounded-lg" />
           <div>
             <p className="text-blue-200 text-xs font-medium uppercase tracking-wider">{subtitle || profile?.role?.toUpperCase()}</p>
             <h1 className="text-xl font-bold leading-tight">{title}</h1>
