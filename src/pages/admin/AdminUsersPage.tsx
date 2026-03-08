@@ -273,13 +273,18 @@ const AdminUsersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground mb-1 block">Email Address</label>
+                <label className="text-xs font-semibold text-foreground mb-1 block flex items-center gap-1.5">
+                  Email Address
+                  {!emailManuallyEdited && email && (
+                    <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Auto-generated</span>
+                  )}
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => { setEmail(e.target.value); setEmailManuallyEdited(true); }}
                     placeholder="name@company.com"
                     className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                   />
