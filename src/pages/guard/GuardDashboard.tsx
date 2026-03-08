@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserPlus, ClipboardList, Users, Home, UserCheck, Mail, LogOut } from 'lucide-react';
+import { Bell, UserPlus, ClipboardList, Users, Home, UserCheck, Mail, LogOut, User } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { label: 'Attendance', path: '/guard/attendance', icon: <UserCheck className="h-5 w-5" /> },
   { label: 'Visitors', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
   { label: 'Add', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
+  { label: 'Profile', path: '/guard/profile', icon: <User className="h-5 w-5" /> },
 ];
 
 const GuardDashboard: React.FC = () => {
@@ -208,7 +209,7 @@ const GuardDashboard: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-foreground truncate">{visitor.visitor_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{visitor.company} • {visitor.purpose}</p>
+                    <p className="text-xs text-muted-foreground truncate">👤 {visitor.person_to_meet} • {visitor.purpose}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <StatusBadge status={visitor.status} />

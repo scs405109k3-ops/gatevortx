@@ -71,14 +71,31 @@ const AdminVisitorsPage: React.FC = () => {
       return;
     }
 
+    const notifMsg = decision === 'approved'
+      ? `✅ Visitor ${visitor.visitor_name} has been APPROVED – Allow Entry`
+      : `❌ Visitor ${visitor.visitor_name} has been REJECTED`;
+
+    // In-app notification to guard
     await supabase.from('notifications').insert({
       user_id: visitor.guard_id,
-      message: decision === 'approved'
-        ? `✅ Visitor ${visitor.visitor_name} has been APPROVED – Allow Entry`
-        : `❌ Visitor ${visitor.visitor_name} has been REJECTED`,
+      message: notifMsg,
       type: `visitor_${decision}`,
       read: false,
     });
+
+    // Push notification to guard
+    try {
+      await supabase.functions.invoke('send-push', {
+        body: {
+          user_ids: [visitor.guard_id],
+          title: decision === 'approved' ? '✅ Visitor Approved' : '❌ Visitor Rejected',
+          body: notifMsg,
+          data: { type: `visitor_${decision}`, visitor_id: visitor.id },
+        },
+      });
+    } catch (e) {
+      console.warn('[Push] Could not send push to guard:', e);
+    }
 
     toast({
       title: decision === 'approved' ? '✅ Visitor Approved' : '❌ Visitor Rejected',

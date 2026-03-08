@@ -5,7 +5,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
-import { Home, ClipboardList, Users, UserCheck } from 'lucide-react';
+import { Home, ClipboardList, Users, UserCheck, User } from 'lucide-react';
 
 interface Employee {
   id: string;
@@ -29,6 +29,7 @@ const NAV_ITEMS = [
   { label: 'Attendance', path: '/guard/attendance', icon: <UserCheck className="h-5 w-5" /> },
   { label: 'Visitors', path: '/guard/visitors', icon: <ClipboardList className="h-5 w-5" /> },
   { label: 'Add', path: '/guard/add-visitor', icon: <Users className="h-5 w-5" /> },
+  { label: 'Profile', path: '/guard/profile', icon: <User className="h-5 w-5" /> },
 ];
 
 const GuardAttendancePage: React.FC = () => {
