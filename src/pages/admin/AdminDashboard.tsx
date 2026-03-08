@@ -2,11 +2,12 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, UserCheck, Clock, BarChart3, CalendarCheck, FileText,
-  LayoutDashboard, Eye, TrendingUp,
+  LayoutDashboard, Eye, TrendingUp, UserX, Shield,
 } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
+import StatusBadge from '../../components/StatusBadge';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -16,29 +17,93 @@ const NAV_ITEMS = [
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-5 w-5" /> },
 ];
 
+interface AttendanceRow {
+  id: string;
+  employee_id: string;
+  status: 'present' | 'absent' | 'late';
+  check_in?: string;
+  checked_out_at?: string;
+  employee_name?: string;
+  guard_name?: string;
+}
+
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ pendingVisitors: 0, presentToday: 0, pendingLeaves: 0, visitorsToday: 0 });
+  const [stats, setStats] = useState({ pendingVisitors: 0, presentToday: 0, pendingLeaves: 0, visitorsToday: 0, lateToday: 0, absentToday: 0 });
+  const [attendanceRows, setAttendanceRows] = useState<AttendanceRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [attLoading, setAttLoading] = useState(true);
+
+  const today = new Date().toISOString().split('T')[0];
 
   const fetchStats = useCallback(async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const [pv, pt, pl, vt] = await Promise.all([
+    const [pv, pl, vt, attData] = await Promise.all([
       supabase.from('visitors').select('id', { count: 'exact' }).eq('status', 'pending'),
-      supabase.from('attendance').select('id', { count: 'exact' }).eq('date', today).eq('status', 'present'),
       supabase.from('leave_requests').select('id', { count: 'exact' }).eq('status', 'pending'),
       supabase.from('visitors').select('id', { count: 'exact' }).eq('date', today),
+      supabase.from('attendance').select('id, status', { count: 'exact' }).eq('date', today),
     ]);
+
+    const att = attData.data || [];
+    const present = att.filter((a: any) => a.status === 'present').length;
+    const late = att.filter((a: any) => a.status === 'late').length;
+    const absent = att.filter((a: any) => a.status === 'absent').length;
+
     setStats({
       pendingVisitors: pv.count || 0,
-      presentToday: pt.count || 0,
+      presentToday: present,
       pendingLeaves: pl.count || 0,
       visitorsToday: vt.count || 0,
+      lateToday: late,
+      absentToday: absent,
     });
     setLoading(false);
-  }, []);
+  }, [today]);
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
+  const fetchAttendanceDetail = useCallback(async () => {
+    setAttLoading(true);
+    // Fetch attendance with employee profiles joined
+    const { data: attData } = await supabase
+      .from('attendance')
+      .select('id, employee_id, status, check_in, checked_out_at')
+      .eq('date', today)
+      .order('check_in', { ascending: false });
+
+    if (!attData || attData.length === 0) {
+      setAttendanceRows([]);
+      setAttLoading(false);
+      return;
+    }
+
+    const empIds = [...new Set(attData.map((a: any) => a.employee_id))];
+
+    // Fetch employee profiles for names
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .in('id', empIds);
+
+    // Fetch guards (to know who marked — we store guard info in profiles)
+    const profileMap: Record<string, string> = {};
+    (profiles || []).forEach((p: any) => { profileMap[p.id] = p.name; });
+
+    const rows: AttendanceRow[] = attData.map((a: any) => ({
+      id: a.id,
+      employee_id: a.employee_id,
+      status: a.status,
+      check_in: a.check_in,
+      checked_out_at: a.checked_out_at,
+      employee_name: profileMap[a.employee_id] || 'Unknown',
+    }));
+
+    setAttendanceRows(rows);
+    setAttLoading(false);
+  }, [today]);
+
+  useEffect(() => {
+    fetchStats();
+    fetchAttendanceDetail();
+  }, [fetchStats, fetchAttendanceDetail]);
 
   const actions = [
     { label: 'Visitor Requests', sub: `${stats.pendingVisitors} pending`, icon: Users, path: '/admin/visitors', badge: stats.pendingVisitors, color: 'bg-blue-500/10 text-blue-600' },
@@ -56,8 +121,10 @@ const AdminDashboard: React.FC = () => {
         <div className="grid grid-cols-2 gap-3">
           {[
             { label: 'Visitors Today', value: stats.visitorsToday, icon: Eye },
-            { label: 'Present Today', value: stats.presentToday, icon: TrendingUp },
-            { label: 'Pending Visits', value: stats.pendingVisitors, icon: Clock },
+            { label: 'Present Today', value: stats.presentToday, icon: UserCheck },
+            { label: 'Late Today', value: stats.lateToday, icon: Clock },
+            { label: 'Absent Today', value: stats.absentToday, icon: UserX },
+            { label: 'Pending Visits', value: stats.pendingVisitors, icon: Eye },
             { label: 'Pending Leaves', value: stats.pendingLeaves, icon: FileText },
           ].map(s => {
             const Icon = s.icon;
@@ -75,6 +142,68 @@ const AdminDashboard: React.FC = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Today's Attendance Summary */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-foreground">Today's Attendance</h2>
+            <button
+              onClick={() => navigate('/admin/attendance')}
+              className="text-xs font-medium text-primary"
+            >
+              View All
+            </button>
+          </div>
+
+          {attLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <div key={i} className="h-16 bg-muted rounded-2xl animate-pulse" />)}
+            </div>
+          ) : attendanceRows.length === 0 ? (
+            <div className="bg-card rounded-2xl border border-border p-5 text-center">
+              <CalendarCheck className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No attendance records yet today</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {attendanceRows.slice(0, 5).map(row => (
+                <div key={row.id} className="bg-card rounded-2xl border border-border p-3 flex items-center gap-3 animate-fade-in">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold text-sm">{row.employee_name?.charAt(0) || '?'}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{row.employee_name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {row.check_in && (
+                        <p className="text-xs text-muted-foreground">
+                          In: <span className="font-medium text-foreground">
+                            {new Date(row.check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </p>
+                      )}
+                      {row.checked_out_at && (
+                        <p className="text-xs text-muted-foreground">
+                          Left: <span className="font-medium text-foreground">
+                            {new Date(row.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <StatusBadge status={row.status} />
+                </div>
+              ))}
+              {attendanceRows.length > 5 && (
+                <button
+                  onClick={() => navigate('/admin/attendance')}
+                  className="w-full py-2.5 rounded-2xl border border-dashed border-border text-xs font-medium text-muted-foreground active:scale-95 transition-all"
+                >
+                  +{attendanceRows.length - 5} more — View All
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}
