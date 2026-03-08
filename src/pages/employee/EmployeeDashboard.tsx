@@ -288,6 +288,14 @@ const EmployeeDashboard: React.FC = () => {
       </div>
 
       <BottomNav items={NAV_ITEMS} />
+
+      <NotificationsDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        notifications={notifications}
+        unreadCount={unreadCount}
+        onMarkAllRead={markAllRead}
+      />
     </div>
   );
 };
