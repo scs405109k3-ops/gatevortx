@@ -141,12 +141,28 @@ const LoginPage: React.FC = () => {
     }
   }, [profile, navigate]);
 
-  // When company changes, reset role to default
+  // Fetch registered users when company changes
   useEffect(() => {
-    setSelectedRole('employee');
+    setCompanyUsers([]);
+    setShowUsers(false);
+    if (!selectedCompany) return;
+    const fetchUsers = async () => {
+      setLoadingUsers(true);
+      const { data } = await supabase.rpc('get_company_users', { _company_name: selectedCompany });
+      setCompanyUsers((data as CompanyUser[]) || []);
+      setLoadingUsers(false);
+    };
+    fetchUsers();
   }, [selectedCompany]);
 
   const isAdminRole = selectedRole === 'admin';
+
+  const getRoleLabel = (role: string) => {
+    if (role === 'employee') return isAcademic ? 'Student' : 'Employee';
+    if (role === 'teacher') return 'Teacher';
+    if (role === 'guard') return 'Guard';
+    return role;
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center md:py-10">
