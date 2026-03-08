@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import BottomNav from '../../components/BottomNav';
 import TopBar from '../../components/TopBar';
+import { toast } from '../../hooks/use-toast';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
