@@ -313,7 +313,7 @@ const LoginPage: React.FC = () => {
             <div className="relative">
               <select
                 value={selectedRole}
-                onChange={e => setSelectedRole(e.target.value)}
+                onChange={e => { setSelectedRole(e.target.value); setUserCode(''); }}
                 className="w-full h-12 px-4 pr-10 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm appearance-none"
               >
                 {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
