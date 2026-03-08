@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { CalendarCheck, Search, User, FileText } from 'lucide-react';
+import { CalendarCheck, User, FileText, Home } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Attendance } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
