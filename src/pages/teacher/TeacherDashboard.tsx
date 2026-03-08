@@ -308,6 +308,15 @@ const TeacherDashboard: React.FC = () => {
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
+              onClick={() => navigate('/teacher/students')}
+              className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <span className="text-sm font-semibold text-foreground">Student Attendance</span>
+            </button>
+            <button
               onClick={() => navigate('/teacher/leave')}
               className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
@@ -323,19 +332,16 @@ const TeacherDashboard: React.FC = () => {
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <CalendarCheck className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">History</span>
+              <span className="text-sm font-semibold text-foreground">My History</span>
             </button>
             <button
               onClick={() => navigate('/mail/inbox')}
-              className="col-span-2 bg-card rounded-2xl p-4 border border-border flex items-center gap-3 active:scale-95 transition-all shadow-sm"
+              className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                 <Mail className="h-6 w-6 text-primary" />
               </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">MailVortx</p>
-                <p className="text-xs text-muted-foreground">Open your inbox</p>
-              </div>
+              <span className="text-sm font-semibold text-foreground">MailVortx</span>
             </button>
           </div>
         </div>
