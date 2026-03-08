@@ -220,7 +220,7 @@ const LoginPage: React.FC = () => {
         <p className="text-sm text-muted-foreground mb-5">
           {isAdminRole
             ? 'Sign in with your email to access your dashboard'
-            : 'Sign in with your User ID or email to access your dashboard'}
+            : 'Sign in with your User ID to access your dashboard'}
         </p>
 
         <form onSubmit={handleLogin} className="space-y-4">
