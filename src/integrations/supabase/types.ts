@@ -77,6 +77,114 @@ export type Database = {
         }
         Relationships: []
       }
+      email_label_assignments: {
+        Row: {
+          created_at: string
+          email_id: string
+          id: string
+          label_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_id: string
+          id?: string
+          label_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_id?: string
+          id?: string
+          label_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_label_assignments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_label_assignments_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "email_labels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_labels: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emails: {
+        Row: {
+          body: string
+          created_at: string
+          deleted_by_recipient: boolean
+          deleted_by_sender: boolean
+          from_user_id: string
+          id: string
+          is_draft: boolean
+          is_read: boolean
+          is_starred: boolean
+          subject: string
+          to_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          deleted_by_recipient?: boolean
+          deleted_by_sender?: boolean
+          from_user_id: string
+          id?: string
+          is_draft?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          subject?: string
+          to_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          deleted_by_recipient?: boolean
+          deleted_by_sender?: boolean
+          from_user_id?: string
+          id?: string
+          is_draft?: boolean
+          is_read?: boolean
+          is_starred?: boolean
+          subject?: string
+          to_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leave_requests: {
         Row: {
           created_at: string
