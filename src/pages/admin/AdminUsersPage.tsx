@@ -29,7 +29,8 @@ type TeamMember = {
 };
 
 const AdminUsersPage: React.FC = () => {
-  const { session, profile } = useAuth();
+  const { session, profile, orgType } = useAuth();
+  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
