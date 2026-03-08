@@ -125,7 +125,7 @@ const LoginPage: React.FC = () => {
     }
 
     // All good — redirect
-    const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+    const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee', teacher: '/teacher' };
     navigate(routes[freshProfile.role] || '/login');
   };
 
