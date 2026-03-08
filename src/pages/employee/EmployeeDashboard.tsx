@@ -57,12 +57,35 @@ const EmployeeDashboard: React.FC = () => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Fetch org timings from admin
+  const [orgTimings, setOrgTimings] = useState<{ start: string; end: string } | null>(null);
+  useEffect(() => {
+    const fetchTimings = async () => {
+      if (!profile?.company_name) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('work_start_time, work_end_time')
+        .eq('role', 'admin')
+        .eq('company_name', profile.company_name)
+        .limit(1)
+        .single();
+      if (data) {
+        setOrgTimings({
+          start: (data as any).work_start_time?.slice(0, 5) || '09:00',
+          end: (data as any).work_end_time?.slice(0, 5) || '17:00',
+        });
+      }
+    };
+    fetchTimings();
+  }, [profile?.company_name]);
+
   const handleCheckIn = async () => {
     if (!profile) return;
     setLoading(true);
-    const now = new Date().toISOString();
-    const checkInHour = new Date().getHours();
-    const status = checkInHour > 9 ? 'late' : 'present';
+    const now = new Date();
+    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const startTime = orgTimings?.start || '09:00';
+    const status = nowTime > startTime ? 'late' : 'present';
 
     const { error } = await supabase.from('attendance').insert({
       employee_id: profile.id,
