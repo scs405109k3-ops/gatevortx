@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, UserCheck, Clock, BarChart3, CalendarCheck, FileText,
-  LayoutDashboard, Eye, TrendingUp, UserX, Shield,
+  LayoutDashboard, Eye, TrendingUp, UserX, Shield, Mail,
 } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import BottomNav from '../../components/BottomNav';
