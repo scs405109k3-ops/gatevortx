@@ -208,6 +208,7 @@ const LoginPage: React.FC = () => {
 
           {/* Company selector — hidden for admin */}
           {!isAdminRole && (
+            <>
             <div>
               <label className="text-sm font-semibold text-foreground mb-1.5 block">
                 Select Company / Institution <span className="text-destructive">*</span>
@@ -237,7 +238,7 @@ const LoginPage: React.FC = () => {
 
             {/* Registered users for selected company */}
             {selectedCompany && (
-              <div className="mt-2">
+              <div>
                 <button
                   type="button"
                   onClick={() => setShowUsers(!showUsers)}
@@ -280,6 +281,7 @@ const LoginPage: React.FC = () => {
                 )}
               </div>
             )}
+            </>
           )}
 
           {/* Role selector */}
