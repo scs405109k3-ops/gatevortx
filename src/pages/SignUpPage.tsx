@@ -170,6 +170,8 @@ const SignUpPage: React.FC = () => {
           Secured by GateVortx Cloud Infrastructure
         </p>
       </div>
+      </div>
+    </div>
     </div>
   );
 };
