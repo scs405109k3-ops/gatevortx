@@ -120,21 +120,65 @@ const GuardAttendancePage: React.FC = () => {
 
   const openCamera = (employeeId: string) => {
     setCameraTarget(employeeId);
+    // clear previous face result when retaking photo
+    setFaceResults(prev => { const n = { ...prev }; delete n[employeeId]; return n; });
     setTimeout(() => cameraRef.current?.click(), 50);
   };
 
-  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !cameraTarget) return;
     if (file.size > 8 * 1024 * 1024) {
       toast({ title: 'Photo too large', description: 'Max 8MB', variant: 'destructive' });
       return;
     }
-    setPendingPhotos(prev => ({ ...prev, [cameraTarget]: file }));
-    setPhotoPreview(prev => ({ ...prev, [cameraTarget]: URL.createObjectURL(file) }));
-    // Reset input so same file can be recaptured
+    const targetId = cameraTarget;
+    setPendingPhotos(prev => ({ ...prev, [targetId]: file }));
+    setPhotoPreview(prev => ({ ...prev, [targetId]: URL.createObjectURL(file) }));
     e.target.value = '';
     setCameraTarget(null);
+
+    // Find employee profile photo and run face verification
+    const emp = employees.find(e => e.id === targetId);
+    if (emp) {
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', targetId)
+        .single();
+      const referenceUrl = prof?.avatar_url;
+
+      if (referenceUrl) {
+        setVerifyingFor(targetId);
+        try {
+          // Upload temp to get a URL for the AI
+          const tempPath = `temp/${targetId}-${Date.now()}.jpg`;
+          await supabase.storage.from('employee-photos').upload(tempPath, file, { contentType: file.type, upsert: true });
+          const { data: { publicUrl: currentUrl } } = supabase.storage.from('employee-photos').getPublicUrl(tempPath);
+
+          const { data, error } = await supabase.functions.invoke('verify-face', {
+            body: { reference_url: referenceUrl, current_url: currentUrl, context: 'employee' },
+          });
+          if (!error && data) {
+            setFaceResults(prev => ({ ...prev, [targetId]: data }));
+            if (data.match === false && data.confidence >= 70) {
+              toast({
+                title: '⚠️ Face Mismatch',
+                description: `This may not be ${emp.name}. Confidence: ${data.confidence}%. Please verify manually.`,
+                variant: 'destructive',
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('[FaceVerify] Error:', err);
+        } finally {
+          setVerifyingFor(null);
+        }
+      } else {
+        // No reference photo — inform guard
+        setFaceResults(prev => ({ ...prev, [targetId]: { match: null, confidence: 0, reason: 'No profile photo for reference' } }));
+      }
+    }
   };
 
   const sendAttendanceNotification = async (employeeId: string, employeeName: string, status: 'present' | 'absent' | 'late') => {
