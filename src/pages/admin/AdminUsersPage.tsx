@@ -40,12 +40,28 @@ const AdminUsersPage: React.FC = () => {
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [emailManuallyEdited, setEmailManuallyEdited] = useState(false);
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'employee' | 'guard'>('employee');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+
+  // Auto-generate email from name + company
+  const generateEmail = (fullName: string) => {
+    if (!profile?.company_name) return '';
+    const namePart = fullName.trim().toLowerCase().replace(/\s+/g, '.').replace(/[^a-z0-9.]/g, '');
+    const companyPart = profile.company_name.trim().toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+    return namePart && companyPart ? `${namePart}@${companyPart}.com` : '';
+  };
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!emailManuallyEdited) {
+      setEmail(generateEmail(val));
+    }
+  };
 
   const fetchMembers = useCallback(async () => {
     if (!profile?.company_name) return;
@@ -91,6 +107,7 @@ const AdminUsersPage: React.FC = () => {
     setShowForm(false);
     setName('');
     setEmail('');
+    setEmailManuallyEdited(false);
     setPassword('');
     setRole('employee');
 
@@ -106,6 +123,7 @@ const AdminUsersPage: React.FC = () => {
         setShowForm(true);
         setName(optimisticMember.name);
         setEmail(optimisticMember.email);
+        setEmailManuallyEdited(true);
         setFormError(data?.error || error?.message || 'Failed to create user');
       } else {
         // Replace optimistic entry with real data
@@ -245,10 +263,10 @@ const AdminUsersPage: React.FC = () => {
                 <label className="text-xs font-semibold text-foreground mb-1 block">Full Name</label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <input
+                   <input
                     type="text"
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={e => handleNameChange(e.target.value)}
                     placeholder="Enter full name"
                     className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                   />
@@ -256,13 +274,18 @@ const AdminUsersPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground mb-1 block">Email Address</label>
+                <label className="text-xs font-semibold text-foreground mb-1 block flex items-center gap-1.5">
+                  Email Address
+                  {!emailManuallyEdited && email && (
+                    <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">Auto-generated</span>
+                  )}
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => { setEmail(e.target.value); setEmailManuallyEdited(true); }}
                     placeholder="name@company.com"
                     className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm"
                   />
