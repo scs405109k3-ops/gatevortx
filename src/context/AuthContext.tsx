@@ -21,6 +21,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [splashDone, setSplashDone] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSplashDone(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -77,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
-  if (loading) {
+  if (loading || !splashDone) {
     const SplashScreen = React.lazy(() => import('../components/SplashScreen'));
     return (
       <React.Suspense fallback={null}>
