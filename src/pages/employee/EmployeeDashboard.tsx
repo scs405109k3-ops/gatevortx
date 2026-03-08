@@ -24,7 +24,8 @@ const EmployeeDashboard: React.FC = () => {
   const [todayRecord, setTodayRecord] = useState<Attendance | null>(null);
   const [weekRecords, setWeekRecords] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(false);
-  const { unreadCount } = useNotifications();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { unreadCount, notifications, markAllRead } = useNotifications();
   const today = new Date().toISOString().split('T')[0];
 
   const fetchData = useCallback(async () => {
