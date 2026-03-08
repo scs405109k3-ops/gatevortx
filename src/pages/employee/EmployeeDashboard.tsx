@@ -11,7 +11,7 @@ import NotificationsDrawer from '../../components/NotificationsDrawer';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/employee', icon: <Home className="h-5 w-5" /> },
-  { label: 'Schedule', path: '/employee/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
+  { label: 'Attendance', path: '/employee/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
   { label: 'Leave', path: '/employee/leave', icon: <FileText className="h-5 w-5" /> },
   { label: 'Profile', path: '/employee/profile', icon: <User className="h-5 w-5" /> },
 ];
