@@ -105,11 +105,22 @@ const TeacherDashboard: React.FC = () => {
   const handleCheckOut = async () => {
     if (!profile || !todayRecord) return;
     setLoading(true);
-    const { error } = await supabase.from('attendance').update({ check_out: new Date().toISOString() }).eq('id', todayRecord.id);
+    const checkOutTime = new Date().toISOString();
+    const { error } = await supabase.from('attendance').update({ check_out: checkOutTime }).eq('id', todayRecord.id);
     if (error) {
       toast({ title: 'Error', description: 'Could not check out', variant: 'destructive' });
     } else {
       toast({ title: '👋 Checked Out!', description: 'See you tomorrow!' });
+      if (todayRecord.check_in && orgTimings && (profile as any)?.company_name) {
+        checkAndNotifyOvertime(
+          profile.id,
+          profile.name || 'Teacher',
+          (profile as any).company_name,
+          todayRecord.check_in,
+          checkOutTime,
+          orgTimings.end
+        );
+      }
       await fetchData();
     }
     setLoading(false);

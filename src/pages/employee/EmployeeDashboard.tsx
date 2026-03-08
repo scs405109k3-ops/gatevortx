@@ -107,11 +107,23 @@ const EmployeeDashboard: React.FC = () => {
   const handleCheckOut = async () => {
     if (!profile || !todayRecord) return;
     setLoading(true);
-    const { error } = await supabase.from('attendance').update({ check_out: new Date().toISOString() }).eq('id', todayRecord.id);
+    const checkOutTime = new Date().toISOString();
+    const { error } = await supabase.from('attendance').update({ check_out: checkOutTime }).eq('id', todayRecord.id);
     if (error) {
       toast({ title: 'Error', description: 'Could not check out', variant: 'destructive' });
     } else {
       toast({ title: '👋 Checked Out!', description: 'See you tomorrow!' });
+      // Check overtime and notify admin if > 2h
+      if (todayRecord.check_in && orgTimings && profile.company_name) {
+        checkAndNotifyOvertime(
+          profile.id,
+          profile.name || 'Employee',
+          profile.company_name,
+          todayRecord.check_in,
+          checkOutTime,
+          orgTimings.end
+        );
+      }
       await fetchData();
     }
     setLoading(false);
