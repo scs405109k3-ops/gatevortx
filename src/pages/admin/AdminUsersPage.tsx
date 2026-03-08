@@ -332,7 +332,25 @@ const AdminUsersPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Custom User ID (optional) */}
               <div>
+                <label className="text-xs font-semibold text-foreground mb-1 block flex items-center gap-1.5">
+                  User ID
+                  <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">Optional</span>
+                </label>
+                <div className="relative">
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={customUserCode}
+                    onChange={e => setCustomUserCode(e.target.value.toUpperCase())}
+                    placeholder="Auto-generated if left empty"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm font-mono tracking-wider uppercase"
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">Leave empty to auto-generate (e.g. EMP001, GRD002)</p>
+              </div>
+
                 <label className="text-xs font-semibold text-foreground mb-1 block">Temporary Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
