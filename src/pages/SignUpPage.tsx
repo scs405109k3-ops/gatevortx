@@ -49,7 +49,7 @@ const SignUpPage: React.FC = () => {
         className="flex flex-col items-center pt-10 pb-6 px-6"
         style={{ background: 'var(--gradient-brand)' }}
       >
-        <img src={logo} alt="GateVortx Logo" className="h-20 w-20 object-contain mb-3 drop-shadow-xl" />
+        <img src={logo} alt="GateVortx Logo" className="h-20 w-20 object-contain mb-3" style={{ mixBlendMode: 'screen' }} />
         <h1 className="text-2xl font-bold tracking-tight text-white">GateVortx</h1>
         <p className="text-xs font-semibold text-blue-200 uppercase tracking-widest mt-1">Admin Registration</p>
       </div>
