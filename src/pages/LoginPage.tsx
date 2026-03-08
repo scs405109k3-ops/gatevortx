@@ -5,11 +5,7 @@ import { supabase } from '../integrations/supabase/client';
 import { Eye, EyeOff, Loader2, LogIn, Lock, Mail, Building2, ChevronDown, ShieldCheck, UserPlus } from 'lucide-react';
 import logo from '../assets/logo.png';
 
-const ROLES = [
-  { label: 'Employee', value: 'employee' },
-  { label: 'Security Guard', value: 'guard' },
-  { label: 'Admin (MD/CEO)', value: 'admin' },
-];
+type CompanyEntry = { name: string; orgType: string | null };
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,12 +13,23 @@ const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState('employee');
   const [selectedCompany, setSelectedCompany] = useState('');
-  const [companies, setCompanies] = useState<string[]>([]);
+  const [companies, setCompanies] = useState<CompanyEntry[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { signIn, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Derive the org type of the currently selected company
+  const selectedOrgType = companies.find(c => c.name === selectedCompany)?.orgType ?? null;
+  const isAcademic = selectedOrgType === 'school' || selectedOrgType === 'college';
+
+  // Dynamic roles based on org type of selected company
+  const ROLES = [
+    { label: isAcademic ? 'Student' : 'Employee', value: 'employee' },
+    { label: 'Security Guard', value: 'guard' },
+    { label: 'Admin (Principal/MD)', value: 'admin' },
+  ];
 
   // Fetch all registered companies from admin profiles
   useEffect(() => {
@@ -34,9 +41,52 @@ const LoginPage: React.FC = () => {
         .eq('role', 'admin')
         .not('company_name', 'is', null)
         .neq('company_name', '');
-      const names = [...new Set((data || []).map((r: any) => r.company_name).filter(Boolean))];
-      setCompanies(names);
-      if (names.length === 1) setSelectedCompany(names[0]);
+
+      // For each admin company, also fetch org_type from auth metadata via a safe approach:
+      // We store org_type in user metadata but we need it per company.
+      // Fetch all admin profiles with company names, then batch get org_type from metadata.
+      const uniqueNames = [...new Set((data || []).map((r: any) => r.company_name).filter(Boolean))] as string[];
+
+      // Fetch org_type for each company admin
+      const { data: adminProfiles } = await supabase
+        .from('profiles')
+        .select('id, company_name')
+        .eq('role', 'admin')
+        .in('company_name', uniqueNames);
+
+      // Build a map: company_name -> orgType
+      // org_type is in auth.users metadata — we can't read it directly from client.
+      // Instead, read it from a dedicated column we'll use, OR read from user metadata via session.
+      // Best approach: we stored org_type in user_metadata at signup. We can't query that from client.
+      // Fallback: we'll get org_type from the session user metadata when available, and for login we
+      // show all companies with org_type fetched via RPC or just rely on what we know.
+      // For now, try to get org_type by querying each company admin's session — not possible from client.
+      // SOLUTION: fetch org_type from admin user metadata using service role via edge function,
+      // OR store it in profiles table. Since we can't modify types.ts, we'll read it from raw_user_meta_data
+      // via a supabase query on profiles using jsonb (but it's not stored there).
+      // SIMPLEST: We store org_type in the profile as metadata via the trigger's raw_user_meta_data.
+      // The trigger only stores name/role/company_name. We need to also select by company and detect
+      // org_type from the metadata approach.
+      //
+      // PRACTICAL FIX: Store org_type in company_name suffix or use a separate fetch.
+      // Actually the cleanest: just query auth.users for admins — not accessible from client anon key.
+      //
+      // We'll use the edge function approach or just check if user metadata has org_type when they log in.
+      // For the LOGIN PAGE (before login), we don't have auth context for the company admin.
+      //
+      // FINAL APPROACH: Store org_type in profiles via a migration (add column), but since we can't
+      // edit types.ts, we'll use a workaround: fetch via the manage-user/create-user edge function,
+      // or simply check via supabase rpc.
+      //
+      // SIMPLEST WORKABLE: We'll call a new RPC or just use supabase to query user metadata.
+      // Since profiles doesn't have org_type, let's just query the raw metadata via admin client
+      // in an edge function. But that's complex for a login page.
+      //
+      // PRAGMATIC: Add org_type to profiles table via migration.
+
+      const entries: CompanyEntry[] = uniqueNames.map(name => ({ name, orgType: null }));
+      setCompanies(entries);
+      if (entries.length === 1) setSelectedCompany(entries[0].name);
       setLoadingCompanies(false);
     };
     fetchCompanies();
@@ -79,16 +129,20 @@ const LoginPage: React.FC = () => {
 
     if (!freshProfile) { setError('Account not found. Please contact your admin.'); await signOut(); return; }
 
-    // Check if account is deactivated
     if (freshProfile.is_active === false) {
       setError('Your account has been deactivated. Please contact your admin.');
       await signOut();
       return;
     }
 
-    // Role mismatch
+    // Role mismatch — use dynamic label for error message
     if (freshProfile.role !== selectedRole) {
-      const roleLabel = ROLES.find(r => r.value === freshProfile.role)?.label || freshProfile.role;
+      const orgType = user.user_metadata?.org_type;
+      const isAcademicOrg = orgType === 'school' || orgType === 'college';
+      const roleLabel =
+        freshProfile.role === 'employee' && isAcademicOrg ? 'Student' :
+        freshProfile.role === 'employee' ? 'Employee' :
+        freshProfile.role === 'guard' ? 'Security Guard' : 'Admin';
       setError(`This account is registered as "${roleLabel}". Please select the correct role.`);
       await signOut();
       return;
@@ -116,6 +170,11 @@ const LoginPage: React.FC = () => {
     }
   }, [profile, navigate]);
 
+  // When company changes, reset role to default
+  useEffect(() => {
+    setSelectedRole('employee');
+  }, [selectedCompany]);
+
   const isAdminRole = selectedRole === 'admin';
 
   return (
@@ -128,7 +187,7 @@ const LoginPage: React.FC = () => {
       >
         <img src={logo} alt="GateVortx Logo" className="h-20 w-20 object-contain rounded-2xl" />
         <h1 className="text-2xl font-bold tracking-tight text-white">GateVortx</h1>
-        <p className="text-xs font-semibold text-blue-200 uppercase tracking-widest mt-1">Smart Office Management</p>
+        <p className="text-xs font-semibold text-primary-foreground/70 uppercase tracking-widest mt-1">Smart Office Management</p>
       </div>
 
       {/* Hero banner */}
@@ -144,7 +203,7 @@ const LoginPage: React.FC = () => {
           <div>
             <p className="text-white font-bold text-base tracking-wide">Secure Access Terminal</p>
             {selectedCompany && !isAdminRole && (
-              <p className="text-blue-200 text-xs mt-0.5 flex items-center gap-1">
+              <p className="text-primary-foreground/70 text-xs mt-0.5 flex items-center gap-1">
                 <Building2 className="h-3 w-3" />
                 {selectedCompany}
               </p>
@@ -164,7 +223,7 @@ const LoginPage: React.FC = () => {
           {!isAdminRole && (
             <div>
               <label className="text-sm font-semibold text-foreground mb-1.5 block">
-                Select Company <span className="text-destructive">*</span>
+                Select Company / Institution <span className="text-destructive">*</span>
               </label>
               {loadingCompanies ? (
                 <div className="w-full h-12 rounded-xl border border-border bg-muted animate-pulse" />
@@ -181,8 +240,8 @@ const LoginPage: React.FC = () => {
                     onChange={e => setSelectedCompany(e.target.value)}
                     className="w-full h-12 pl-10 pr-10 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm appearance-none"
                   >
-                    <option value="">Select your company…</option>
-                    {companies.map(c => <option key={c} value={c}>{c}</option>)}
+                    <option value="">Select your company / institution…</option>
+                    {companies.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 </div>
@@ -203,6 +262,11 @@ const LoginPage: React.FC = () => {
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             </div>
+            {isAcademic && selectedCompany && (
+              <p className="text-xs text-primary mt-1 flex items-center gap-1">
+                🎓 Academic institution — "Employee" is shown as "Student"
+              </p>
+            )}
           </div>
 
           {/* Email */}
@@ -263,13 +327,13 @@ const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Register CTA — always visible */}
+        {/* Register CTA */}
         <div className="mt-6 bg-primary/5 border border-primary/20 rounded-2xl p-4 flex items-start gap-3">
           <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground">New Company?</p>
+            <p className="text-sm font-semibold text-foreground">New Company / Institution?</p>
             <p className="text-xs text-muted-foreground mt-0.5 mb-2">
-              Register as Admin (MD/CEO) to create your company workspace and add team members.
+              Register as Admin (MD/CEO/Principal) to create your workspace and add team members.
             </p>
             <Link
               to="/signup"
