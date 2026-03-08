@@ -106,18 +106,26 @@ const AdminUsersPage: React.FC = () => {
       company_name: profile?.company_name || null,
       created_at: new Date().toISOString(),
       is_active: true,
+      user_code: customUserCode.trim().toUpperCase() || null,
     };
     setMembers(prev => [optimisticMember, ...prev]);
     setShowForm(false);
     setName('');
     setEmail('');
     setEmailManuallyEdited(false);
+    setCustomUserCode('');
     setPassword('');
     setRole('employee');
 
     try {
       const { data, error } = await supabase.functions.invoke('create-user', {
-        body: { email: optimisticMember.email, password, name: optimisticMember.name, role },
+        body: {
+          email: optimisticMember.email,
+          password,
+          name: optimisticMember.name,
+          role,
+          user_code: customUserCode.trim() || undefined,
+        },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
