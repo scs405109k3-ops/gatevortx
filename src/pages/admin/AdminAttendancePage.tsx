@@ -14,8 +14,14 @@ const NAV_ITEMS = [
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-5 w-5" /> },
 ];
 
-interface AttendanceWithEmployee extends Attendance {
+interface AttendanceWithEmployee {
+  id: string;
+  employee_id: string;
   employee_name?: string;
+  date: string;
+  check_in?: string;
+  check_out?: string;
+  status: 'present' | 'absent' | 'late';
 }
 
 const AdminAttendancePage: React.FC = () => {
