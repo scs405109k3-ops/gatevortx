@@ -16,6 +16,7 @@ export interface Profile {
   work_start_time?: string;
   work_end_time?: string;
   org_type?: string;
+  user_code?: string;
 }
 
 export interface Visitor {

@@ -253,6 +253,7 @@ export type Database = {
           name: string
           org_type: string | null
           role: Database["public"]["Enums"]["app_role"]
+          user_code: string | null
           work_end_time: string | null
           work_start_time: string | null
         }
@@ -266,6 +267,7 @@ export type Database = {
           name?: string
           org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          user_code?: string | null
           work_end_time?: string | null
           work_start_time?: string | null
         }
@@ -279,6 +281,7 @@ export type Database = {
           name?: string
           org_type?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          user_code?: string | null
           work_end_time?: string | null
           work_start_time?: string | null
         }
@@ -343,8 +346,10 @@ export type Database = {
           email: string
           name: string
           role: string
+          user_code: string
         }[]
       }
+      get_email_by_user_code: { Args: { _user_code: string }; Returns: string }
       get_user_company: { Args: { _user_id: string }; Returns: string }
       is_company_admin: { Args: { _user_id: string }; Returns: boolean }
       is_user_active: { Args: { _user_id: string }; Returns: boolean }

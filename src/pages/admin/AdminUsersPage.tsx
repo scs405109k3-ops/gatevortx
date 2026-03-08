@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Users, UserPlus, Shield, Briefcase, Mail, Lock, User,
+  Users, UserPlus, Shield, Briefcase, Mail, Lock, User, Hash,
   Loader2, X, CheckCircle2, AlertCircle, Eye, EyeOff,
   LayoutDashboard, CalendarCheck, FileText, BarChart3,
   UserX, UserCheck, Trash2, MoreVertical,
@@ -26,6 +26,7 @@ type TeamMember = {
   company_name: string | null;
   created_at: string;
   is_active: boolean;
+  user_code: string | null;
 };
 
 const AdminUsersPage: React.FC = () => {
@@ -43,6 +44,7 @@ const AdminUsersPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [emailManuallyEdited, setEmailManuallyEdited] = useState(false);
+  const [customUserCode, setCustomUserCode] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'employee' | 'guard' | 'teacher'>('employee');
   const [showPassword, setShowPassword] = useState(false);
@@ -70,7 +72,7 @@ const AdminUsersPage: React.FC = () => {
     setLoading(true);
     const { data } = await supabase
       .from('profiles')
-      .select('id, name, email, role, company_name, created_at, is_active')
+      .select('id, name, email, role, company_name, created_at, is_active, user_code')
       .in('role', ['employee', 'guard', 'teacher'])
       .eq('company_name', profile.company_name)
       .order('created_at', { ascending: false });
@@ -104,18 +106,26 @@ const AdminUsersPage: React.FC = () => {
       company_name: profile?.company_name || null,
       created_at: new Date().toISOString(),
       is_active: true,
+      user_code: customUserCode.trim().toUpperCase() || null,
     };
     setMembers(prev => [optimisticMember, ...prev]);
     setShowForm(false);
     setName('');
     setEmail('');
     setEmailManuallyEdited(false);
+    setCustomUserCode('');
     setPassword('');
     setRole('employee');
 
     try {
       const { data, error } = await supabase.functions.invoke('create-user', {
-        body: { email: optimisticMember.email, password, name: optimisticMember.name, role },
+        body: {
+          email: optimisticMember.email,
+          password,
+          name: optimisticMember.name,
+          role,
+          user_code: customUserCode.trim() || undefined,
+        },
         headers: { Authorization: `Bearer ${session?.access_token}` },
       });
 
@@ -322,6 +332,25 @@ const AdminUsersPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Custom User ID (optional) */}
+              <div>
+                <label className="text-xs font-semibold text-foreground mb-1 block flex items-center gap-1.5">
+                  User ID
+                  <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-full">Optional</span>
+                </label>
+                <div className="relative">
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={customUserCode}
+                    onChange={e => setCustomUserCode(e.target.value.toUpperCase())}
+                    placeholder="Auto-generated if left empty"
+                    className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm font-mono tracking-wider uppercase"
+                  />
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">Leave empty to auto-generate (e.g. EMP001, GRD002)</p>
+              </div>
+
               <div>
                 <label className="text-xs font-semibold text-foreground mb-1 block">Temporary Password</label>
                 <div className="relative">
@@ -391,6 +420,9 @@ const AdminUsersPage: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-foreground text-sm truncate">{actionMember.name}</p>
                 <p className="text-xs text-muted-foreground truncate">{actionMember.email}</p>
+                {actionMember.user_code && (
+                  <p className="text-xs font-mono font-semibold text-primary mt-0.5">ID: {actionMember.user_code}</p>
+                )}
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${actionMember.role === 'guard' ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
                     {actionMember.role === 'guard' ? 'Guard' : memberLabel}
@@ -506,7 +538,14 @@ const MemberCard: React.FC<{ member: TeamMember; onManage: (m: TeamMember) => vo
             <span className="text-[10px] font-bold bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full flex-shrink-0">INACTIVE</span>
           )}
         </div>
-        <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+          {member.user_code && (
+            <span className="text-[10px] font-mono font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full flex-shrink-0">
+              {member.user_code}
+            </span>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-2 flex-shrink-0">
         <span className={`text-xs font-semibold px-2 py-1 rounded-full ${isGuard ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
