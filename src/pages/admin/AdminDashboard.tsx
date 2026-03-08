@@ -11,7 +11,7 @@ import TopBar from '../../components/TopBar';
 const NAV_ITEMS = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard className="h-5 w-5" /> },
   { label: 'Visitors', path: '/admin/visitors', icon: <Users className="h-5 w-5" /> },
-  { label: 'Attendance', path: '/admin/attendance', icon: <CalendarCheck className="h-5 w-5" /> },
+  { label: 'Team', path: '/admin/users', icon: <UserCheck className="h-5 w-5" /> },
   { label: 'Leaves', path: '/admin/leaves', icon: <FileText className="h-5 w-5" /> },
   { label: 'Analytics', path: '/admin/analytics', icon: <BarChart3 className="h-5 w-5" /> },
 ];
@@ -41,10 +41,10 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => { fetchStats(); }, [fetchStats]);
 
   const actions = [
-    { label: 'Visitor Requests', sub: `${stats.pendingVisitors} pending`, icon: Users, path: '/admin/visitors', badge: stats.pendingVisitors, color: 'bg-blue-50 text-blue-600' },
-    { label: 'Attendance', sub: `${stats.presentToday} present today`, icon: UserCheck, path: '/admin/attendance', badge: 0, color: 'bg-green-50 text-green-600' },
-    { label: 'Leave Requests', sub: `${stats.pendingLeaves} pending`, icon: FileText, path: '/admin/leaves', badge: stats.pendingLeaves, color: 'bg-yellow-50 text-yellow-600' },
-    { label: 'Analytics', sub: 'View reports', icon: BarChart3, path: '/admin/analytics', badge: 0, color: 'bg-purple-50 text-purple-600' },
+    { label: 'Visitor Requests', sub: `${stats.pendingVisitors} pending`, icon: Users, path: '/admin/visitors', badge: stats.pendingVisitors, color: 'bg-blue-500/10 text-blue-600' },
+    { label: 'Team Members', sub: 'Manage employees & guards', icon: UserCheck, path: '/admin/users', badge: 0, color: 'bg-green-500/10 text-green-600' },
+    { label: 'Leave Requests', sub: `${stats.pendingLeaves} pending`, icon: FileText, path: '/admin/leaves', badge: stats.pendingLeaves, color: 'bg-yellow-500/10 text-yellow-600' },
+    { label: 'Analytics', sub: 'View reports', icon: BarChart3, path: '/admin/analytics', badge: 0, color: 'bg-purple-500/10 text-purple-600' },
   ];
 
   return (

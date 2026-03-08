@@ -10,6 +10,7 @@ export interface Profile {
   name: string;
   email: string;
   role: AppRole;
+  company_name?: string;
   avatar_url?: string;
   created_at?: string;
 }

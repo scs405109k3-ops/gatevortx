@@ -15,6 +15,8 @@ import AdminVisitorsPage from "./pages/admin/AdminVisitorsPage";
 import AdminAttendancePage from "./pages/admin/AdminAttendancePage";
 import AdminLeavesPage from "./pages/admin/AdminLeavesPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import CompanySetupPage from "./pages/admin/CompanySetupPage";
 import EmployeeDashboard from "./pages/employee/EmployeeDashboard";
 import AttendanceHistoryPage from "./pages/employee/AttendanceHistoryPage";
 import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
@@ -41,6 +43,8 @@ const App = () => (
 
             {/* Admin Routes */}
             <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/company-setup" element={<ProtectedRoute allowedRole="admin"><CompanySetupPage /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute allowedRole="admin"><AdminUsersPage /></ProtectedRoute>} />
             <Route path="/admin/visitors" element={<ProtectedRoute allowedRole="admin"><AdminVisitorsPage /></ProtectedRoute>} />
             <Route path="/admin/attendance" element={<ProtectedRoute allowedRole="admin"><AdminAttendancePage /></ProtectedRoute>} />
             <Route path="/admin/leaves" element={<ProtectedRoute allowedRole="admin"><AdminLeavesPage /></ProtectedRoute>} />
