@@ -364,7 +364,7 @@ const AdminUsersPage: React.FC = () => {
                 <p className="text-xs text-muted-foreground truncate">{actionMember.email}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${actionMember.role === 'guard' ? 'bg-orange-500/10 text-orange-600' : 'bg-blue-500/10 text-blue-600'}`}>
-                    {actionMember.role === 'guard' ? 'Guard' : 'Employee'}
+                    {actionMember.role === 'guard' ? 'Guard' : memberLabel}
                   </span>
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${actionMember.is_active ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
                     {actionMember.is_active ? 'Active' : 'Deactivated'}
