@@ -13,7 +13,8 @@ const NAV_ITEMS = [
 ];
 
 const AttendanceHistoryPage: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, orgType } = useAuth();
+  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const [records, setRecords] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));

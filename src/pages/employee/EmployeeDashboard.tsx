@@ -19,7 +19,8 @@ const NAV_ITEMS = [
 const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
 
 const EmployeeDashboard: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, orgType } = useAuth();
+  const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const navigate = useNavigate();
   const [todayRecord, setTodayRecord] = useState<Attendance | null>(null);
   const [weekRecords, setWeekRecords] = useState<Attendance[]>([]);
