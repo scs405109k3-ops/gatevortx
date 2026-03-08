@@ -8,6 +8,7 @@ import BottomNav from '../../components/BottomNav';
 import { toast } from '../../hooks/use-toast';
 import { useNotifications } from '../../hooks/useNotifications';
 import NotificationsDrawer from '../../components/NotificationsDrawer';
+import { checkAndNotifyOvertime } from '../../hooks/useOvertimeNotifier';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/employee', icon: <Home className="h-5 w-5" /> },
