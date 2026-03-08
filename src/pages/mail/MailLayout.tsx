@@ -108,10 +108,20 @@ const MailLayout: React.FC = () => {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-4 border-t border-white/10">
+      <div className="px-4 py-4 border-t border-white/10 space-y-1">
+        <button
+          onClick={() => {
+            const routes: Record<string, string> = { admin: '/admin', guard: '/guard', employee: '/employee' };
+            navigate(routes[profile?.role || ''] || '/login');
+          }}
+          className="w-full flex items-center gap-2 text-white/50 hover:text-white text-xs font-medium py-2 px-3 rounded-xl hover:bg-white/10 transition-all"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Dashboard
+        </button>
         <button
           onClick={() => navigate('/mail/labels')}
-          className="w-full flex items-center gap-2 text-white/50 hover:text-white text-xs font-medium py-2 px-3 rounded-xl hover:bg-white/10 transition-all mb-1"
+          className="w-full flex items-center gap-2 text-white/50 hover:text-white text-xs font-medium py-2 px-3 rounded-xl hover:bg-white/10 transition-all"
         >
           <Tag className="h-3.5 w-3.5" />
           Manage Labels
