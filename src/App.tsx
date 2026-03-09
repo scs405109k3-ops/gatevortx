@@ -27,6 +27,7 @@ import LeaveRequestPage from "./pages/employee/LeaveRequestPage";
 import EmployeeProfilePage from "./pages/employee/EmployeeProfilePage";
 import NotFound from "./pages/NotFound";
 import { usePushNotifications } from "./hooks/usePushNotifications";
+import { useWebPushNotifications } from "./hooks/useWebPushNotifications";
 
 // Teacher pages
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
