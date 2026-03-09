@@ -1,8 +1,9 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "gatevortx",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,7 +11,47 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "electron:dev": "electron .",
+    "electron:build": "npm run build && electron-builder --win --x64",
+    "electron:build:all": "npm run build && electron-builder --win --mac --linux"
+  },
+  "build": {
+    "appId": "app.lovable.bb326c1c351846fb97fcce404222bcda",
+    "productName": "GateVortx",
+    "copyright": "Copyright © 2025 GateVortx",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/pwa-512x512.png"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/pwa-512x512.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "GateVortx"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "public/pwa-512x512.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/pwa-512x512.png"
+    }
   },
   "dependencies": {
     "@capacitor/android": "^8.2.0",
