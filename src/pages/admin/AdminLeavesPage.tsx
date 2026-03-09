@@ -63,7 +63,7 @@ const AdminLeavesPage: React.FC = () => {
 
   return (
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
-      <TopBar title="Leave Requests" subtitle="Admin" />
+      <TopBar title="Leave Requests" subtitle="Admin" backPath="/admin" />
 
       <div className="px-5 py-4">
         <div className="flex gap-2 overflow-x-auto pb-2">

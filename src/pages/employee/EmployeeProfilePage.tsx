@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { User, Camera, Upload, CheckCircle, AlertCircle, Home, CalendarCheck, FileText, Loader2, Mail, LogOut } from 'lucide-react';
+import { User, Camera, Upload, CheckCircle, AlertCircle, Home, CalendarCheck, FileText, Loader2, Mail, LogOut, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
 
 const EmployeeProfilePage: React.FC = () => {
   const { profile, orgType, refreshProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -88,6 +90,11 @@ const EmployeeProfilePage: React.FC = () => {
       {/* Header */}
       <div className="px-5 pt-12 pb-6 flex flex-col items-center"
         style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
+        <div className="w-full flex items-center mb-3">
+          <button onClick={() => navigate('/employee')} className="bg-white/20 rounded-lg p-2 active:scale-95 transition-all">
+            <ChevronLeft className="h-5 w-5 text-white" />
+          </button>
+        </div>
         <h1 className="text-xl font-bold text-white mb-5">My Profile</h1>
 
         {/* Avatar with upload overlay */}
@@ -115,7 +122,7 @@ const EmployeeProfilePage: React.FC = () => {
         </div>
 
         <h2 className="text-lg font-bold text-white mt-3">{profile?.name}</h2>
-        <p className="text-blue-200 text-sm">{memberLabel} · {(profile as any)?.company_name || 'GateVortx'}</p>
+        <p className="text-white/60 text-sm">{memberLabel} · {(profile as any)?.company_name || 'GateVortx'}</p>
 
         {/* AI verification status badge */}
         <div className={`mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
