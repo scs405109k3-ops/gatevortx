@@ -2,11 +2,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 interface PushPayload {
-  user_ids: string[];  // target user IDs
+  user_ids: string[];
   title: string;
   body: string;
   data?: Record<string, string>;
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     const payload: PushPayload = await req.json();
 
-    // Fetch all device tokens for the target users
+    // Fetch all device tokens for the target users (native + web)
     const { data: tokens, error } = await supabase
       .from('device_tokens')
       .select('token, platform')
@@ -46,17 +46,26 @@ Deno.serve(async (req) => {
       );
     }
 
-    const fcmTokens = tokens.map((t: any) => t.token);
+    const allTokens = tokens.map((t: any) => t.token);
 
-    // Send via FCM v1 (HTTP v1 API)
+    // FCM Legacy API handles both native (Android/iOS) and web tokens
     const fcmPayload = {
-      registration_ids: fcmTokens,
+      registration_ids: allTokens,
       notification: {
         title: payload.title,
         body: payload.body,
       },
       data: payload.data || {},
       priority: 'high',
+      // Web-specific options
+      webpush: {
+        notification: {
+          title: payload.title,
+          body: payload.body,
+          icon: '/pwa-192x192.png',
+          badge: '/pwa-192x192.png',
+        },
+      },
     };
 
     const fcmResponse = await fetch('https://fcm.googleapis.com/fcm/send', {
@@ -70,8 +79,16 @@ Deno.serve(async (req) => {
 
     const fcmResult = await fcmResponse.json();
 
+    const nativeCount = tokens.filter((t: any) => t.platform !== 'web').length;
+    const webCount = tokens.filter((t: any) => t.platform === 'web').length;
+
     return new Response(
-      JSON.stringify({ sent: fcmTokens.length, fcm: fcmResult }),
+      JSON.stringify({ 
+        sent: allTokens.length,
+        native: nativeCount,
+        web: webCount,
+        fcm: fcmResult 
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {
