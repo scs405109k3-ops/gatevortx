@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 
 const LeaveRequestPage: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
