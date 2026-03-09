@@ -4,7 +4,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import {
   AlertTriangle, Trash2, Loader2, Building2, ArrowLeft,
-  ShieldAlert, CheckCircle2, Clock,
+  ShieldAlert, CheckCircle2, Clock, LogOut,
 } from 'lucide-react';
 import TopBar from '../../components/TopBar';
 import BottomNav from '../../components/BottomNav';
