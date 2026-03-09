@@ -1,10 +1,116 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { URL } = require('url');
+const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
+
+// Configure logging
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+log.info('GateVortx starting...');
 
 // Keep a global reference to prevent garbage collection
 let mainWindow;
 
+// ─── Auto-updater setup ───────────────────────────────────────────────────────
+function setupAutoUpdater() {
+  // Don't check in development
+  if (!app.isPackaged) return;
+
+  autoUpdater.autoDownload = true;        // Download silently in background
+  autoUpdater.autoInstallOnAppQuit = true; // Install when user quits
+
+  // Check for updates on startup (after 3 seconds so the UI is ready)
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch(err => {
+      log.error('Update check failed:', err);
+    });
+  }, 3000);
+
+  // Also check every 4 hours while app is running
+  setInterval(() => {
+    autoUpdater.checkForUpdates().catch(err => {
+      log.error('Periodic update check failed:', err);
+    });
+  }, 4 * 60 * 60 * 1000);
+
+  // ── Updater events ────────────────────────────────────────────────────────
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for updates...');
+    sendToRenderer('update-status', { status: 'checking' });
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available:', info.version);
+    sendToRenderer('update-status', {
+      status: 'available',
+      version: info.version,
+      releaseDate: info.releaseDate,
+    });
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    log.info('App is up to date.');
+    sendToRenderer('update-status', { status: 'up-to-date' });
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    log.info(`Download: ${Math.round(progress.percent)}%`);
+    sendToRenderer('update-status', {
+      status: 'downloading',
+      percent: Math.round(progress.percent),
+      transferred: progress.transferred,
+      total: progress.total,
+    });
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('Update downloaded:', info.version);
+    sendToRenderer('update-status', {
+      status: 'downloaded',
+      version: info.version,
+    });
+    // Show native dialog asking to restart
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'Update Ready',
+      message: `GateVortx ${info.version} has been downloaded.`,
+      detail: 'Restart now to apply the update, or it will be applied next time you launch the app.',
+      buttons: ['Restart Now', 'Later'],
+      defaultId: 0,
+      cancelId: 1,
+    }).then(({ response }) => {
+      if (response === 0) {
+        autoUpdater.quitAndInstall(false, true);
+      }
+    });
+  });
+
+  autoUpdater.on('error', (err) => {
+    log.error('Auto-updater error:', err);
+    sendToRenderer('update-status', { status: 'error', message: err.message });
+  });
+}
+
+// ─── IPC handlers ─────────────────────────────────────────────────────────────
+ipcMain.on('check-for-updates', () => {
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates().catch(err => log.error(err));
+  }
+});
+
+ipcMain.on('install-update', () => {
+  autoUpdater.quitAndInstall(false, true);
+});
+
+// ─── Helper ───────────────────────────────────────────────────────────────────
+function sendToRenderer(channel, data) {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, data);
+  }
+}
+
+// ─── Window creation ──────────────────────────────────────────────────────────
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -20,41 +126,34 @@ function createWindow() {
       webSecurity: true,
     },
     backgroundColor: '#0f172a',
-    show: false, // Don't show until ready to prevent white flash
-    titleBarStyle: 'default',
-    autoHideMenuBar: true,  // Hide the default menu bar for cleaner look
+    show: false,
+    autoHideMenuBar: true,
   });
 
-  // Load the app
   const isDev = !app.isPackaged;
 
   if (isDev) {
-    // In development: load from Vite dev server or production URL
     mainWindow.loadURL('https://gatevortx.lovable.app');
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
-    // In production: load built local files
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
-  // Show window when ready to prevent white flash
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     mainWindow.focus();
+    setupAutoUpdater();
   });
 
-  // Open external links in the default browser, not in Electron
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
   });
 
   mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
     const appUrl = isDev
       ? 'https://gatevortx.lovable.app'
       : `file://${path.join(__dirname, '../dist')}`;
-    // Allow navigation within the app, open external links in browser
     if (!navigationUrl.startsWith(appUrl) && !navigationUrl.startsWith('file://')) {
       event.preventDefault();
       shell.openExternal(navigationUrl);
@@ -66,21 +165,14 @@ function createWindow() {
   });
 }
 
-// App lifecycle
+// ─── App lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   createWindow();
-
-  // macOS: re-create window when dock icon is clicked
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
 app.on('window-all-closed', () => {
-  // On Windows/Linux, quit when all windows are closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  if (process.platform !== 'darwin') app.quit();
 });
