@@ -122,7 +122,7 @@ const EmployeeProfilePage: React.FC = () => {
         </div>
 
         <h2 className="text-lg font-bold text-white mt-3">{profile?.name}</h2>
-        <p className="text-blue-200 text-sm">{memberLabel} · {(profile as any)?.company_name || 'GateVortx'}</p>
+        <p className="text-white/60 text-sm">{memberLabel} · {(profile as any)?.company_name || 'GateVortx'}</p>
 
         {/* AI verification status badge */}
         <div className={`mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
