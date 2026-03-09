@@ -155,6 +155,15 @@ const AdminSettingsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Logout */}
+        <button
+          onClick={signOut}
+          className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </button>
+
         {/* Danger Zone */}
         <div className="bg-card rounded-2xl border-2 border-destructive/30 overflow-hidden">
           <div className="bg-destructive/5 px-4 py-3 flex items-center gap-2 border-b border-destructive/20">
