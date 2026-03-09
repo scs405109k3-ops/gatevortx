@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
 // VAPID public key — generate this from Firebase Console → Project Settings → Cloud Messaging → Web Push certificates
-export const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || '';
+export const VAPID_KEY = 'BG3huhpG-DEUh8qfJFCmWo-oa-HH_RiUZhTRRDej8TqEGBXmGyPahLcGzGqW2KwcPrOLMjeW4WIuktrs97iXyNk';
 
 export const getMessagingInstance = async () => {
   const supported = await isSupported();
