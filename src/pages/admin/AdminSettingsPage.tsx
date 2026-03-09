@@ -26,7 +26,8 @@ const AdminSettingsPage: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState<'idle' | 'confirm' | 'done'>('idle');
-  
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
   // Timing state
   const [startTime, setStartTime] = useState((profile as any)?.work_start_time?.slice(0, 5) || '09:00');
   const [endTime, setEndTime] = useState((profile as any)?.work_end_time?.slice(0, 5) || '17:00');

@@ -20,6 +20,7 @@ const EmployeeProfilePage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
 

@@ -25,8 +25,9 @@ interface ShiftRecord {
 }
 
 const GuardProfilePage: React.FC = () => {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
