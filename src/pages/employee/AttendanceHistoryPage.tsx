@@ -16,6 +16,7 @@ const NAV_ITEMS = [
 
 const AttendanceHistoryPage: React.FC = () => {
   const { profile, orgType } = useAuth();
+  const navigate = useNavigate();
   const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
   const [records, setRecords] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);

@@ -24,8 +24,16 @@ const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action, backPath }) =>
       style={{ background: 'var(--gradient-brand)' }}
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <img src={logo} alt="GateVortx" className="h-9 w-9 object-contain rounded-lg" />
+      <div className="flex items-center gap-2.5">
+          {backPath && (
+            <button
+              onClick={() => navigate(backPath)}
+              className="p-2 bg-white/15 rounded-xl backdrop-blur-sm"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          {!backPath && <img src={logo} alt="GateVortx" className="h-9 w-9 object-contain rounded-lg" />}
           <div>
             <p className="text-primary-foreground/70 text-xs font-medium uppercase tracking-wider">{subtitle || profile?.role?.toUpperCase()}</p>
             <h1 className="text-xl font-bold leading-tight">{title}</h1>
