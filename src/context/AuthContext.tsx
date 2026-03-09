@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setSplashDone(true), 5000);
+    const timer = setTimeout(() => setSplashDone(true), 1800);
     return () => clearTimeout(timer);
   }, []);
 
