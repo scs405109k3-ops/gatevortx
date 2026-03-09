@@ -4,7 +4,7 @@ import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import {
   AlertTriangle, Trash2, Loader2, Building2, ArrowLeft,
-  ShieldAlert, CheckCircle2, Clock,
+  ShieldAlert, CheckCircle2, Clock, LogOut,
 } from 'lucide-react';
 import TopBar from '../../components/TopBar';
 import BottomNav from '../../components/BottomNav';
@@ -154,6 +154,15 @@ const AdminSettingsPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* Logout */}
+        <button
+          onClick={signOut}
+          className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </button>
 
         {/* Danger Zone */}
         <div className="bg-card rounded-2xl border-2 border-destructive/30 overflow-hidden">
