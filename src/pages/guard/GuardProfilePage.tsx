@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, User, Lock, Eye, EyeOff, Loader2, Clock, CheckCircle, XCircle, Shield } from 'lucide-react';
+import { ChevronLeft, User, Lock, Eye, EyeOff, Loader2, Clock, CheckCircle, XCircle, Shield, LogOut } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog';
 import { Home, ClipboardList, Users, UserCheck } from 'lucide-react';
 
 const NAV_ITEMS = [

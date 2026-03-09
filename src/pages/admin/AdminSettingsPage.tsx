@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import TopBar from '../../components/TopBar';
 import BottomNav from '../../components/BottomNav';
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog';
 import { LayoutDashboard, Users, UserCheck, FileText, BarChart3 } from 'lucide-react';
 
 const NAV_ITEMS = [
