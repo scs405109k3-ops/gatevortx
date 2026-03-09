@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import TopBar from '../../components/TopBar';
 import BottomNav from '../../components/BottomNav';
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog';
 import { LayoutDashboard, Users, UserCheck, FileText, BarChart3 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -25,7 +26,8 @@ const AdminSettingsPage: React.FC = () => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState<'idle' | 'confirm' | 'done'>('idle');
-  
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
   // Timing state
   const [startTime, setStartTime] = useState((profile as any)?.work_start_time?.slice(0, 5) || '09:00');
   const [endTime, setEndTime] = useState((profile as any)?.work_end_time?.slice(0, 5) || '17:00');
@@ -157,7 +159,7 @@ const AdminSettingsPage: React.FC = () => {
 
         {/* Logout */}
         <button
-          onClick={signOut}
+          onClick={() => setShowLogoutDialog(true)}
           className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
         >
           <LogOut className="h-4 w-4" />
@@ -240,6 +242,12 @@ const AdminSettingsPage: React.FC = () => {
       </div>
 
       <BottomNav items={NAV_ITEMS} />
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onConfirm={signOut}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
     </div>
   );
 };

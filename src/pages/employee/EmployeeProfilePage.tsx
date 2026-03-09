@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog';
 import { toast } from '../../hooks/use-toast';
 
 const NAV_ITEMS = [
@@ -19,6 +20,7 @@ const EmployeeProfilePage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const memberLabel = (orgType === 'school' || orgType === 'college') ? 'Student' : 'Employee';
 
@@ -215,7 +217,7 @@ const EmployeeProfilePage: React.FC = () => {
 
         {/* Logout */}
         <button
-          onClick={signOut}
+          onClick={() => setShowLogoutDialog(true)}
           className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
         >
           <LogOut className="h-4 w-4" />
@@ -224,6 +226,12 @@ const EmployeeProfilePage: React.FC = () => {
       </div>
 
       <BottomNav items={NAV_ITEMS} />
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onConfirm={signOut}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
     </div>
   );
 };

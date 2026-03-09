@@ -3,6 +3,7 @@ import { User, Camera, Upload, CheckCircle, AlertCircle, Home, CalendarCheck, Fi
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog';
 import { toast } from '../../hooks/use-toast';
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const TeacherProfilePage: React.FC = () => {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -155,7 +157,7 @@ const TeacherProfilePage: React.FC = () => {
         </div>
 
         <button
-          onClick={signOut}
+          onClick={() => setShowLogoutDialog(true)}
           className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
         >
           <LogOut className="h-4 w-4" /> Sign Out
@@ -163,6 +165,12 @@ const TeacherProfilePage: React.FC = () => {
       </div>
 
       <BottomNav items={NAV_ITEMS} />
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onConfirm={signOut}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
     </div>
   );
 };

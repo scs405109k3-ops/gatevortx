@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, User, Lock, Eye, EyeOff, Loader2, Clock, CheckCircle, XCircle, Shield } from 'lucide-react';
+import { ChevronLeft, User, Lock, Eye, EyeOff, Loader2, Clock, CheckCircle, XCircle, Shield, LogOut } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
+import LogoutConfirmDialog from '../../components/LogoutConfirmDialog';
 import { Home, ClipboardList, Users, UserCheck } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -24,8 +25,9 @@ interface ShiftRecord {
 }
 
 const GuardProfilePage: React.FC = () => {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -305,7 +307,24 @@ const GuardProfilePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Logout */}
+      <div className="px-5 pb-4">
+        <button
+          onClick={() => setShowLogoutDialog(true)}
+          className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </button>
+      </div>
+
       <BottomNav items={NAV_ITEMS} />
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onConfirm={signOut}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
     </div>
   );
 };
