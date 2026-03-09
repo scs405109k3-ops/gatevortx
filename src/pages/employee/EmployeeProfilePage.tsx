@@ -15,6 +15,7 @@ const NAV_ITEMS = [
 
 const EmployeeProfilePage: React.FC = () => {
   const { profile, orgType, refreshProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);

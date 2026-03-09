@@ -34,6 +34,7 @@ const NAV_ITEMS = [
 
 const VisitorStatusPage: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [visitors, setVisitors] = useState<VisitorWithCheckout[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
