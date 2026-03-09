@@ -26,7 +26,16 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "public/pwa-512x512.png"
+      "public/pwa-512x512.png",
+      "node_modules/electron-updater/**/*",
+      "node_modules/electron-log/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "YOUR_GITHUB_USERNAME",
+        "repo": "YOUR_GITHUB_REPO"
+      }
     ],
     "win": {
       "target": [
@@ -125,6 +134,8 @@
     "autoprefixer": "^10.4.21",
     "electron": "^33.0.0",
     "electron-builder": "^25.0.0",
+    "electron-log": "^5.2.0",
+    "electron-updater": "^6.3.0",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
