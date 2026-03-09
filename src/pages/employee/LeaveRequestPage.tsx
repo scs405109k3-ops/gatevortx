@@ -95,8 +95,15 @@ const LeaveRequestPage: React.FC = () => {
   return (
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <div className="px-5 pt-12 pb-4 text-white" style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
-        <h1 className="text-xl font-bold">Leave Requests</h1>
-        <p className="text-blue-200 text-xs mt-0.5">Manage your time off</p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/employee')} className="bg-white/20 rounded-lg p-2 active:scale-95 transition-all">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">Leave Requests</h1>
+            <p className="text-white/60 text-xs mt-0.5">Manage your time off</p>
+          </div>
+        </div>
       </div>
 
       <div className="px-5 py-4 space-y-4">
