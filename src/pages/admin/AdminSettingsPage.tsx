@@ -159,7 +159,7 @@ const AdminSettingsPage: React.FC = () => {
 
         {/* Logout */}
         <button
-          onClick={signOut}
+          onClick={() => setShowLogoutDialog(true)}
           className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
         >
           <LogOut className="h-4 w-4" />

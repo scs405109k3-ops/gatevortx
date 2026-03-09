@@ -307,7 +307,24 @@ const GuardProfilePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Logout */}
+      <div className="px-5 pb-4">
+        <button
+          onClick={() => setShowLogoutDialog(true)}
+          className="w-full h-12 rounded-xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-destructive/20"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign Out
+        </button>
+      </div>
+
       <BottomNav items={NAV_ITEMS} />
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onConfirm={signOut}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
     </div>
   );
 };
