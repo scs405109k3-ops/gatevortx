@@ -251,6 +251,7 @@ const AdminUsersPage: React.FC = () => {
       <TopBar
         title="Team Members"
         subtitle={profile?.company_name || 'My Company'}
+        backPath="/admin"
         action={
           <button
             onClick={() => { setShowForm(true); setFormError(''); setFormSuccess(''); }}

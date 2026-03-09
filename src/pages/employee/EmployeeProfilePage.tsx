@@ -88,6 +88,11 @@ const EmployeeProfilePage: React.FC = () => {
       {/* Header */}
       <div className="px-5 pt-12 pb-6 flex flex-col items-center"
         style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
+        <div className="w-full flex items-center mb-3">
+          <button onClick={() => navigate('/employee')} className="bg-white/20 rounded-lg p-2 active:scale-95 transition-all">
+            <ChevronLeft className="h-5 w-5 text-white" />
+          </button>
+        </div>
         <h1 className="text-xl font-bold text-white mb-5">My Profile</h1>
 
         {/* Avatar with upload overlay */}

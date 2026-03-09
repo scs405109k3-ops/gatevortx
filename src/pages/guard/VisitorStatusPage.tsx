@@ -110,8 +110,15 @@ const VisitorStatusPage: React.FC = () => {
   return (
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       <div className="px-5 pt-12 pb-4 text-white" style={{ background: 'var(--gradient-brand)' }}>
-        <h1 className="text-xl font-bold">Visitor Log</h1>
-        <p className="text-primary-foreground/70 text-xs mt-0.5">Track all visitors & departures</p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/guard')} className="bg-white/20 rounded-lg p-2 active:scale-95 transition-all">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">Visitor Log</h1>
+            <p className="text-primary-foreground/70 text-xs mt-0.5">Track all visitors & departures</p>
+          </div>
+        </div>
       </div>
 
       <div className="px-5 py-4 space-y-3">
