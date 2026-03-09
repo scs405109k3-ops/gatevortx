@@ -26,7 +26,7 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "public/pwa-512x512.png",
+      "public/app-icon.png",
       "node_modules/electron-updater/**/*",
       "node_modules/electron-log/**/*"
     ],
@@ -44,7 +44,7 @@
           "arch": ["x64"]
         }
       ],
-      "icon": "public/pwa-512x512.png"
+      "icon": "public/app-icon.png"
     },
     "nsis": {
       "oneClick": false,
@@ -55,11 +55,11 @@
     },
     "mac": {
       "target": "dmg",
-      "icon": "public/pwa-512x512.png"
+      "icon": "public/app-icon.png"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "public/pwa-512x512.png"
+      "icon": "public/app-icon.png"
     }
   },
   "dependencies": {
