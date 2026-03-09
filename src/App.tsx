@@ -58,6 +58,7 @@ const MailProtectedRoute = ({ children }: { children: React.ReactNode }) => (
 // Inner component so it has access to AuthContext
 const AppRoutes = () => {
   usePushNotifications();
+  useWebPushNotifications();
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
