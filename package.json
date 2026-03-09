@@ -26,7 +26,7 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "public/pwa-512x512.png",
+      "public/app-icon.png",
       "node_modules/electron-updater/**/*",
       "node_modules/electron-log/**/*"
     ],
