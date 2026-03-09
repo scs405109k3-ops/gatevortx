@@ -242,6 +242,12 @@ const AdminSettingsPage: React.FC = () => {
       </div>
 
       <BottomNav items={NAV_ITEMS} />
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onConfirm={signOut}
+        onCancel={() => setShowLogoutDialog(false)}
+      />
     </div>
   );
 };
