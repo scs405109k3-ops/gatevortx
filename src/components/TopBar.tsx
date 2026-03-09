@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, LogOut, Settings } from 'lucide-react';
+import { Bell, LogOut, Settings, ChevronLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
@@ -9,9 +9,10 @@ interface TopBarProps {
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
+  backPath?: string;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action }) => {
+const TopBar: React.FC<TopBarProps> = ({ title, subtitle, action, backPath }) => {
   const { profile, signOut } = useAuth();
   const { unreadCount, markAllRead } = useNotifications();
   const navigate = useNavigate();
