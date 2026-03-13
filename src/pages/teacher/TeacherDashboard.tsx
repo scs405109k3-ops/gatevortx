@@ -309,6 +309,18 @@ const TeacherDashboard: React.FC = () => {
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             <button
+              onClick={() => navigate('/teacher/qr')}
+              className="col-span-2 bg-primary text-primary-foreground rounded-2xl p-4 border border-primary flex items-center gap-3 active:scale-95 transition-all shadow-lg"
+            >
+              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <QrCode className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-bold text-primary-foreground">My Daily QR Code</p>
+                <p className="text-xs text-primary-foreground/80">Show to guard for attendance</p>
+              </div>
+            </button>
+            <button
               onClick={() => navigate('/teacher/students')}
               className="bg-card rounded-2xl p-5 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
