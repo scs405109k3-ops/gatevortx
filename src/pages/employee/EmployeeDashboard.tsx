@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Home, CalendarCheck, FileText, User, Loader2, LogIn, LogOut, Mail } from 'lucide-react';
+import { Bell, Home, CalendarCheck, FileText, User, Loader2, LogIn, LogOut, Mail, QrCode } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Attendance } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
