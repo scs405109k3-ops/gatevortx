@@ -1,19 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, ChevronLeft, Check, X, Clock, Trash2, LogOut, Loader2, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
+import { ChevronLeft, Check, X, Clock, LogOut, Loader2, QrCode, ScanLine, UserCheck, Home, ClipboardList, Users, User } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../hooks/use-toast';
 import BottomNav from '../../components/BottomNav';
-import { Home, ClipboardList, Users, UserCheck, User } from 'lucide-react';
-import { checkAndNotifyOvertime } from '../../hooks/useOvertimeNotifier';
-
-interface Employee {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import jsQR from 'jsqr';
 
 interface AttendanceRecord {
   id: string;
@@ -22,7 +14,15 @@ interface AttendanceRecord {
   status: 'present' | 'absent' | 'late';
   check_in?: string;
   checked_out_at?: string;
-  photo_url?: string;
+}
+
+interface ScanResult {
+  success: boolean;
+  action?: 'checkin' | 'checkout';
+  employee_name?: string;
+  status?: string;
+  time?: string;
+  error?: string;
 }
 
 const NAV_ITEMS = [
@@ -36,76 +36,29 @@ const NAV_ITEMS = [
 const GuardAttendancePage: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const cameraRef = useRef<HTMLInputElement>(null);
 
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [attendance, setAttendance] = useState<Record<string, AttendanceRecord>>({});
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animFrameRef = useRef<number>();
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const [scanning, setScanning] = useState(false);
+  const [scanProcessing, setScanProcessing] = useState(false);
+  const [lastScanResult, setLastScanResult] = useState<ScanResult | null>(null);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [savingFor, setSavingFor] = useState<string | null>(null);
-  const [cameraTarget, setCameraTarget] = useState<string | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<Record<string, string>>({});
-  const [pendingPhotos, setPendingPhotos] = useState<Record<string, File>>({});
-  const [verifyingFor, setVerifyingFor] = useState<string | null>(null);
-  // face verification results: { match: boolean|null, confidence: number, reason: string }
-  const [faceResults, setFaceResults] = useState<Record<string, { match: boolean | null; confidence: number; reason: string }>>({});
-  const [orgTimings, setOrgTimings] = useState<{ start: string; end: string } | null>(null);
+  const [employees, setEmployees] = useState<{ id: string; name: string; email: string; role: string }[]>([]);
 
   const today = new Date().toISOString().split('T')[0];
   const dateDisplay = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-  // Fetch org timings
-  useEffect(() => {
-    const fetchTimings = async () => {
-      if (!profile?.company_name) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('work_start_time, work_end_time')
-        .eq('role', 'admin')
-        .eq('company_name', profile.company_name)
-        .limit(1)
-        .single();
-      if (data) {
-        setOrgTimings({
-          start: (data as any).work_start_time?.slice(0, 5) || '09:00',
-          end: (data as any).work_end_time?.slice(0, 5) || '17:00',
-        });
-      }
-    };
-    fetchTimings();
-  }, [profile?.company_name]);
-
-  // Cleanup yesterday's photos from storage on mount
-  useEffect(() => {
-    cleanupOldPhotos();
-  }, []);
-
-  const cleanupOldPhotos = async () => {
-    try {
-      const { data: files } = await supabase.storage.from('employee-photos').list('', { limit: 200 });
-      if (!files) return;
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const toDelete = files
-        .filter(f => {
-          const created = new Date(f.created_at || 0);
-          return created < yesterday;
-        })
-        .map(f => f.name);
-      if (toDelete.length > 0) {
-        await supabase.storage.from('employee-photos').remove(toDelete);
-      }
-    } catch { /* silent */ }
-  };
-
   useEffect(() => {
     if (!profile) return;
     fetchData();
-
     const channel = supabase
-      .channel('guard-attendance')
+      .channel('guard-att-qr')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, fetchData)
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [profile]);
 
@@ -113,7 +66,6 @@ const GuardAttendancePage: React.FC = () => {
     if (!profile) return;
     setLoading(true);
     try {
-      // Fetch employees in same company (non-admin, non-guard)
       const { data: emps } = await supabase
         .from('profiles')
         .select('id, name, email, role')
@@ -121,224 +73,116 @@ const GuardAttendancePage: React.FC = () => {
         .eq('is_active', true)
         .neq('role', 'admin')
         .neq('role', 'guard');
-
-      setEmployees((emps as Employee[]) || []);
+      setEmployees((emps || []) as any[]);
 
       if (emps && emps.length > 0) {
-        const ids = emps.map((e: Employee) => e.id);
+        const ids = emps.map((e: any) => e.id);
         const { data: att } = await supabase
           .from('attendance')
           .select('*')
           .in('employee_id', ids)
           .eq('date', today);
-
-        const map: Record<string, AttendanceRecord> = {};
-        (att || []).forEach((a: AttendanceRecord) => { map[a.employee_id] = a; });
-        setAttendance(map);
+        setAttendance((att || []) as AttendanceRecord[]);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const openCamera = (employeeId: string) => {
-    setCameraTarget(employeeId);
-    // clear previous face result when retaking photo
-    setFaceResults(prev => { const n = { ...prev }; delete n[employeeId]; return n; });
-    setTimeout(() => cameraRef.current?.click(), 50);
+  const startScanner = async () => {
+    setLastScanResult(null);
+    setScanning(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        requestAnimationFrame(scanFrame);
+      }
+    } catch (err) {
+      toast({ title: 'Camera Error', description: 'Could not access camera for QR scanning.', variant: 'destructive' });
+      setScanning(false);
+    }
   };
 
-  const handlePhotoCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !cameraTarget) return;
-    if (file.size > 8 * 1024 * 1024) {
-      toast({ title: 'Photo too large', description: 'Max 8MB', variant: 'destructive' });
+  const stopScanner = () => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+    setScanning(false);
+  };
+
+  const scanFrame = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) {
+      animFrameRef.current = requestAnimationFrame(scanFrame);
       return;
     }
-    const targetId = cameraTarget;
-    setPendingPhotos(prev => ({ ...prev, [targetId]: file }));
-    setPhotoPreview(prev => ({ ...prev, [targetId]: URL.createObjectURL(file) }));
-    e.target.value = '';
-    setCameraTarget(null);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    // Find employee profile photo and run face verification
-    const emp = employees.find(e => e.id === targetId);
-    if (emp) {
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('avatar_url')
-        .eq('id', targetId)
-        .single();
-      const referenceUrl = prof?.avatar_url;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
 
-      if (referenceUrl) {
-        setVerifyingFor(targetId);
-        try {
-          // Upload temp to get a URL for the AI
-          const tempPath = `temp/${targetId}-${Date.now()}.jpg`;
-          await supabase.storage.from('employee-photos').upload(tempPath, file, { contentType: file.type, upsert: true });
-          const { data: { publicUrl: currentUrl } } = supabase.storage.from('employee-photos').getPublicUrl(tempPath);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: 'dontInvert' });
 
-          const { data, error } = await supabase.functions.invoke('verify-face', {
-            body: { reference_url: referenceUrl, current_url: currentUrl, context: 'employee' },
-          });
-          if (!error && data) {
-            setFaceResults(prev => ({ ...prev, [targetId]: data }));
-            if (data.match === false && data.confidence >= 70) {
-              toast({
-                title: '⚠️ Face Mismatch',
-                description: `This may not be ${emp.name}. Confidence: ${data.confidence}%. Please verify manually.`,
-                variant: 'destructive',
-              });
-            }
-          }
-        } catch (err) {
-          console.warn('[FaceVerify] Error:', err);
-        } finally {
-          setVerifyingFor(null);
-        }
-      } else {
-        // No reference photo — inform guard
-        setFaceResults(prev => ({ ...prev, [targetId]: { match: null, confidence: 0, reason: 'No profile photo for reference' } }));
-      }
+    if (code && code.data && !scanProcessing) {
+      handleQRDetected(code.data);
+    } else {
+      animFrameRef.current = requestAnimationFrame(scanFrame);
     }
   };
 
-  const sendAttendanceNotification = async (employeeId: string, employeeName: string, status: 'present' | 'absent' | 'late') => {
-    const statusEmoji = status === 'present' ? '✅' : status === 'late' ? '⏰' : '❌';
-    const guardName = profile?.name || 'Guard';
-    const message = `${statusEmoji} Your attendance for today has been marked as "${status}" by ${guardName}.`;
-
-    // Insert in-app notification
-    await supabase.from('notifications').insert({
-      user_id: employeeId,
-      message,
-      type: 'attendance',
-    });
-
-    // Fire push notification via edge function (best-effort)
-    try {
-      await supabase.functions.invoke('send-push', {
-        body: {
-          user_ids: [employeeId],
-          title: `Attendance: ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-          body: message,
-          data: { type: 'attendance', status },
-        },
-      });
-    } catch (e) {
-      console.warn('[Push] Could not send push notification:', e);
-    }
-  };
-
-  const getAutoStatus = (): 'present' | 'late' => {
-    const now = new Date();
-    const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const startTime = orgTimings?.start || '09:00';
-    return nowTime > startTime ? 'late' : 'present';
-  };
-
-  const markAttendance = async (employee: Employee, status: 'present' | 'absent' | 'late') => {
-    if (!profile) return;
-    setSavingFor(employee.id);
+  const handleQRDetected = async (qrData: string) => {
+    if (scanProcessing) return;
+    setScanProcessing(true);
+    stopScanner();
 
     try {
-      let photoUrl: string | undefined;
-
-      if (status !== 'absent') {
-        const photoFile = pendingPhotos[employee.id];
-        if (!photoFile) {
-          toast({ title: 'Photo required', description: 'Please capture a photo before marking present/late.', variant: 'destructive' });
-          setSavingFor(null);
-          return;
-        }
-
-        // Upload photo
-        const ext = photoFile.name.split('.').pop() || 'jpg';
-        const path = `${today}/${employee.id}-${Date.now()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage
-          .from('employee-photos')
-          .upload(path, photoFile, { contentType: photoFile.type, upsert: true });
-
-        if (uploadErr) throw uploadErr;
-
-        const { data: { publicUrl } } = supabase.storage.from('employee-photos').getPublicUrl(path);
-        photoUrl = publicUrl;
-      }
-
-      const existing = attendance[employee.id];
-      const now = new Date().toISOString();
-
-      if (existing) {
-        await supabase.from('attendance').update({
-          status,
-          guard_id: profile.id,
-          check_in: existing.check_in || (status !== 'absent' ? now : undefined),
-          photo_url: photoUrl || existing.photo_url,
-        } as any).eq('id', existing.id);
-      } else {
-        await supabase.from('attendance').insert({
-          employee_id: employee.id,
-          guard_id: profile.id,
-          date: today,
-          status,
-          check_in: status !== 'absent' ? now : undefined,
-          photo_url: photoUrl,
-        } as any);
-      }
-
-      // Send real-time notification to employee
-      await sendAttendanceNotification(employee.id, employee.name, status);
-
-      toast({ title: `✅ Marked ${status}`, description: `${employee.name} marked as ${status}` });
-      fetchData();
-    } catch (err) {
-      toast({ title: 'Error', description: 'Failed to save attendance.', variant: 'destructive' });
-    } finally {
-      setSavingFor(null);
-    }
-  };
-
-  const markCheckOut = async (record: AttendanceRecord, employeeName: string) => {
-    if (!record) return;
-    setSavingFor(record.employee_id);
-    try {
-      const checkOutTime = new Date().toISOString();
-      await supabase.from('attendance').update({
-        checked_out_at: checkOutTime,
-      } as any).eq('id', record.id);
-
-      // Notify employee of checkout
-      const guardName = profile?.name || 'Guard';
-      await supabase.from('notifications').insert({
-        user_id: record.employee_id,
-        message: `👋 Your checkout time has been recorded by ${guardName}.`,
-        type: 'attendance',
+      const { data, error } = await supabase.functions.invoke('scan-qr-token', {
+        body: { qr_data: qrData },
       });
 
-      // Check overtime and notify admin if > 2h
-      if (record.check_in && orgTimings && profile?.company_name) {
-        const emp = employees.find(e => e.id === record.employee_id);
-        checkAndNotifyOvertime(
-          record.employee_id,
-          emp?.name || employeeName,
-          profile.company_name,
-          record.check_in,
-          checkOutTime,
-          orgTimings.end
-        );
+      if (error) {
+        setLastScanResult({ success: false, error: error.message || 'Scan failed' });
+        toast({ title: '❌ Scan Failed', description: error.message, variant: 'destructive' });
+      } else if (data?.success) {
+        setLastScanResult(data as ScanResult);
+        const action = data.action === 'checkin' ? 'checked in' : 'checked out';
+        const statusLabel = data.status ? ` (${data.status})` : '';
+        toast({
+          title: data.action === 'checkin' ? '✅ Checked In!' : '👋 Checked Out!',
+          description: `${data.employee_name} ${action}${statusLabel}`,
+        });
+        fetchData();
+      } else {
+        setLastScanResult({ success: false, error: data?.error || 'Unknown error' });
+        toast({ title: '❌ Invalid QR', description: data?.error || 'Could not process this QR code.', variant: 'destructive' });
       }
-
-      toast({ title: '👋 Checked Out', description: `${employeeName} checked out.` });
-      fetchData();
+    } catch (err: any) {
+      setLastScanResult({ success: false, error: err?.message || 'Scan failed' });
     } finally {
-      setSavingFor(null);
+      setScanProcessing(false);
     }
   };
 
-  const removePhoto = (employeeId: string) => {
-    setPendingPhotos(prev => { const n = { ...prev }; delete n[employeeId]; return n; });
-    setPhotoPreview(prev => { const n = { ...prev }; delete n[employeeId]; return n; });
+  useEffect(() => {
+    return () => { stopScanner(); };
+  }, []);
+
+  const stats = {
+    present: attendance.filter(a => a.status === 'present').length,
+    absent: attendance.filter(a => a.status === 'absent').length,
+    late: attendance.filter(a => a.status === 'late').length,
+    total: employees.length,
   };
 
   const getStatusColor = (status?: string) => {
@@ -348,28 +192,22 @@ const GuardAttendancePage: React.FC = () => {
     return 'bg-muted text-muted-foreground border-border';
   };
 
-  const stats = {
-    present: Object.values(attendance).filter(a => a.status === 'present').length,
-    absent: Object.values(attendance).filter(a => a.status === 'absent').length,
-    late: Object.values(attendance).filter(a => a.status === 'late').length,
-    total: employees.length,
-  };
+  const getAttendanceForEmployee = (empId: string) => attendance.find(a => a.employee_id === empId);
 
   return (
     <div className="mobile-container bg-background flex flex-col pb-24 md:pb-8">
       {/* Header */}
-      <div className="px-5 pt-12 pb-5 text-white" style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
+      <div className="px-5 pt-12 pb-5 text-white"
+        style={{ background: 'linear-gradient(135deg, hsl(213,57%,25%) 0%, hsl(217,91%,43%) 100%)' }}>
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate('/guard')} className="bg-white/20 rounded-lg p-2">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-xl font-bold">Employee Attendance</h1>
+            <h1 className="text-xl font-bold">QR Attendance</h1>
             <p className="text-blue-200 text-xs mt-0.5">{dateDisplay}</p>
           </div>
         </div>
-
-        {/* Stats row */}
         <div className="grid grid-cols-4 gap-2">
           {[
             { label: 'Total', value: stats.total, color: 'bg-white/20' },
@@ -385,208 +223,150 @@ const GuardAttendancePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Note about photo auto-delete */}
-      <div className="mx-5 mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 flex items-center gap-2">
-        <Trash2 className="h-4 w-4 text-amber-600 flex-shrink-0" />
-        <p className="text-xs text-amber-700">Employee photos are automatically deleted after end of day for privacy.</p>
-      </div>
-
-      {/* Hidden camera input — camera only, no gallery */}
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="user"
-        className="hidden"
-        onChange={handlePhotoCapture}
-      />
-
-      <div className="px-5 py-4 space-y-3">
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => <div key={i} className="h-36 bg-muted rounded-2xl animate-pulse" />)}
+      <div className="px-5 py-4 space-y-4">
+        {/* QR Scanner Panel */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+          <div className="px-4 pt-4 pb-3 border-b border-border flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ScanLine className="h-5 w-5 text-primary" />
+              <p className="font-bold text-sm text-foreground">Scan Employee QR</p>
+            </div>
+            {scanning && (
+              <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold animate-pulse">
+                LIVE
+              </span>
+            )}
           </div>
-        ) : employees.length === 0 ? (
-          <div className="text-center py-16">
-            <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm font-semibold text-foreground">No employees found</p>
-            <p className="text-xs text-muted-foreground mt-1">Employees will appear here once added by admin</p>
-          </div>
-        ) : (
-          employees.map(emp => {
-            const rec = attendance[emp.id];
-            const preview = photoPreview[emp.id];
-            const isSaving = savingFor === emp.id;
-            const isMarked = !!rec;
-            const isAbsent = rec?.status === 'absent';
-            const isCheckedOut = !!rec?.checked_out_at;
 
-            return (
-              <div key={emp.id} className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-                {/* Employee info row */}
-                <div className="flex items-center gap-3 px-4 pt-4 pb-3">
-                  <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {preview ? (
-                      <img src={preview} alt={emp.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <span className="text-primary font-bold text-base">{emp.name.charAt(0)}</span>
-                    )}
+          <div className="p-4">
+            {scanning ? (
+              <div className="relative">
+                <video
+                  ref={videoRef}
+                  className="w-full rounded-xl bg-black aspect-square object-cover"
+                  playsInline
+                  muted
+                />
+                <canvas ref={canvasRef} className="hidden" />
+                {/* Scan overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-48 w-48 relative">
+                    <div className="absolute top-0 left-0 h-8 w-8 border-t-4 border-l-4 border-white rounded-tl-lg" />
+                    <div className="absolute top-0 right-0 h-8 w-8 border-t-4 border-r-4 border-white rounded-tr-lg" />
+                    <div className="absolute bottom-0 left-0 h-8 w-8 border-b-4 border-l-4 border-white rounded-bl-lg" />
+                    <div className="absolute bottom-0 right-0 h-8 w-8 border-b-4 border-r-4 border-white rounded-br-lg" />
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-primary/80 -translate-y-1/2 animate-pulse" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-foreground truncate">{emp.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{emp.email}</p>
-                  </div>
-                  {rec && (
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${getStatusColor(rec.status)}`}>
-                      {rec.status.charAt(0).toUpperCase() + rec.status.slice(1)}
-                    </span>
-                  )}
                 </div>
-
-                {/* Check-in / check-out times */}
-                {rec && (
-                  <div className="flex gap-3 px-4 pb-3">
-                    {rec.check_in && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        In: {new Date(rec.check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
+                {scanProcessing && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl">
+                    <div className="flex flex-col items-center gap-2">
+                      <Loader2 className="h-8 w-8 text-white animate-spin" />
+                      <p className="text-white text-sm font-semibold">Processing…</p>
+                    </div>
+                  </div>
+                )}
+                <button
+                  onClick={stopScanner}
+                  className="mt-3 w-full h-11 rounded-xl bg-destructive text-destructive-foreground font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+                >
+                  <X className="h-4 w-4" /> Stop Scanner
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Last scan result */}
+                {lastScanResult && (
+                  <div className={`rounded-xl p-3 flex items-start gap-3 ${lastScanResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                    {lastScanResult.success ? (
+                      <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                     )}
-                    {rec.checked_out_at && (
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <LogOut className="h-3 w-3" />
-                        Out: {new Date(rec.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    )}
+                    <div>
+                      {lastScanResult.success ? (
+                        <>
+                          <p className="text-sm font-bold text-green-800">
+                            {lastScanResult.action === 'checkin' ? '✅ Checked In' : '👋 Checked Out'}
+                          </p>
+                          <p className="text-xs text-green-700">
+                            {lastScanResult.employee_name}
+                            {lastScanResult.status ? ` — ${lastScanResult.status}` : ''}
+                            {lastScanResult.time ? ` at ${new Date(lastScanResult.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}` : ''}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-bold text-red-800">Scan Failed</p>
+                          <p className="text-xs text-red-700">{lastScanResult.error}</p>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
 
-                {/* Photo capture area — only if not absent */}
-                {!isAbsent && (
-                  <div className="px-4 pb-3 space-y-2">
-                    {preview ? (
-                      <div className="relative">
-                        <img src={preview} alt="Captured" className="w-full h-32 rounded-xl object-cover border-2 border-primary/30" />
-                        <button
-                          onClick={() => removePhoto(emp.id)}
-                          className="absolute top-2 right-2 h-7 w-7 bg-destructive rounded-full flex items-center justify-center shadow"
-                        >
-                          <X className="h-4 w-4 text-destructive-foreground" />
-                        </button>
-                        {/* Face verification badge */}
-                        {verifyingFor === emp.id ? (
-                          <div className="absolute bottom-2 left-2 bg-black/60 rounded-lg px-2 py-1 flex items-center gap-1.5">
-                            <Loader2 className="h-3 w-3 text-white animate-spin" />
-                            <span className="text-[10px] text-white">Verifying identity…</span>
-                          </div>
-                        ) : faceResults[emp.id] ? (
-                          <div className={`absolute bottom-2 left-2 rounded-lg px-2 py-1 flex items-center gap-1.5 ${
-                            faceResults[emp.id].match === true
-                              ? 'bg-green-600/90'
-                              : faceResults[emp.id].match === false
-                              ? 'bg-destructive/90'
-                              : 'bg-muted/90'
-                          }`}>
-                            {faceResults[emp.id].match === true
-                              ? <ShieldCheck className="h-3 w-3 text-white" />
-                              : faceResults[emp.id].match === false
-                              ? <ShieldAlert className="h-3 w-3 text-white" />
-                              : <ShieldQuestion className="h-3 w-3 text-white" />}
-                            <span className="text-[10px] text-white font-medium">
-                              {faceResults[emp.id].match === true
-                                ? `Verified ${faceResults[emp.id].confidence}%`
-                                : faceResults[emp.id].match === false
-                                ? `Mismatch ${faceResults[emp.id].confidence}%`
-                                : 'No ref photo'}
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="absolute bottom-2 left-2 bg-black/50 rounded-lg px-2 py-0.5">
-                            <p className="text-[10px] text-white">Photo captured ✓</p>
-                          </div>
+                <button
+                  onClick={startScanner}
+                  className="w-full h-14 rounded-xl bg-primary text-primary-foreground font-bold text-base flex items-center justify-center gap-3 active:scale-95 transition-all shadow-lg"
+                >
+                  <QrCode className="h-6 w-6" />
+                  Scan QR Code
+                </button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Point the camera at the employee's daily QR code
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Today's Attendance List */}
+        <div>
+          <h2 className="text-sm font-bold text-foreground mb-3">Today's Attendance</h2>
+          {loading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map(i => <div key={i} className="h-16 bg-muted rounded-xl animate-pulse" />)}
+            </div>
+          ) : employees.length === 0 ? (
+            <div className="text-center py-10">
+              <UserCheck className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No employees found</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {employees.map(emp => {
+                const rec = getAttendanceForEmployee(emp.id);
+                return (
+                  <div key={emp.id} className="bg-card border border-border rounded-xl px-4 py-3 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary font-bold text-sm">{emp.name.charAt(0)}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{emp.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {rec?.check_in && (
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                            <Clock className="h-2.5 w-2.5" />
+                            {new Date(rec.check_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        )}
+                        {rec?.checked_out_at && (
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                            <LogOut className="h-2.5 w-2.5" />
+                            {new Date(rec.checked_out_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         )}
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => openCamera(emp.id)}
-                        className="w-full h-16 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 flex items-center justify-center gap-2 active:scale-95 transition-all"
-                      >
-                        <Camera className="h-5 w-5 text-primary" />
-                        <span className="text-sm font-medium text-primary">
-                          {isMarked ? 'Retake Photo' : 'Capture Photo (Required)'}
-                        </span>
-                      </button>
-                    )}
-                    {/* Face mismatch warning strip */}
-                    {faceResults[emp.id]?.match === false && (
-                      <div className="flex items-start gap-2 bg-destructive/10 border border-destructive/30 rounded-lg px-3 py-2">
-                        <ShieldAlert className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-destructive leading-snug">
-                          <span className="font-bold">Identity mismatch!</span> {faceResults[emp.id].reason}. Please verify the person manually before marking attendance.
-                        </p>
-                      </div>
-                    )}
+                    </div>
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${rec ? getStatusColor(rec.status) : 'bg-muted text-muted-foreground border-border'}`}>
+                      {rec ? rec.status.charAt(0).toUpperCase() + rec.status.slice(1) : 'Pending'}
+                    </span>
                   </div>
-                )}
-
-                {/* Action buttons */}
-                <div className="border-t border-border px-4 py-3 flex gap-2">
-                  {!isMarked ? (
-                    <>
-                      <button
-                        onClick={() => {
-                          const autoStatus = getAutoStatus();
-                          markAttendance(emp, autoStatus);
-                        }}
-                        disabled={isSaving}
-                        className={`flex-[2] h-10 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 ${getAutoStatus() === 'late' ? 'bg-amber-500' : 'bg-green-500'}`}
-                      >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                        {getAutoStatus() === 'late' ? 'Mark Late (Auto)' : 'Mark Present (Auto)'}
-                      </button>
-                      <button
-                        onClick={() => markAttendance(emp, 'absent')}
-                        disabled={isSaving}
-                        className="flex-1 h-10 rounded-xl bg-red-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-                      >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
-                        Absent
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {/* Update status */}
-                      <button
-                        onClick={() => markAttendance(emp, rec.status === 'present' ? 'late' : 'present')}
-                        disabled={isSaving || isAbsent}
-                        className="flex-1 h-10 rounded-xl bg-muted text-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-                      >
-                        {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                        Update
-                      </button>
-                      {/* Check-out button */}
-                      {!isAbsent && !isCheckedOut && (
-                        <button
-                          onClick={() => markCheckOut(rec, emp.name)}
-                          disabled={isSaving}
-                          className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-                        >
-                          {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
-                          Check Out
-                        </button>
-                      )}
-                      {isCheckedOut && (
-                        <div className="flex-1 h-10 rounded-xl bg-muted flex items-center justify-center">
-                          <span className="text-xs text-muted-foreground font-semibold">✓ Checked Out</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       <BottomNav items={NAV_ITEMS} />
