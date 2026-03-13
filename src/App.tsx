@@ -36,6 +36,10 @@ import TeacherProfilePage from "./pages/teacher/TeacherProfilePage";
 import TeacherAttendanceHistoryPage from "./pages/teacher/TeacherAttendanceHistoryPage";
 import TeacherLeaveRequestPage from "./pages/teacher/TeacherLeaveRequestPage";
 import TeacherStudentAttendancePage from "./pages/teacher/TeacherStudentAttendancePage";
+import TeacherQRPage from "./pages/teacher/TeacherQRPage";
+
+// QR pages
+import EmployeeQRPage from "./pages/employee/EmployeeQRPage";
 
 // MailVortx
 import MailLayout from "./pages/mail/MailLayout";
