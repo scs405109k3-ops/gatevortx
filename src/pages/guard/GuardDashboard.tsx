@@ -22,6 +22,7 @@ const GuardDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const today = new Date().toISOString().split('T')[0];
 
