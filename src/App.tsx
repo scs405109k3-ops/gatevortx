@@ -129,6 +129,7 @@ const App = () => (
       <Sonner />
       <ElectronUpdateBanner />
       <OfflineBanner />
+      <PWAInstallBanner />
       <BrowserRouter>
         <AuthProvider>
           <AppRoutes />
