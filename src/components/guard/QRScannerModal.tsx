@@ -150,30 +150,14 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({ open, onClose, onSucces
           </div>
           <div className="flex items-center gap-2">
             {scanning && (
-              <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold animate-pulse">
+              <span className="text-[10px] bg-primary/15 text-primary px-2 py-1 rounded-full font-semibold animate-pulse">
                 LIVE
               </span>
             )}
-            <button
-              onClick={() => { stopScanner(); onClose(); }}
-              className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 transition-colors"
-            >
-              <X className="h-4 w-4 text-foreground" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-5 space-y-4">
-          {/* Last scan result */}
-          {lastScanResult && (
-            <div className={`rounded-2xl p-4 flex items-start gap-3 ${
-              lastScanResult.success
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-destructive/10 border border-destructive/20'
-            }`}>
+...
               {lastScanResult.success ? (
-                <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                  <Check className="h-4 w-4 text-white" />
+                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <Check className="h-4 w-4 text-primary-foreground" />
                 </div>
               ) : (
                 <div className="h-8 w-8 rounded-full bg-destructive flex items-center justify-center flex-shrink-0">
