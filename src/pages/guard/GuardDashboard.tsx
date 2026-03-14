@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, UserPlus, ClipboardList, Users, Home, UserCheck, Mail, LogOut, User } from 'lucide-react';
+import { Bell, UserPlus, ClipboardList, Users, Home, UserCheck, Mail, LogOut, User, ScanLine } from 'lucide-react';
 import { supabase } from '../../integrations/supabase/client';
 import type { Visitor } from '../../types/app';
 import { useAuth } from '../../context/AuthContext';
 import BottomNav from '../../components/BottomNav';
 import StatusBadge from '../../components/StatusBadge';
 import { useNotifications } from '../../hooks/useNotifications';
+import QRScannerModal from '../../components/guard/QRScannerModal';
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/guard', icon: <Home className="h-5 w-5" /> },

@@ -181,25 +181,25 @@ const QRScannerModal: React.FC<QRScannerModalProps> = ({ open, onClose, onSucces
                 </div>
               )}
               <div className="flex-1">
-                {lastScanResult.success ? (
-                  <>
-                    <p className="text-sm font-bold text-green-800">
-                      {lastScanResult.action === 'checkin' ? '✅ Checked In' : '👋 Checked Out'}
-                    </p>
-                    <p className="text-xs text-green-700 mt-0.5">
-                      <span className="font-semibold">{lastScanResult.employee_name}</span>
-                      {lastScanResult.status ? ` — ${lastScanResult.status}` : ''}
-                      {lastScanResult.time
-                        ? ` at ${new Date(lastScanResult.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
-                        : ''}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm font-bold text-destructive">Scan Failed</p>
-                    <p className="text-xs text-destructive/80 mt-0.5">{lastScanResult.error}</p>
-                  </>
-                )}
+          {lastScanResult.success ? (
+                <>
+                  <p className="text-sm font-bold" style={{ color: 'hsl(142,76%,25%)' }}>
+                    {lastScanResult.action === 'checkin' ? '✅ Checked In' : '👋 Checked Out'}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'hsl(142,60%,30%)' }}>
+                    <span className="font-semibold">{lastScanResult.employee_name}</span>
+                    {lastScanResult.status ? ` — ${lastScanResult.status}` : ''}
+                    {lastScanResult.time
+                      ? ` at ${new Date(lastScanResult.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`
+                      : ''}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-bold text-destructive">Scan Failed</p>
+                  <p className="text-xs text-destructive/80 mt-0.5">{lastScanResult.error}</p>
+                </>
+              )}
               </div>
             </div>
           )}
