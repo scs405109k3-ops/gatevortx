@@ -7,6 +7,8 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OfflineBanner from "./components/OfflineBanner";
 import ElectronUpdateBanner from "./components/ElectronUpdateBanner";
+import PWAInstallBanner from "./components/PWAInstallBanner";
+import InstallPage from "./pages/InstallPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import GuardDashboard from "./pages/guard/GuardDashboard";
@@ -69,6 +71,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/install" element={<InstallPage />} />
 
       {/* Guard Routes */}
       <Route path="/guard" element={<ProtectedRoute allowedRole="guard"><GuardDashboard /></ProtectedRoute>} />
@@ -126,6 +129,7 @@ const App = () => (
       <Sonner />
       <ElectronUpdateBanner />
       <OfflineBanner />
+      <PWAInstallBanner />
       <BrowserRouter>
         <AuthProvider>
           <AppRoutes />
