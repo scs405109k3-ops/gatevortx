@@ -109,6 +109,24 @@ const GuardDashboard: React.FC = () => {
           </p>
         </div>
 
+        {/* Quick Scan Hero Button */}
+        <button
+          onClick={() => setScannerOpen(true)}
+          className="w-full rounded-2xl p-5 flex items-center gap-4 active:scale-95 transition-all overflow-hidden relative text-primary-foreground"
+          style={{ background: 'linear-gradient(135deg, hsl(220,88%,42%) 0%, hsl(220,88%,58%) 100%)' }}
+        >
+          <div className="absolute right-0 top-0 h-full w-32 opacity-10 pointer-events-none">
+            <svg viewBox="0 0 100 100" fill="white"><circle cx="80" cy="20" r="60"/></svg>
+          </div>
+          <div className="bg-primary-foreground/20 rounded-2xl p-3 flex-shrink-0">
+            <ScanLine className="h-7 w-7" />
+          </div>
+          <div className="text-left">
+            <p className="text-base font-bold">Scan QR Code</p>
+            <p className="text-primary-foreground/70 text-xs mt-0.5">Tap to open camera & mark attendance</p>
+          </div>
+        </button>
+
         {/* Add Visitor Hero Card */}
         <div
           className="rounded-2xl p-5 text-white overflow-hidden relative"
