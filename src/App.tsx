@@ -7,6 +7,8 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OfflineBanner from "./components/OfflineBanner";
 import ElectronUpdateBanner from "./components/ElectronUpdateBanner";
+import PWAInstallBanner from "./components/PWAInstallBanner";
+import InstallPage from "./pages/InstallPage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
 import GuardDashboard from "./pages/guard/GuardDashboard";
