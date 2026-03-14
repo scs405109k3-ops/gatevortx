@@ -127,66 +127,53 @@ const GuardDashboard: React.FC = () => {
           </div>
         </button>
 
-        {/* Add Visitor Hero Card */}
-        <div
-          className="rounded-2xl p-5 text-white overflow-hidden relative"
-          style={{ background: 'linear-gradient(135deg, hsl(220,88%,42%) 0%, hsl(220,88%,58%) 100%)' }}
-        >
-          <div className="absolute right-0 top-0 h-full w-32 opacity-10">
-            <svg viewBox="0 0 100 100" fill="white">
-              <circle cx="80" cy="20" r="60"/>
-            </svg>
+        {/* Add Visitor Card */}
+        <div className="bg-card rounded-2xl p-4 border border-border flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <UserPlus className="h-6 w-6 text-primary" />
           </div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-white/20 rounded-full p-2">
-              <UserPlus className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold">Add New Visitor</h2>
-              <p className="text-primary-foreground/70 text-xs">Register a guest or delivery person</p>
-            </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-foreground">Add New Visitor</p>
+            <p className="text-xs text-muted-foreground">Register a guest or delivery</p>
           </div>
           <button
             onClick={() => navigate('/guard/add-visitor')}
-            className="w-full bg-white text-primary font-bold py-2.5 rounded-xl text-sm active:scale-95 transition-all"
+            className="bg-primary text-primary-foreground font-bold py-2 px-4 rounded-xl text-xs active:scale-95 transition-all"
           >
-            Register Now
+            Register
           </button>
         </div>
 
         {/* Quick Actions */}
         <div>
           <h2 className="text-base font-bold text-foreground mb-3">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <button
               onClick={() => navigate('/guard/attendance')}
               className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <UserCheck className="h-6 w-6 text-primary" />
+              <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center">
+                <UserCheck className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">Attendance</span>
+              <span className="text-xs font-semibold text-foreground">Attendance</span>
             </button>
             <button
               onClick={() => navigate('/guard/visitors')}
               className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <ClipboardList className="h-6 w-6 text-primary" />
+              <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center">
+                <ClipboardList className="h-5 w-5 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-foreground">Visitor Log</span>
+              <span className="text-xs font-semibold text-foreground">Visitor Log</span>
             </button>
             <button
               onClick={() => navigate('/mail/inbox')}
-              className="col-span-2 bg-card rounded-2xl p-4 border border-border flex items-center gap-3 active:scale-95 transition-all shadow-sm"
+              className="bg-card rounded-2xl p-4 border border-border flex flex-col items-center gap-2 active:scale-95 transition-all shadow-sm"
             >
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Mail className="h-6 w-6 text-primary" />
+              <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center">
+                <Mail className="h-5 w-5 text-primary" />
               </div>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-foreground">MailVortx</p>
-                <p className="text-xs text-muted-foreground">Open your company inbox</p>
-              </div>
+              <span className="text-xs font-semibold text-foreground">MailVortx</span>
             </button>
           </div>
         </div>
@@ -213,7 +200,7 @@ const GuardDashboard: React.FC = () => {
             <div className="bg-card rounded-2xl p-8 border border-border text-center">
               <Users className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">No visitors today</p>
-              <p className="text-xs text-muted-foreground mt-1">Tap "Register Now" to add a visitor</p>
+              <p className="text-xs text-muted-foreground mt-1">Tap "Register" to add a visitor</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -245,6 +232,10 @@ const GuardDashboard: React.FC = () => {
         </div>
       </div>
 
+      <QRScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+      />
       <BottomNav items={NAV_ITEMS} />
     </div>
   );
